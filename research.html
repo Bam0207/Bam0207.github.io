@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Research | Brooke Murphy</title>
+  <meta name="description" content="Graduate research by Brooke Murphy on the transferability of a remote sensing-informed machine learning model for reference evapotranspiration in California.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="index.html">Brooke Murphy</a>
+      <nav class="nav" aria-label="Main">
+        <a href="about.html">About</a>
+        <a href="research.html" aria-current="page">Research</a>
+        <a href="portfolio.html">GIS portfolio</a>
+        <a class="btn btn-primary" href="files/Brooke_Murphy_CV.pdf">CV</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="wrap">
+    <section class="page-head">
+      <span class="eyebrow">Research</span>
+      <h1>Can a satellite model stand in for weather stations?</h1>
+      <p class="lede">My master's thesis tests where a remote sensing-informed machine learning model for reference evapotranspiration (ETo) agrees with California's weather-station network, and what the difference means for agricultural water accounting.</p>
+      <div><span class="status">In progress · expected December 2026</span></div>
+    </section>
+
+    <section class="section">
+      <figure class="wide-figure">
+        <img data-zoom src="images/thesis-workflow.jpg" alt="Workflow diagram: CIMIS station data and MODIS satellite data feed two monthly ETo products, which are compared in four linked analyses">
+        <figcaption>Analytical workflow for the statewide ETo comparison.</figcaption>
+      </figure>
+    </section>
+
+    <section class="section two-col">
+      <div class="skill-group">
+        <h2>Approach</h2>
+        <ol class="steps">
+          <li>Built monthly statewide ETo surfaces from MODIS land surface temperature with a published random forest model.</li>
+          <li>Interpolated 107 CIMIS stations into matching surfaces with Empirical Bayesian Kriging.</li>
+          <li>Compared the two at stations and pixel by pixel, and tested which climate conditions explain where they differ.</li>
+          <li>Ran an almond net-irrigation scenario to show what the choice of ETo product means for statewide water budgets.</li>
+        </ol>
+      </div>
+      <div class="skill-group">
+        <h2>Details</h2>
+        <p class="muted">Thesis: Analyzing the Spatiotemporal Transferability of a Remote Sensing-Informed Machine Learning Model for ETo</p>
+        <p class="muted">Advisor: Dr. Yiwen Chiu · Funding: Agricultural Research Institute NextGen Fellowship</p>
+        <h3>Tools</h3>
+        <ul class="tags"><li>Google Earth Engine</li><li>R</li><li>ArcGIS Pro</li><li>MODIS</li><li>CIMIS</li><li>Random forest</li><li>Kriging</li></ul>
+        <p class="muted">Results will be shared here after publication.</p>
+      </div>
+    </section>
+
+    <section class="section project">
+      <div class="photo"><img src="images/cover-eto.svg" alt=""></div>
+      <div class="project-text">
+        <h3>Where it started: a Salinas Valley pilot</h3>
+        <p class="project-meta">Spring 2026 · StoryMap</p>
+        <p>Before scaling statewide, I tested the comparison in one watershed to shape the methods.</p>
+        <div class="links"><a class="btn" href="https://storymaps.arcgis.com/stories/7a6c8c4d5c5a45108e8350faed6211b3">View the pilot StoryMap</a></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>Brooke Murphy · San Luis Obispo, California</span>
+      <nav aria-label="Contact">
+        <a href="mailto:bmurph32@calpoly.edu">Email</a>
+        <a href="https://www.linkedin.com/in/YOUR-LINKEDIN">LinkedIn</a>
+        <a href="https://github.com/Bam0207">GitHub</a>
+      </nav>
+    </div>
+  </footer>
+  <script src="js/site.js" defer></script>
+</body>
+</html>

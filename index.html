@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Brooke Murphy | Environmental Scientist</title>
+  <meta name="description" content="Brooke Murphy, environmental scientist focused on hydrological modeling with GIS: water quantity, water quality and climate across California.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="index.html">Brooke Murphy</a>
+      <nav class="nav" aria-label="Main">
+        <a href="about.html">About</a>
+        <a href="research.html">Research</a>
+        <a href="portfolio.html">GIS portfolio</a>
+        <a class="btn btn-primary" href="files/Brooke_Murphy_CV.pdf">CV</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="wrap">
+    <section class="hero">
+      <div class="hero-text">
+        <span class="eyebrow">Environmental scientist</span>
+        <h1>Hydrological modeling with GIS.</h1>
+        <p class="lede">Water quantity, water quality and climate across California.</p>
+      </div>
+      <figure>
+        <div class="photo"><img src="images/bartleson.jpg" alt="Brooke and classmates mapping water utilities with an RTK GNSS receiver in a lemon orchard at Bartleson Ranch"></div>
+        <figcaption>RTK utility mapping, Bartleson Ranch, 2025</figcaption>
+      </figure>
+    </section>
+
+    <section class="section tiles" aria-label="Sections">
+      <a class="tile" href="about.html">
+        <div class="photo"><img src="images/headshot.jpg" alt="Portrait of Brooke Murphy" style="object-position: center 30%"></div>
+        <div class="tile-title"><h3>About</h3><span aria-hidden="true">&rarr;</span></div>
+        <p>Background and professional experience</p>
+      </a>
+      <a class="tile" href="research.html">
+        <div class="photo"><img src="images/cover-eto.svg" alt=""></div>
+        <div class="tile-title"><h3>Research</h3><span aria-hidden="true">&rarr;</span></div>
+        <p>Remote sensing and machine learning for evapotranspiration</p>
+      </a>
+      <a class="tile" href="portfolio.html">
+        <div class="photo"><img src="images/bartleson-utilities.jpg" alt="Map of Bartleson Ranch water utilities"></div>
+        <div class="tile-title"><h3>GIS portfolio</h3><span aria-hidden="true">&rarr;</span></div>
+        <p>Maps, models and field data</p>
+      </a>
+    </section>
+
+    <section class="section map-wrap" aria-labelledby="where">
+      <div class="section-head"><h2 id="where">Where I've worked</h2></div>
+      <div id="work-map" role="region" aria-label="Map of places Brooke has worked. Click a dot for details."></div>
+      <div class="legend"><span style="--dot:#185FA5">Water</span><span style="--dot:#B45309">Land and fire</span><span style="--dot:#1C1C1A">Research and teaching</span></div>
+    </section>
+
+    <section class="section" aria-labelledby="field">
+      <div class="section-head"><h2 id="field">In the field</h2></div>
+      <div class="field-grid">
+        <figure>
+          <div class="photo"><img data-zoom src="images/recharge-pond.jpg" alt="Brooke collecting a surface water sample at a recharge pond" style="object-position: center 35%"></div>
+          <figcaption>Surface water sampling, Valley Water recharge ponds</figcaption>
+        </figure>
+        <figure>
+          <div class="photo"><img data-zoom src="images/pfas-soil.jpg" alt="Brooke logging soil cores for PFAS analysis" style="object-position: center 30%"></div>
+          <figcaption>PFAS soil-core logging, Valley Water</figcaption>
+        </figure>
+        <figure>
+          <div class="photo"><img data-zoom src="images/anderson-dam.jpg" alt="Valley Water interns inside the Anderson Dam retrofit tunnel"></div>
+          <figcaption>Anderson Dam retrofit site visit, Valley Water</figcaption>
+        </figure>
+        <figure>
+          <div class="photo"><img data-zoom src="images/scc-burn.jpg" alt="Brooke at a prescribed burn in Santa Clara County Parks" style="object-position: 35% center"></div>
+          <figcaption>Prescribed burn, Santa Clara County Parks</figcaption>
+        </figure>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>Brooke Murphy · San Luis Obispo, California</span>
+      <nav aria-label="Contact">
+        <a href="mailto:bmurph32@calpoly.edu">Email</a>
+        <a href="https://www.linkedin.com/in/YOUR-LINKEDIN">LinkedIn</a>
+        <a href="https://github.com/Bam0207">GitHub</a>
+      </nav>
+    </div>
+  </footer>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="js/site.js" defer></script>
+</body>
+</html>

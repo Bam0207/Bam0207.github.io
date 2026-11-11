@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GIS portfolio | Brooke Murphy</title>
+  <meta name="description" content="GIS projects by Brooke Murphy: groundwater contours, reservoir and utility mapping, crop water demand, conservation mapping and GIS teaching.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="index.html">Brooke Murphy</a>
+      <nav class="nav" aria-label="Main">
+        <a href="about.html">About</a>
+        <a href="research.html">Research</a>
+        <a href="portfolio.html" aria-current="page">GIS portfolio</a>
+        <a class="btn btn-primary" href="files/Brooke_Murphy_CV.pdf">CV</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="wrap">
+    <section class="page-head">
+      <span class="eyebrow">GIS portfolio</span>
+      <h1>Maps, models and field data.</h1>
+      <div class="filters" role="group" aria-label="Filter projects">
+        <button type="button" data-filter="all" aria-pressed="true">All</button>
+        <button type="button" data-filter="water" aria-pressed="false">Water</button>
+        <button type="button" data-filter="field" aria-pressed="false">Field data</button>
+        <button type="button" data-filter="code" aria-pressed="false">Code and web</button>
+        <button type="button" data-filter="teaching" aria-pressed="false">Teaching</button>
+        <span class="filter-status" aria-live="polite"></span>
+      </div>
+    </section>
+
+    <article class="project" id="groundwater-contours" data-topics="water code">
+      <div class="photo"><img src="images/cover-contours.svg" alt=""></div>
+      <div class="project-text">
+        <h2>Groundwater elevation contours</h2>
+        <p class="project-meta">Valley Water · 2026</p>
+        <p>A repeatable workflow I prototyped and pitched to my team: 25 years of well records interpolated in R into 5-year contour surfaces, shown in a time-enabled web map.</p>
+        <ul class="tags"><li>R</li><li>Thin plate spline</li><li>ArcGIS Online</li><li>StoryMaps</li></ul>
+        <div class="links"><a class="btn" href="https://storymaps.arcgis.com/stories/bd639b0eff294aa6a6737c07f4b4def7">View StoryMap</a></div>
+      </div>
+    </article>
+
+    <article class="project" id="bartleson-ranch" data-topics="water field">
+      <figure class="compare">
+        <div class="toggle" role="group" aria-label="Compare maps">
+          <button type="button" aria-pressed="false" data-src="images/bartleson-historic-map.jpg" data-alt="Original hand-drawn utility map of Bartleson Ranch, about 30 years old" data-caption="Before: the original paper utility map">Before</button>
+          <button type="button" aria-pressed="true" data-src="images/bartleson-utilities.jpg" data-alt="Map of Bartleson Ranch crop blocks, water lines and above-ground utility features" data-caption="After: the updated water utility map">After</button>
+        </div>
+        <div class="photo contain" style="height: 380px; border: 1px solid var(--line)"><img data-zoom src="images/bartleson-utilities.jpg" alt="Map of Bartleson Ranch crop blocks, water lines and above-ground utility features"></div>
+        <figcaption>After: the updated water utility map</figcaption>
+      </figure>
+      <div class="project-text">
+        <h2>Bartleson Ranch reservoirs and water utilities</h2>
+        <p class="project-meta">Cal Poly Applied GIS, client project · 2025</p>
+        <p>Surveyed reservoir depth and utility valves with an RTK GNSS receiver, georeferenced a 30-year-old paper utility map, and calculated reservoir storage capacity. I did all the georeferencing and made the results maps.</p>
+        <ul class="tags"><li>ArcGIS Pro</li><li>Field Maps</li><li>RTK GNSS</li><li>Georeferencing</li><li>Raster analysis</li></ul>
+      </div>
+      <div class="strip" style="grid-column: 1 / -1">
+        <figure><div class="photo contain"><img data-zoom src="images/bartleson-small-reservoir.jpg" alt="Depth zones of the small reservoir at Bartleson Ranch"></div><figcaption>Small reservoir depth zones</figcaption></figure>
+        <figure><div class="photo contain"><img data-zoom src="images/bartleson-large-reservoir.jpg" alt="Depth zones of the large reservoir at Bartleson Ranch"></div><figcaption>Large reservoir depth zones</figcaption></figure>
+        <figure><div class="photo"><img data-zoom src="images/bartleson.jpg" alt="Field crew mapping a valve with an RTK GNSS receiver"></div><figcaption>In the field</figcaption></figure>
+      </div>
+    </article>
+
+    <article class="project" id="irrigation-calculator" data-topics="water code">
+      <div class="photo"><img src="images/cover-calculator.svg" alt=""></div>
+      <div class="project-text">
+        <h2>California Irrigation Calculator</h2>
+        <p class="project-meta">With Nico Julia · Cal Poly · 2026</p>
+        <p>A web tool for estimating crop water demand: draw a field, pick a crop and month, and compare climate scenarios and blue versus green water.</p>
+        <ul class="tags"><li>Web mapping</li><li>CIMIS</li><li>FAO-56</li><li>StoryMaps</li></ul>
+        <div class="links"><a class="btn" href="https://californiairrigation.netlify.app/">Open the calculator</a><a class="btn" href="https://storymaps.arcgis.com/stories/2d382a62be0e4b5da71715e44c8a89bd">View StoryMap</a></div>
+      </div>
+    </article>
+
+    <article class="project" id="milkweed" data-topics="field">
+      <div class="photo"><img data-zoom src="images/milkweed-sites.jpg" alt="Map of California milkweed sites assessed in Santa Clara County parks"></div>
+      <div class="project-text">
+        <h2>California milkweed conservation analysis</h2>
+        <p class="project-meta">Santa Clara County Parks · 2022</p>
+        <p>Located and assessed seven milkweed populations that support the Western monarch, then recommended site-specific protection and a fencing plan with cost comparison.</p>
+        <ul class="tags"><li>Field Maps</li><li>ArcGIS Online</li><li>iNaturalist</li><li>Site assessment</li></ul>
+      </div>
+    </article>
+
+    <article class="project" id="course-site" data-topics="teaching code">
+      <div class="photo"><img src="images/cover-course.svg" alt=""></div>
+      <div class="project-text">
+        <h2>Intro GIS course site</h2>
+        <p class="project-meta">Cal Poly · 2026 – present</p>
+        <p>Revising and expanding an open-source curriculum site for introductory GIS, with every lesson taught in both QGIS and ArcGIS Pro.</p>
+        <ul class="tags"><li>MkDocs</li><li>GitHub Pages</li><li>QGIS</li><li>ArcGIS Pro</li></ul>
+        <div class="links"><a class="btn" href="https://kashingtondc.github.io/CPGIS/">Visit the course site</a></div>
+      </div>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>Brooke Murphy · San Luis Obispo, California</span>
+      <nav aria-label="Contact">
+        <a href="mailto:bmurph32@calpoly.edu">Email</a>
+        <a href="https://www.linkedin.com/in/YOUR-LINKEDIN">LinkedIn</a>
+        <a href="https://github.com/Bam0207">GitHub</a>
+      </nav>
+    </div>
+  </footer>
+  <script src="js/site.js" defer></script>
+</body>
+</html>
