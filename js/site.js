@@ -80,18 +80,19 @@
     { name: 'Santa Clara County Parks', note: 'Milkweed conservation and prescribed burns · 2022', lat: 37.34, lng: -121.70, kind: 'land', link: 'portfolio.html#milkweed', img: 'images/scc-burn.jpg' },
     { name: 'Cascade-Siskiyou National Monument', note: 'Biological monitoring · 2020', lat: 42.08, lng: -122.47, kind: 'land' }
   ];
-  const colors = { water: '#0F766E', research: '#1C1C1A', land: '#B45309' };
+  const colors = { water: '#4FB3C8', research: '#FFFFFF', land: '#F2A23A' };
   const map = L.map(el, { scrollWheelZoom: false }).setView([37.0, -120.6], 6);
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
-    maxZoom: 16,
-    attribution: 'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, &copy; OpenStreetMap contributors'
+  // Esri Hybrid: World Imagery with boundaries and place labels on top
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 18,
+    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community'
   }).addTo(map);
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
-    maxZoom: 16
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 18
   }).addTo(map);
   const bounds = [];
   places.forEach((p) => {
-    const m = L.circleMarker([p.lat, p.lng], { radius: 9, color: '#FFFFFF', weight: 2, fillColor: colors[p.kind], fillOpacity: 1 }).addTo(map);
+    const m = L.circleMarker([p.lat, p.lng], { radius: 9, color: '#0B1E24', weight: 2, fillColor: colors[p.kind], fillOpacity: 1 }).addTo(map);
     let html = '';
     if (p.img) html += '<img src="' + p.img + '" alt="" class="popup-img">';
     html += '<strong>' + p.name + '</strong><br><span>' + p.note + '</span>';
@@ -152,7 +153,7 @@
 //    and pours into the waves at the bottom of the page.
 (function () {
   const main = document.querySelector('main');
-  const foot = document.querySelector('.pond');
+  const foot = document.querySelector('.pond-space');
   if (!main || !foot) return;
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const cv = document.createElement('canvas');
@@ -178,7 +179,7 @@
     cv.style.width = W + 'px'; cv.style.height = window.innerHeight + 'px';
     const top = 0; // start at the very top of the page
     const fr = foot.getBoundingClientRect();
-    const endY = fr.top + window.scrollY + 40; // slips under the trees at the pond's edge
+    const endY = window.__pondInlet ? window.__pondInlet + 36 : fr.top + window.scrollY - 40; // runs into the pond's inlet
     crestY = fr.top + window.scrollY - 400000; // no splash: the trees hide the inlet
     const bushEl = foot.querySelector('.creek-bush');
     if (bushEl) bushEl.style.left = (mr.left - 44 - fr.left - 55) + 'px';
@@ -327,23 +328,26 @@
   layout();
   window.addEventListener('resize', layout);
   window.addEventListener('load', layout);
+  window.addEventListener('pond:ready', layout);
   if (reduce) window.addEventListener('scroll', () => requestAnimationFrame(frame), { passive: true });
   requestAnimationFrame(frame);
 })();
 
 
-// 8. Faint topographic contours in the background, shaped like a watershed
-//    whose valley follows the creek.
+// 8. The watershed: faint topographic contours, and a pond at the bottom of the page
+//    carved out of the same elevation surface, fed by the creek, with fish.
 (function () {
   const main = document.querySelector('main');
+  const space = document.querySelector('.pond-space');
   if (!main) return;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const cv = document.createElement('canvas');
   cv.className = 'topo';
   cv.setAttribute('aria-hidden', 'true');
   document.body.prepend(cv);
   const ctx = cv.getContext('2d');
-  const G = 16, BAND = 240; // grid cell size, bucket height
-  let buckets = new Map(), dpr = 1;
+  const G = 16, BAND = 240;
+  let buckets = new Map(), dpr = 1, pond = null, time = 0, last = performance.now(), dirty = true;
 
   // Smooth value noise
   const perm = []; let seed = 20261111;
@@ -356,45 +360,121 @@
     const a = lat(i, j), b = lat(i + 1, j), c = lat(i, j + 1), d = lat(i + 1, j + 1);
     return a + (b - a) * fx + (c - a) * fy + (a - b - c + d) * fx * fy;
   }
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+  // Marching squares over a grid; calls out(x1,y1,x2,y2,level) for each segment
+  function contour(fn, x0, y0, cols, rows, g, levels, out) {
+    const z = new Float32Array(cols * rows);
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) z[r * cols + c] = fn(x0 + c * g, y0 + r * g);
+    for (let r = 0; r < rows - 1; r++) for (let c = 0; c < cols - 1; c++) {
+      const a = z[r * cols + c], b = z[r * cols + c + 1], d = z[(r + 1) * cols + c], e = z[(r + 1) * cols + c + 1];
+      const lo = Math.min(a, b, d, e), hi = Math.max(a, b, d, e);
+      for (const L of levels(lo, hi)) {
+        const X = x0 + c * g, Y = y0 + r * g, p = [];
+        const ed = (v1, v2, X1, Y1, X2, Y2) => { if ((v1 < L) !== (v2 < L)) { const t = (L - v1) / (v2 - v1); p.push(X1 + (X2 - X1) * t, Y1 + (Y2 - Y1) * t); } };
+        ed(a, b, X, Y, X + g, Y); ed(b, e, X + g, Y, X + g, Y + g); ed(e, d, X + g, Y + g, X, Y + g); ed(d, a, X, Y + g, X, Y);
+        if (p.length >= 4) out(p[0], p[1], p[2], p[3], L);
+        if (p.length === 8) out(p[4], p[5], p[6], p[7], L);
+      }
+    }
+  }
+
+  // Images for the fish, lily pads and frog
+  const img = (svg) => { const i = new Image(); i.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg); return i; };
+  const koiSvg = (body, spots) => img('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 24"><path d="M10 12 L0 3 L2 12 L0 21 Z" fill="' + body + '"/><ellipse cx="30" cy="12" rx="20" ry="7.5" fill="' + body + '"/>' + spots + '<path d="M30 5 L36 1 L38 6 Z M30 19 L36 23 L38 18 Z" fill="' + body + '" opacity="0.8"/><circle cx="45" cy="9.5" r="1.4" fill="#1E2A22"/><circle cx="45" cy="14.5" r="1.4" fill="#1E2A22"/></svg>');
+  const KOI = [
+    koiSvg('#E8833A', '<ellipse cx="26" cy="10" rx="6" ry="3.5" fill="#FFF4E6"/><ellipse cx="38" cy="13" rx="4" ry="2.5" fill="#FFF4E6"/>'),
+    koiSvg('#FFF4E6', '<ellipse cx="24" cy="12" rx="7" ry="4" fill="#E8833A"/><ellipse cx="40" cy="10" rx="3.5" ry="2.2" fill="#D9452B"/>'),
+    koiSvg('#F2A53A', ''),
+  ];
+  const MINNOW = img('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 12"><path d="M4 6 L0 2 L1 6 L0 10 Z" fill="#9FC3CA"/><ellipse cx="16" cy="6" rx="11" ry="3.6" fill="#B5D3D8"/></svg>');
+  const PAD = img('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50 50 L97 42 A47 47 0 1 1 93 30 Z" fill="#6FA866"/><path d="M50 50 L20 22 M50 50 L10 58 M50 50 L40 92 M50 50 L78 84" stroke="#8DC283" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>');
+  const FROG = img('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"><path d="M22 54 q-16 4 -18 18 M58 54 q16 4 18 18" stroke="#4F8A43" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M26 30 q-12 -6 -14 -16 M54 30 q12 -6 14 -16" stroke="#4F8A43" stroke-width="5" fill="none" stroke-linecap="round"/><ellipse cx="40" cy="44" rx="17" ry="22" fill="#5E9E4E"/><ellipse cx="40" cy="48" rx="9" ry="12" fill="#7DB766" opacity="0.7"/><circle cx="31" cy="26" r="6" fill="#5E9E4E"/><circle cx="49" cy="26" r="6" fill="#5E9E4E"/><circle cx="31" cy="25" r="3" fill="#1E2A22"/><circle cx="49" cy="25" r="3" fill="#1E2A22"/><circle cx="30" cy="24" r="1" fill="#fff"/><circle cx="48" cy="24" r="1" fill="#fff"/></svg>');
+  [...KOI, MINNOW, PAD, FROG].forEach((i) => i.addEventListener('load', () => { dirty = true; }));
 
   function build() {
     dpr = Math.min(2, window.devicePixelRatio || 1);
     cv.width = window.innerWidth * dpr; cv.height = window.innerHeight * dpr;
     cv.style.width = window.innerWidth + 'px'; cv.style.height = window.innerHeight + 'px';
     const Wp = document.documentElement.clientWidth, Hp = document.documentElement.scrollHeight;
-    const vx = Math.max(40, main.getBoundingClientRect().left - 44); // valley follows the creek
+    const vx = Math.max(40, main.getBoundingClientRect().left - 44 + window.scrollX); // the creek's valley
+
+    // --- The pond: an ellipse-ish basin plus an inlet channel up the creek's valley
+    pond = null;
+    let pondField = () => 99;
+    if (space) {
+      const sr = space.getBoundingClientRect(), ps = sr.top + window.scrollY, ph = sr.height;
+      const sx = Math.min(0.28 * Wp, 440), sy = ph * 0.4;
+      const cx = Math.max(vx + sx * 0.72, Math.min(Wp * 0.5, vx + sx * 1.1)), cy = ps + ph * 0.56;
+      const armTop = ps - 30;
+      const ell = (x, y) => ((x - cx) / sx) ** 2 + ((y - cy) / sy) ** 2 + (noise(x / 150, y / 150) - 0.5) * 0.7 + (noise(x / 60 + 9, y / 60) - 0.5) * 0.12;
+      const arm = (x, y) => {
+        if (y < armTop) return 99;
+        const past = y > cy ? ((y - cy) / 30) ** 2 : 0; // fade out inside the pond instead of a hard edge
+        const s = clamp((y - armTop) / (cy - armTop), 0, 1);
+        const hw = 13 + 70 * s * s * s;               // narrow channel that flares into the pond
+        const bend = Math.sin(s * 3.1) * 10;          // a little meander
+        return ((x - vx - bend - s * s * (cx - vx) * 0.35) / hw) ** 2 + 0.7 * (1 - s) + past + (s < 0.05 ? (0.05 - s) * 40 : 0); // shallow at the mouth
+      };
+      const k = 0.25;
+      pondField = (x, y) => { const a = ell(x, y), b = arm(x, y); return -k * Math.log(Math.exp(-a / k) + Math.exp(-b / k)); };
+      const bx0 = Math.max(0, Math.min(vx - 60, cx - sx * 1.25)), bx1 = Math.min(Wp, cx + sx * 1.25);
+      const by0 = armTop - 10, by1 = cy + sy * 1.45;
+      // Paint the water into an offscreen image once
+      const w = Math.ceil(bx1 - bx0), h = Math.ceil(by1 - by0);
+      const off = document.createElement('canvas'); off.width = w; off.height = h;
+      const octx = off.getContext('2d'), im = octx.createImageData(w, h);
+      const band = [[0.22, [46, 116, 132]], [0.42, [61, 134, 149]], [0.66, [78, 149, 162]], [0.88, [111, 170, 180]], [1.0, [151, 196, 201]]];
+      for (let yy = 0; yy < h; yy++) for (let xx = 0; xx < w; xx++) {
+        const g = pondField(bx0 + xx, by0 + yy);
+        if (g >= 1.04) continue;
+        let col = band[band.length - 1][1];
+        for (const [lv, c] of band) if (g < lv) { col = c; break; }
+        const o = (yy * w + xx) * 4;
+        im.data[o] = col[0]; im.data[o + 1] = col[1]; im.data[o + 2] = col[2];
+        im.data[o + 3] = Math.round(255 * clamp((1.04 - g) / 0.05, 0, 1));
+      }
+      octx.putImageData(im, 0, 0);
+      // Depth contours (bathymetry) on the water
+      const depth = [];
+      contour(pondField, bx0, by0, Math.ceil(w / 6) + 1, Math.ceil(h / 6) + 1, 6,
+        (lo, hi) => [0.22, 0.42, 0.66, 0.88].filter((L) => L >= lo && L <= hi), (a, b, c, d) => depth.push(a, b, c, d));
+      // Places inside the pond for pads and swimming loops
+      const inside = (x, y, lim) => pondField(x, y) < lim;
+      const pads = [];
+      [[-0.55, -0.35], [0.35, -0.45], [0.62, 0.28], [-0.2, 0.42], [0.05, -0.05]].forEach(([u, v], i) => {
+        const x = cx + u * sx, y = cy + v * sy;
+        if (inside(x, y, 0.7)) pads.push({ x, y, s: [54, 44, 60, 40, 50][i], r: i * 1.3, frog: i === 2 });
+      });
+      const fish = [
+        { img: 0, rx: 0.55, ry: 0.5, sp: 0.16, ph: 0 },
+        { img: 1, rx: 0.68, ry: 0.42, sp: -0.12, ph: 2 },
+        { img: 2, rx: 0.35, ry: 0.3, sp: 0.22, ph: 4 },
+        { img: 0, rx: 0.78, ry: 0.55, sp: -0.09, ph: 1 },
+      ];
+      pond = { off, bx0, by0, w, h, depth, pads, fish, cx, cy, sx, sy, top: armTop, bottom: by1 };
+      window.__pondInlet = armTop;
+    }
+
+    // --- Land contours, bent around the pond so the shoreline follows them
     const elev = (x, y) => {
       const dx = x - vx;
-      return -y * 0.05 + 0.085 * Math.sqrt(dx * dx + 900) + noise(x / 340, y / 340) * 18 + noise(x / 130 + 50, y / 130) * 5;
+      let e = -y * 0.05 + 0.085 * Math.sqrt(dx * dx + 900) + noise(x / 340, y / 340) * 18 + noise(x / 130 + 50, y / 130) * 5;
+      if (pond) { const g = pondField(x, y); e += 26 * Math.sqrt(Math.min(g, 6)) - 26 * Math.sqrt(6); }
+      return e;
     };
-    const cols = Math.ceil(Wp / G) + 1, rows = Math.ceil(Hp / G) + 1;
-    const z = new Float32Array(cols * rows);
-    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) z[r * cols + c] = elev(c * G, r * G);
     const STEP = 4.5;
     buckets = new Map();
-    const add = (x1, y1, x2, y2, major) => {
-      const k = Math.floor(Math.min(y1, y2) / BAND);
-      if (!buckets.has(k)) buckets.set(k, []);
-      buckets.get(k).push(x1, y1, x2, y2, major);
-    };
-    for (let r = 0; r < rows - 1; r++) {
-      for (let c = 0; c < cols - 1; c++) {
-        const a = z[r * cols + c], b = z[r * cols + c + 1], d = z[(r + 1) * cols + c], e = z[(r + 1) * cols + c + 1];
-        const lo = Math.min(a, b, d, e), hi = Math.max(a, b, d, e);
-        for (let L = Math.ceil(lo / STEP) * STEP; L <= hi; L += STEP) {
-          const x0 = c * G, y0 = r * G, p = [];
-          const edge = (v1, v2, X1, Y1, X2, Y2) => { if ((v1 < L) !== (v2 < L)) { const t = (L - v1) / (v2 - v1); p.push(X1 + (X2 - X1) * t, Y1 + (Y2 - Y1) * t); } };
-          edge(a, b, x0, y0, x0 + G, y0);
-          edge(b, e, x0 + G, y0, x0 + G, y0 + G);
-          edge(e, d, x0 + G, y0 + G, x0, y0 + G);
-          edge(d, a, x0, y0 + G, x0, y0);
-          const major = Math.round(L / STEP) % 5 === 0 ? 1 : 0;
-          if (p.length >= 4) add(p[0], p[1], p[2], p[3], major);
-          if (p.length === 8) add(p[4], p[5], p[6], p[7], major);
-        }
-      }
-    }
-    draw();
+    contour(elev, 0, 0, Math.ceil(Wp / G) + 1, Math.ceil(Hp / G) + 1, G,
+      (lo, hi) => { const out = []; for (let L = Math.ceil(lo / STEP) * STEP; L <= hi; L += STEP) out.push(L); return out; },
+      (x1, y1, x2, y2, L) => {
+        if (pond && pondField((x1 + x2) / 2, (y1 + y2) / 2) < 1.08) return; // no land contours on the water
+        const k = Math.floor(Math.min(y1, y2) / BAND);
+        if (!buckets.has(k)) buckets.set(k, []);
+        buckets.get(k).push(x1, y1, x2, y2, Math.round(L / STEP) % 5 === 0 ? 1 : 0);
+      });
+    dirty = true;
+    window.dispatchEvent(new Event('pond:ready'));
   }
 
   function draw() {
@@ -414,11 +494,50 @@
       ctx.lineWidth = major ? 1.3 : 1;
       ctx.stroke();
     }
+    if (!pond || pond.bottom < sy || pond.top - 40 > sy + vh) return false;
+    const P = pond;
+    ctx.drawImage(P.off, P.bx0, P.by0);
+    ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 1;
+    ctx.beginPath(); for (let i = 0; i < P.depth.length; i += 4) { ctx.moveTo(P.depth[i], P.depth[i + 1]); ctx.lineTo(P.depth[i + 2], P.depth[i + 3]); } ctx.stroke();
+    // Fish swim slow loops under the lily pads
+    P.fish.forEach((f, n) => {
+      const th = f.ph + time * f.sp;
+      const x = P.cx + Math.cos(th) * P.sx * f.rx + Math.sin(th * 2.3) * 12;
+      const y = P.cy + Math.sin(th) * P.sy * f.ry + Math.cos(th * 1.7) * 6;
+      const dx = -Math.sin(th) * f.rx * P.sx * f.sp, dy = Math.cos(th) * f.ry * P.sy * f.sp;
+      const ang = Math.atan2(dy, dx) + Math.sin(time * 9 + n) * 0.08;
+      const im = KOI[f.img];
+      if (!im.complete) return;
+      ctx.save(); ctx.translate(x, y); ctx.rotate(ang); ctx.drawImage(im, -26, -10, 52, 21); ctx.restore();
+    });
+    // A little school of minnows
+    if (MINNOW.complete) {
+      const th = 1 + time * 0.2;
+      for (let m = 0; m < 6; m++) {
+        const t2 = th - m * 0.05;
+        const x = P.cx + Math.cos(t2) * P.sx * 0.45 + (m % 2) * 8, y = P.cy + Math.sin(t2) * P.sy * 0.62 + (m % 3) * 6;
+        ctx.save(); ctx.translate(x, y); ctx.rotate(t2 + Math.PI / 2 + Math.sin(time * 10 + m) * 0.1); ctx.drawImage(MINNOW, -9, -3.5, 18, 7); ctx.restore();
+      }
+    }
+    P.pads.forEach((p) => {
+      if (!PAD.complete) return;
+      const bob = Math.sin(time * 0.8 + p.r) * 0.06;
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r + bob); ctx.drawImage(PAD, -p.s / 2, -p.s / 2, p.s, p.s); ctx.restore();
+      if (p.frog && FROG.complete) { ctx.save(); ctx.translate(p.x, p.y - 2 - Math.max(0, Math.sin(time * 0.7)) ** 30 * 10); ctx.rotate(-0.3 + bob); ctx.drawImage(FROG, -22, -22, 44, 44); ctx.restore(); }
+    });
+    return true;
   }
 
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now; time += reduce ? 0 : dt;
+    const animating = draw.lastVisible && !reduce;
+    if (dirty || animating) { draw.lastVisible = draw(); dirty = false; }
+    requestAnimationFrame(frame);
+  }
   let t = null;
-  window.addEventListener('scroll', () => requestAnimationFrame(draw), { passive: true });
+  window.addEventListener('scroll', () => { dirty = true; }, { passive: true });
   window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(build, 150); });
   window.addEventListener('load', build);
   build();
+  requestAnimationFrame(frame);
 })();
