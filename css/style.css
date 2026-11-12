@@ -254,3 +254,34 @@ main { position: relative; }
 @media (prefers-reduced-motion: reduce) { .stream-shimmer, .stream-front, .stream-arrived .stream-ripples ellipse { animation: none; } }
 .stream-shimmer { stroke-dasharray: 2 9 7 15 3 12; stroke-width: 2.5; opacity: 0.85; animation-duration: 1.6s; }
 @keyframes current { to { stroke-dashoffset: -48; } }
+
+/* ---------- v5: blue water stream, waves at the bottom, keyword ribbon ---------- */
+.stream-bank { stroke: #E3EEF4; stroke-width: 22; }
+.stream-bed { stroke: #D2E4EE; stroke-width: 14; }
+.stream-flow { stroke: url(#water-grad); stroke-width: 13; }
+.stream-shimmer { stroke: rgba(255, 255, 255, 0.75); }
+.stream-front { fill: #3E93D3; }
+.stream-ripples ellipse { stroke: #3E93D3; }
+.stream-drop.wet { fill: #3E93D3; stroke: #3E93D3; }
+
+.footer-waves { position: relative; height: 120px; margin-top: 40px; overflow: hidden; }
+.footer-waves svg { position: absolute; left: 0; bottom: -1px; width: 200%; height: 100%; }
+.footer-waves .w1 { animation: drift 24s linear infinite; }
+.footer-waves .w2 { animation: drift 16s linear infinite reverse; opacity: 0.8; }
+.footer-waves .w3 { animation: drift 32s linear infinite; }
+.site-footer { background: #DCEFF6; }
+.footer-waves path, .site-footer { transition: fill 0.8s ease, background-color 0.8s ease; }
+.stream-arrived .footer-waves .w3 { fill: #C8E6F2; }
+.stream-arrived .site-footer { background: #C8E6F2; }
+
+.ribbon { overflow: hidden; margin: 0 -28px 72px; padding: 18px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.ribbon-track { white-space: nowrap; font-family: "Instrument Serif", Georgia, serif; font-style: italic; font-size: clamp(30px, 4vw, 48px); color: var(--accent); will-change: transform; }
+.ribbon-track span { color: #8CCBE6; margin: 0 0.3em; }
+
+.parallax { will-change: transform; }
+@media (prefers-reduced-motion: reduce) { .footer-waves svg path { animation: none !important; } }
+
+/* ---------- The creek (canvas) ---------- */
+.creek { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 3; display: none; }
+.footer-waves { z-index: 4; }
+.site-footer { position: relative; z-index: 4; }
