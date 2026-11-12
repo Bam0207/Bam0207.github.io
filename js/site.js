@@ -152,7 +152,7 @@
 //    and pours into the waves at the bottom of the page.
 (function () {
   const main = document.querySelector('main');
-  const foot = document.querySelector('.footer-waves');
+  const foot = document.querySelector('.pond');
   if (!main || !foot) return;
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const cv = document.createElement('canvas');
@@ -176,10 +176,10 @@
     cv.style.left = (mr.left - 44 - W / 2) + 'px';
     cv.width = W * dpr; cv.height = window.innerHeight * dpr;
     cv.style.width = W + 'px'; cv.style.height = window.innerHeight + 'px';
-    const top = mr.top + window.scrollY;
+    const top = 0; // start at the very top of the page
     const fr = foot.getBoundingClientRect();
-    const endY = fr.top + window.scrollY + fr.height * 0.9; // runs down behind the waves
-    crestY = fr.top + window.scrollY + fr.height * 0.42;
+    const endY = fr.top + window.scrollY + 150; // runs under the pond surface
+    crestY = fr.top + window.scrollY + 58;
     // Build a gently meandering centerline, sampled every ~4px
     pts = [[W / 2, top]];
     let y = top, side = 1;
@@ -327,4 +327,96 @@
   window.addEventListener('load', layout);
   if (reduce) window.addEventListener('scroll', () => requestAnimationFrame(frame), { passive: true });
   requestAnimationFrame(frame);
+})();
+
+
+// 8. Faint topographic contours in the background, shaped like a watershed
+//    whose valley follows the creek.
+(function () {
+  const main = document.querySelector('main');
+  if (!main) return;
+  const cv = document.createElement('canvas');
+  cv.className = 'topo';
+  cv.setAttribute('aria-hidden', 'true');
+  document.body.prepend(cv);
+  const ctx = cv.getContext('2d');
+  const G = 16, BAND = 240; // grid cell size, bucket height
+  let buckets = new Map(), dpr = 1;
+
+  // Smooth value noise
+  const perm = []; let seed = 20261111;
+  const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+  for (let i = 0; i < 512; i++) perm.push(rnd());
+  const lat = (i, j) => perm[((i * 73856093) ^ (j * 19349663)) & 511];
+  const sm = (t) => t * t * (3 - 2 * t);
+  function noise(x, y) {
+    const i = Math.floor(x), j = Math.floor(y), fx = sm(x - i), fy = sm(y - j);
+    const a = lat(i, j), b = lat(i + 1, j), c = lat(i, j + 1), d = lat(i + 1, j + 1);
+    return a + (b - a) * fx + (c - a) * fy + (a - b - c + d) * fx * fy;
+  }
+
+  function build() {
+    dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.width = window.innerWidth * dpr; cv.height = window.innerHeight * dpr;
+    cv.style.width = window.innerWidth + 'px'; cv.style.height = window.innerHeight + 'px';
+    const Wp = document.documentElement.clientWidth, Hp = document.documentElement.scrollHeight;
+    const vx = Math.max(40, main.getBoundingClientRect().left - 44); // valley follows the creek
+    const elev = (x, y) => {
+      const dx = x - vx;
+      return -y * 0.05 + 0.085 * Math.sqrt(dx * dx + 900) + noise(x / 340, y / 340) * 18 + noise(x / 130 + 50, y / 130) * 5;
+    };
+    const cols = Math.ceil(Wp / G) + 1, rows = Math.ceil(Hp / G) + 1;
+    const z = new Float32Array(cols * rows);
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) z[r * cols + c] = elev(c * G, r * G);
+    const STEP = 4.5;
+    buckets = new Map();
+    const add = (x1, y1, x2, y2, major) => {
+      const k = Math.floor(Math.min(y1, y2) / BAND);
+      if (!buckets.has(k)) buckets.set(k, []);
+      buckets.get(k).push(x1, y1, x2, y2, major);
+    };
+    for (let r = 0; r < rows - 1; r++) {
+      for (let c = 0; c < cols - 1; c++) {
+        const a = z[r * cols + c], b = z[r * cols + c + 1], d = z[(r + 1) * cols + c], e = z[(r + 1) * cols + c + 1];
+        const lo = Math.min(a, b, d, e), hi = Math.max(a, b, d, e);
+        for (let L = Math.ceil(lo / STEP) * STEP; L <= hi; L += STEP) {
+          const x0 = c * G, y0 = r * G, p = [];
+          const edge = (v1, v2, X1, Y1, X2, Y2) => { if ((v1 < L) !== (v2 < L)) { const t = (L - v1) / (v2 - v1); p.push(X1 + (X2 - X1) * t, Y1 + (Y2 - Y1) * t); } };
+          edge(a, b, x0, y0, x0 + G, y0);
+          edge(b, e, x0 + G, y0, x0 + G, y0 + G);
+          edge(e, d, x0 + G, y0 + G, x0, y0 + G);
+          edge(d, a, x0, y0 + G, x0, y0);
+          const major = Math.round(L / STEP) % 5 === 0 ? 1 : 0;
+          if (p.length >= 4) add(p[0], p[1], p[2], p[3], major);
+          if (p.length === 8) add(p[4], p[5], p[6], p[7], major);
+        }
+      }
+    }
+    draw();
+  }
+
+  function draw() {
+    const sy = window.scrollY, vh = window.innerHeight;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    ctx.setTransform(dpr, 0, 0, dpr, -window.scrollX * dpr, -sy * dpr);
+    ctx.lineCap = 'round';
+    const k0 = Math.floor((sy - G) / BAND) - 1, k1 = Math.floor((sy + vh) / BAND);
+    for (const major of [0, 1]) {
+      ctx.beginPath();
+      for (let k = k0; k <= k1; k++) {
+        const seg = buckets.get(k); if (!seg) continue;
+        for (let i = 0; i < seg.length; i += 5) if (seg[i + 4] === major) { ctx.moveTo(seg[i], seg[i + 1]); ctx.lineTo(seg[i + 2], seg[i + 3]); }
+      }
+      ctx.strokeStyle = major ? '#D2E0DB' : '#E2ECE8';
+      ctx.lineWidth = major ? 1.3 : 1;
+      ctx.stroke();
+    }
+  }
+
+  let t = null;
+  window.addEventListener('scroll', () => requestAnimationFrame(draw), { passive: true });
+  window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(build, 150); });
+  window.addEventListener('load', build);
+  build();
 })();
