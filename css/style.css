@@ -469,3 +469,16 @@ h1.hello { font-size: clamp(44px, 5.4vw, 82px); }
 .tile { align-content: stretch; grid-template-rows: minmax(0, 1fr); grid-template-columns: minmax(0, 1fr); }
 .tile-title { align-self: center; justify-self: center; }
 .tile .photo::after { background: linear-gradient(180deg, rgba(20, 55, 64, 0.32), rgba(20, 55, 64, 0.5) 55%, rgba(20, 55, 64, 0.78)); }
+
+/* ---------- v12: matching hero buttons, anchored portrait ---------- */
+.btn-hero { display: inline-flex; align-items: center; gap: 0; padding: 12px 22px; border-radius: 999px; background: var(--accent); color: #FFFFFF; text-decoration: none; font-weight: 500; font-size: 16px; transition: background 0.25s ease, gap 0.25s ease, padding 0.25s ease, transform 0.25s ease; }
+.btn-hero span { display: inline-block; width: 0; opacity: 0; overflow: hidden; transform: translateX(-6px); transition: width 0.25s ease, opacity 0.25s ease, transform 0.25s ease; }
+.btn-hero:hover, .btn-hero:focus-visible { background: #1F4E58; color: #FFFFFF; gap: 8px; transform: translateY(-1px); }
+.btn-hero:hover span, .btn-hero:focus-visible span { width: 1em; opacity: 1; transform: none; }
+.btn-hero:focus-visible { outline: 3px solid #8FC3CB; outline-offset: 2px; }
+.hero-links { gap: 12px; }
+
+.hero.sky { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); }
+.hero.sky .hero-portrait { justify-self: end; width: min(360px, 100%); }
+.hero-portrait .photo { box-shadow: 0 0 0 1px var(--line), 0 18px 40px -18px rgba(20, 55, 64, 0.35); }
+@media (prefers-reduced-motion: reduce) { .btn-hero, .btn-hero span { transition: none; } }
