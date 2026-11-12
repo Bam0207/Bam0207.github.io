@@ -162,7 +162,7 @@
   const ctx = cv.getContext('2d');
 
   // Colors matched to the waves in the footer
-  const C = { bed: '#EEF4F6', bed2: '#E3ECF0', pebble: '#D2DEE4', edge: '#BFE2F2', body: '#8CCBE6', deep: '#6AB7DD' };
+  const C = { bed: '#EDF2EF', bed2: '#E1EAE6', pebble: '#CBD8D3', edge: '#8DBFC3', body: '#4E95A2', deep: '#2E7484' };
   const W = 120, HALF = 22; // canvas width, half-width of the water
   let dpr = 1, pts = [], cum = [], total = 0, heads = [], pebbles = [], parts = [], drops = [], rings = [];
   let reach = 0, active = false, time = 0, last = performance.now(), splashTimer = 0, crestY = 0;
@@ -178,8 +178,10 @@
     cv.style.width = W + 'px'; cv.style.height = window.innerHeight + 'px';
     const top = 0; // start at the very top of the page
     const fr = foot.getBoundingClientRect();
-    const endY = fr.top + window.scrollY + 150; // runs under the pond surface
-    crestY = fr.top + window.scrollY + 58;
+    const endY = fr.top + window.scrollY + 40; // slips under the trees at the pond's edge
+    crestY = fr.top + window.scrollY - 400000; // no splash: the trees hide the inlet
+    const bushEl = foot.querySelector('.creek-bush');
+    if (bushEl) bushEl.style.left = (mr.left - 44 - fr.left - 55) + 'px';
     // Build a gently meandering centerline, sampled every ~4px
     pts = [[W / 2, top]];
     let y = top, side = 1;
@@ -256,7 +258,7 @@
       water(HALF * 0.9, C.deep, 0.55);
       // Light glints along both banks
       if (!reduce) {
-        ctx.setLineDash([3, 19, 1, 13, 7, 25]); ctx.lineDashOffset = -time * 46; ctx.lineWidth = 1.6; ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+        ctx.setLineDash([3, 19, 1, 13, 7, 25]); ctx.lineDashOffset = -time * 46; ctx.lineWidth = 1.6; ctx.strokeStyle = 'rgba(255,255,255,0.45)';
         trace(i0, wB, HALF - 7); ctx.stroke(); ctx.lineDashOffset = -time * 38 + 9; trace(i0, wB, -(HALF - 7)); ctx.stroke();
         ctx.setLineDash([]);
       }
