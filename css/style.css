@@ -482,3 +482,61 @@ h1.hello { font-size: clamp(44px, 5.4vw, 82px); }
 .hero.sky .hero-portrait { justify-self: end; width: min(360px, 100%); }
 .hero-portrait .photo { box-shadow: 0 0 0 1px var(--line), 0 18px 40px -18px rgba(20, 55, 64, 0.35); }
 @media (prefers-reduced-motion: reduce) { .btn-hero, .btn-hero span { transition: none; } }
+
+/* ---------- v13: bigger hello, one-line subtitle, bigger portrait ---------- */
+.hero.sky h1.hello { font-size: clamp(48px, 6.4vw, 96px); }
+.hero.sky .lede { max-width: none; white-space: nowrap; font-size: 19px; }
+.hero.sky .hero-portrait { width: min(410px, 100%); }
+@media (max-width: 900px) { .hero.sky .lede { white-space: normal; } }
+
+/* ---------- Research page ---------- */
+.research-hero { padding: 64px 0 72px; display: grid; gap: 22px; max-width: 980px; }
+.research-hero h1 { font-size: clamp(48px, 6.6vw, 96px); line-height: 1.02; }
+.research-hero .lede { font-size: 20px; max-width: 720px; }
+.research-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; font-size: 15px; }
+.chapter-when { font-variant-numeric: lining-nums; }
+.eq { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin: 6px 0; padding: 18px 22px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); width: fit-content; }
+.eq div { display: grid; text-align: center; }
+.eq strong { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; font-size: 34px; color: var(--accent); line-height: 1; }
+.eq span { font-size: 13px; color: var(--muted); }
+.eq b { font-size: 26px; color: var(--muted); font-weight: 400; }
+.methods { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+.method { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; display: grid; gap: 6px; }
+.method h4 { margin: 0; font-size: 17px; color: var(--accent); }
+.method p { font-size: 15px; color: var(--muted); }
+.figure-card { background: #FFFFFF; border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; }
+.figure-card img { width: 100%; height: auto; border-radius: 6px; }
+.figure-card figcaption { margin-top: 10px; }
+.finding { display: grid; grid-template-columns: minmax(260px, 0.8fr) minmax(0, 1.6fr); gap: 40px; align-items: start; }
+.finding.flip { grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.8fr); }
+.finding.flip .finding-text { order: 2; }
+.finding-text { display: grid; gap: 14px; position: sticky; top: 24px; }
+.finding-text h3 { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; font-size: 34px; color: #1F4E58; line-height: 1.1; }
+.finding-text p { color: #3A4A4E; }
+.fig-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.figure-card.single { max-width: 640px; }
+
+.viewer-section { background: #FFFFFF; border: 1px solid var(--line); border-radius: 18px; padding: 40px clamp(20px, 4vw, 48px); margin-bottom: 80px; }
+.viewer-head { display: grid; gap: 10px; max-width: 760px; margin-bottom: 28px; }
+.month-viewer { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 0.9fr); gap: 36px; align-items: center; }
+.viewer-stage { position: relative; display: grid; place-items: center; }
+.viewer-img { width: 100%; max-width: 520px; height: auto; transition: opacity 0.25s ease; }
+.viewer-month { position: absolute; top: 4px; right: 0; font-family: "Instrument Serif", Georgia, serif; font-size: clamp(34px, 4vw, 52px); color: #1F4E58; }
+.viewer-controls { display: grid; gap: 18px; }
+.viewer-play { justify-self: start; font: inherit; font-weight: 500; padding: 10px 22px; border-radius: 999px; border: 0; background: var(--accent); color: #FFFFFF; cursor: pointer; }
+.viewer-play:hover { background: #1F4E58; }
+.viewer-range { width: 100%; accent-color: var(--accent); }
+.month-chips { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; }
+.month-chip { font: inherit; font-size: 14px; padding: 7px 0; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--text); cursor: pointer; }
+.month-chip:hover { border-color: var(--accent); }
+.month-chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #FFFFFF; }
+.viewer-legend { width: 100%; height: auto; }
+.viewer-all { font-size: 15px; }
+.closing { text-align: center; }
+.closing p { font-family: "Instrument Serif", Georgia, serif; font-size: clamp(28px, 3.4vw, 42px); color: #1F4E58; max-width: 820px; margin: 0 auto; line-height: 1.2; }
+@media (max-width: 960px) {
+  .finding, .finding.flip, .month-viewer { grid-template-columns: 1fr; }
+  .finding.flip .finding-text { order: 0; }
+  .finding-text { position: static; }
+  .fig-pair { grid-template-columns: 1fr; }
+}

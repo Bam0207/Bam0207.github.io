@@ -548,3 +548,48 @@
   build();
   requestAnimationFrame(frame);
 })();
+
+// 9. Research page: step through Figure 5 month by month.
+(function () {
+  const v = document.getElementById('month-viewer');
+  if (!v) return;
+  const base = v.dataset.base, ids = v.dataset.months.split(','), names = v.dataset.names.split(',');
+  const img = v.querySelector('.viewer-img'), label = v.querySelector('.viewer-month');
+  const range = v.querySelector('.viewer-range'), play = v.querySelector('.viewer-play');
+  const chips = [...v.querySelectorAll('.month-chip')];
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  ids.forEach((m) => { const p = new Image(); p.src = base + m + '.png'; }); // preload
+  let i = 0, timer = null;
+  function show(n) {
+    i = (n + 12) % 12;
+    img.style.opacity = reduce ? 1 : 0.35;
+    img.src = base + ids[i] + '.png';
+    img.alt = 'Map of California showing the percent difference between satellite-based and station-based ETo in ' + names[i];
+    img.onload = () => { img.style.opacity = 1; };
+    label.textContent = names[i];
+    range.value = i;
+    chips.forEach((c, k) => c.setAttribute('aria-pressed', k === i ? 'true' : 'false'));
+  }
+  function stop() { clearInterval(timer); timer = null; play.textContent = 'Play'; play.setAttribute('aria-label', 'Play through the months'); }
+  play.addEventListener('click', () => {
+    if (timer) return stop();
+    play.textContent = 'Pause'; play.setAttribute('aria-label', 'Pause');
+    timer = setInterval(() => show(i + 1), 1100);
+  });
+  range.addEventListener('input', () => { stop(); show(+range.value); });
+  chips.forEach((c, k) => c.addEventListener('click', () => { stop(); show(k); }));
+  v.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight') { stop(); show(i + 1); }
+    if (e.key === 'ArrowLeft') { stop(); show(i - 1); }
+  });
+  // "See all twelve months" opens the full figure in the lightbox if present
+  const all = v.querySelector('.viewer-all');
+  all.addEventListener('click', (e) => {
+    const dlg = document.querySelector('dialog.lightbox');
+    if (!dlg) return;
+    e.preventDefault();
+    dlg.querySelector('img').src = all.href; dlg.querySelector('img').alt = 'All twelve monthly difference maps';
+    dlg.querySelector('.lightbox-caption').textContent = 'Monthly percent difference between satellite-based and station-based ETo.';
+    dlg.showModal();
+  });
+})();
