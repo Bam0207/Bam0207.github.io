@@ -80,7 +80,7 @@
     { name: 'Santa Clara County Parks', note: 'Milkweed conservation and prescribed burns · 2022', lat: 37.34, lng: -121.70, kind: 'land', link: 'portfolio.html#milkweed', img: 'images/scc-burn.jpg' },
     { name: 'Cascade-Siskiyou National Monument', note: 'Biological monitoring · 2020', lat: 42.08, lng: -122.47, kind: 'land' }
   ];
-  const colors = { water: '#185FA5', research: '#1C1C1A', land: '#B45309' };
+  const colors = { water: '#0F766E', research: '#1C1C1A', land: '#B45309' };
   const map = L.map(el, { scrollWheelZoom: false }).setView([37.0, -120.6], 6);
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
     maxZoom: 16,
@@ -100,4 +100,81 @@
     bounds.push([p.lat, p.lng]);
   });
   map.fitBounds(bounds, { padding: [30, 30] });
+})();
+
+// 5. Water touches: scroll reveal and the stream down the side.
+(function () {
+  document.documentElement.classList.add('js');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Reveal sections as they enter the screen
+  const items = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window && !reduce) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-visible'); io.unobserve(e.target); } });
+    }, { threshold: 0.12 });
+    items.forEach((el) => io.observe(el));
+  } else {
+    items.forEach((el) => el.classList.add('is-visible'));
+  }
+
+  // A stream that runs down the left side of the page and fills in as you scroll.
+  const main = document.querySelector('main');
+  if (!main) return;
+  const NS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('class', 'stream');
+  svg.setAttribute('aria-hidden', 'true');
+  const bed = document.createElementNS(NS, 'path');
+  bed.setAttribute('class', 'stream-bed');
+  const flow = document.createElementNS(NS, 'path');
+  flow.setAttribute('class', 'stream-flow');
+  const marks = document.createElementNS(NS, 'g');
+  svg.append(bed, flow, marks);
+  main.appendChild(svg);
+  let len = 0, stops = [];
+
+  function build() {
+    const h = main.offsetHeight;
+    svg.setAttribute('viewBox', '0 0 60 ' + h);
+    svg.style.height = h + 'px';
+    // Gentle meander: alternate bends every ~260px
+    let d = 'M30 0', y = 0, side = 1;
+    while (y < h) {
+      const step = Math.min(260, h - y);
+      d += ' C ' + (30 + 18 * side) + ' ' + (y + step * 0.33) + ', ' + (30 + 18 * side) + ' ' + (y + step * 0.66) + ', 30 ' + (y + step);
+      y += step; side = -side;
+    }
+    bed.setAttribute('d', d);
+    flow.setAttribute('d', d);
+    len = flow.getTotalLength();
+    flow.style.strokeDasharray = len;
+    // A drop at each section heading
+    marks.innerHTML = '';
+    stops = [];
+    main.querySelectorAll('h1, h2').forEach((hd) => {
+      const top = hd.getBoundingClientRect().top - main.getBoundingClientRect().top + hd.offsetHeight / 2;
+      const c = document.createElementNS(NS, 'circle');
+      c.setAttribute('cx', 30); c.setAttribute('cy', top); c.setAttribute('r', 7);
+      c.setAttribute('class', 'stream-drop');
+      marks.appendChild(c);
+      stops.push({ el: c, y: top });
+    });
+    update();
+  }
+
+  function update() {
+    const r = main.getBoundingClientRect();
+    // Water reaches the point on the page level with the middle of the screen
+    const reach = Math.min(r.height, Math.max(0, window.innerHeight * 0.55 - r.top));
+    const p = r.height ? reach / r.height : 0;
+    flow.style.strokeDashoffset = (len * (1 - p)).toFixed(1);
+    stops.forEach((s) => s.el.classList.toggle('wet', s.y <= reach));
+  }
+
+  let ticking = false;
+  window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(() => { update(); ticking = false; }); } }, { passive: true });
+  window.addEventListener('resize', build);
+  window.addEventListener('load', build);
+  build();
 })();
