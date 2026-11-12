@@ -166,7 +166,7 @@
   const C = { bed: '#EDF2EF', bed2: '#E1EAE6', pebble: '#CBD8D3', edge: '#8DBFC3', body: '#4E95A2', deep: '#2E7484' };
   const W = 120, HALF = 22; // canvas width, half-width of the water
   let dpr = 1, pts = [], cum = [], total = 0, heads = [], pebbles = [], parts = [], drops = [], rings = [];
-  let reach = 0, active = false, time = 0, last = performance.now(), splashTimer = 0, crestY = 0;
+  let reach = 0, active = false, time = 0, last = performance.now(), splashTimer = 0, crestY = 0, creekX = 0;
 
   function layout() {
     active = window.innerWidth >= 1300;
@@ -179,7 +179,8 @@
     cv.style.width = W + 'px'; cv.style.height = window.innerHeight + 'px';
     const top = 0; // start at the very top of the page
     const fr = foot.getBoundingClientRect();
-    const endY = window.__pondInlet ? window.__pondInlet + 36 : fr.top + window.scrollY - 40; // runs into the pond's inlet
+    const endY = window.__pondInlet ? window.__pondInlet + 90 : fr.top + window.scrollY - 40;
+    creekX = mr.left - 44 + window.scrollX; // runs into the pond's inlet
     crestY = fr.top + window.scrollY - 400000; // no splash: the trees hide the inlet
     const bushEl = foot.querySelector('.creek-bush');
     if (bushEl) bushEl.style.left = (mr.left - 44 - fr.left - 55) + 'px';
@@ -214,7 +215,7 @@
     const a = pts[i], b = pts[j], dx = (b[0] - a[0]) / seg, dy = (b[1] - a[1]) / seg;
     return { x: a[0] + (b[0] - a[0]) * t, y: a[1] + (b[1] - a[1]) * t, nx: -dy, ny: dx, tx: dx, ty: dy };
   }
-  function newPart(init) { return { s: init ? Math.random() * Math.max(reach, 1) : Math.random() * 40, u: Math.random() * 2 - 1, v: 70 + Math.random() * 110, l: 10 + Math.random() * 26, a: 0.25 + Math.random() * 0.5 }; }
+  function newPart(init) { return { s: init ? Math.random() * Math.max(reach, 1) : Math.random() * 40, u: Math.random() * 2 - 1, v: 22 + Math.random() * 38, l: 8 + Math.random() * 18, a: 0.2 + Math.random() * 0.4 }; }
 
   function targetReach() {
     if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) return total;
@@ -242,6 +243,12 @@
     ctx.lineCap = 'round'; ctx.lineJoin = 'round';
     const i0 = idxAtY(sy - 80), i1 = Math.min(pts.length - 1, idxAtY(sy + vh + 80) + 1);
     if (i1 <= i0) return;
+    ctx.save();
+    if (window.__pondShore) { // keep the creek on land: trim it along the pond's shoreline
+      ctx.beginPath(); ctx.moveTo(-10, sy - 200); ctx.lineTo(W + 10, sy - 200);
+      for (let lx = W + 10; lx >= -10; lx -= 3) ctx.lineTo(lx, window.__pondShore(creekX - W / 2 + lx) + 4);
+      ctx.closePath(); ctx.clip();
+    }
 
     // Dry creek bed and pebbles
     trace(i0, i1); ctx.strokeStyle = C.bed; ctx.lineWidth = HALF * 2 + 10; ctx.stroke();
@@ -259,8 +266,8 @@
       water(HALF * 0.9, C.deep, 0.55);
       // Light glints along both banks
       if (!reduce) {
-        ctx.setLineDash([3, 19, 1, 13, 7, 25]); ctx.lineDashOffset = -time * 46; ctx.lineWidth = 1.6; ctx.strokeStyle = 'rgba(255,255,255,0.45)';
-        trace(i0, wB, HALF - 7); ctx.stroke(); ctx.lineDashOffset = -time * 38 + 9; trace(i0, wB, -(HALF - 7)); ctx.stroke();
+        ctx.setLineDash([3, 19, 1, 13, 7, 25]); ctx.lineDashOffset = -time * 16; ctx.lineWidth = 1.6; ctx.strokeStyle = 'rgba(255,255,255,0.45)';
+        trace(i0, wB, HALF - 7); ctx.stroke(); ctx.lineDashOffset = -time * 12 + 9; trace(i0, wB, -(HALF - 7)); ctx.stroke();
         ctx.setLineDash([]);
       }
       // Foam streaks riding the current
@@ -276,14 +283,9 @@
           ctx.beginPath(); ctx.moveTo(t.x + t.nx * u, t.y + t.ny * u); ctx.lineTo(h.x + h.nx * u, h.y + h.ny * u); ctx.stroke();
         });
       }
-      // Rounded front edge, still flowing
-      if (reach < total - 2) {
-        const r = HALF - 2 + (reduce ? 0 : Math.sin(time * 5) * 1.2);
-        ctx.fillStyle = C.edge; ctx.beginPath(); ctx.ellipse(f.x, f.y, r + 2, r * 0.75 + 2, Math.atan2(f.ty, f.tx), 0, 6.283); ctx.fill();
-        ctx.fillStyle = C.body; ctx.beginPath(); ctx.ellipse(f.x, f.y, r - 3, r * 0.75 - 3, Math.atan2(f.ty, f.tx), 0, 6.283); ctx.fill();
-        ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(f.x, f.y, r - 6, r * 0.75 - 6, Math.atan2(f.ty, f.tx), 0.2, 1.6); ctx.stroke();
-      }
     }
+
+    ctx.restore();
 
     // Bubbles marking each section heading
     heads.forEach((hy) => {
@@ -399,34 +401,30 @@
     const Wp = document.documentElement.clientWidth, Hp = document.documentElement.scrollHeight;
     const vx = Math.max(40, main.getBoundingClientRect().left - 44 + window.scrollX); // the creek's valley
 
-    // --- The pond: an ellipse-ish basin plus an inlet channel up the creek's valley
+    // --- The pond: an upside-down V opening downhill from the creek and filling the page bottom
     pond = null;
     let pondField = () => 99;
     if (space) {
-      const sr = space.getBoundingClientRect(), ps = sr.top + window.scrollY, ph = sr.height;
-      const sx = Math.min(0.28 * Wp, 440), sy = ph * 0.4;
-      const cx = Math.max(vx + sx * 0.72, Math.min(Wp * 0.5, vx + sx * 1.1)), cy = ps + ph * 0.56;
-      const armTop = ps - 30;
-      const ell = (x, y) => ((x - cx) / sx) ** 2 + ((y - cy) / sy) ** 2 + (noise(x / 150, y / 150) - 0.5) * 0.7 + (noise(x / 60 + 9, y / 60) - 0.5) * 0.12;
-      const arm = (x, y) => {
-        if (y < armTop) return 99;
-        const past = y > cy ? ((y - cy) / 30) ** 2 : 0; // fade out inside the pond instead of a hard edge
-        const s = clamp((y - armTop) / (cy - armTop), 0, 1);
-        const hw = 13 + 70 * s * s * s;               // narrow channel that flares into the pond
-        const bend = Math.sin(s * 3.1) * 10;          // a little meander
-        return ((x - vx - bend - s * s * (cx - vx) * 0.35) / hw) ** 2 + 0.7 * (1 - s) + past + (s < 0.05 ? (0.05 - s) * 40 : 0); // shallow at the mouth
+      const sr = space.getBoundingClientRect(), apexY = sr.top + window.scrollY;
+      const reachR = Math.max(260, sr.height * 0.62), reachL = Math.max(120, sr.height * 0.35);
+      // Shoreline height at x: lowest at the creek (the apex), dropping toward both page edges
+      const shore = (x) => {
+        const d = x - vx;
+        const t = d >= 0 ? d / Math.max(1, Wp - vx) : -d / Math.max(1, vx);
+        const drop = (d >= 0 ? reachR : reachL) * Math.pow(Math.min(1, t), 0.6);
+        return apexY + drop + (noise(x / 90, 7) - 0.5) * 34 + (noise(x / 30, 3) - 0.5) * 6;
       };
-      const k = 0.25;
-      pondField = (x, y) => { const a = ell(x, y), b = arm(x, y); return -k * Math.log(Math.exp(-a / k) + Math.exp(-b / k)); };
-      const bx0 = Math.max(0, Math.min(vx - 60, cx - sx * 1.25)), bx1 = Math.min(Wp, cx + sx * 1.25);
-      const by0 = armTop - 10, by1 = cy + sy * 1.45;
-      // Paint the water into an offscreen image once
+      // pondField < 1 on the water, smaller with depth (distance below the shoreline)
+      pondField = (x, y) => Math.exp(-(y - shore(x)) / 120);
+      const bx0 = 0, bx1 = Wp, by0 = apexY - 20, by1 = Hp;
       const w = Math.ceil(bx1 - bx0), h = Math.ceil(by1 - by0);
       const off = document.createElement('canvas'); off.width = w; off.height = h;
       const octx = off.getContext('2d'), im = octx.createImageData(w, h);
-      const band = [[0.22, [46, 116, 132]], [0.42, [61, 134, 149]], [0.66, [78, 149, 162]], [0.88, [111, 170, 180]], [1.0, [151, 196, 201]]];
+      const band = [[0.12, [46, 116, 132]], [0.3, [61, 134, 149]], [0.55, [78, 149, 162]], [0.82, [111, 170, 180]], [1.0, [151, 196, 201]]];
+      const shoreCache = new Float32Array(w);
+      for (let xx = 0; xx < w; xx++) shoreCache[xx] = shore(bx0 + xx);
       for (let yy = 0; yy < h; yy++) for (let xx = 0; xx < w; xx++) {
-        const g = pondField(bx0 + xx, by0 + yy);
+        const g = Math.exp(-((by0 + yy) - shoreCache[xx]) / 120);
         if (g >= 1.04) continue;
         let col = band[band.length - 1][1];
         for (const [lv, c] of band) if (g < lv) { col = c; break; }
@@ -435,25 +433,27 @@
         im.data[o + 3] = Math.round(255 * clamp((1.04 - g) / 0.05, 0, 1));
       }
       octx.putImageData(im, 0, 0);
-      // Depth contours (bathymetry) on the water
       const depth = [];
-      contour(pondField, bx0, by0, Math.ceil(w / 6) + 1, Math.ceil(h / 6) + 1, 6,
-        (lo, hi) => [0.22, 0.42, 0.66, 0.88].filter((L) => L >= lo && L <= hi), (a, b, c, d) => depth.push(a, b, c, d));
-      // Places inside the pond for pads and swimming loops
-      const inside = (x, y, lim) => pondField(x, y) < lim;
+      contour(pondField, bx0, by0, Math.ceil(w / 8) + 1, Math.ceil(h / 8) + 1, 8,
+        (lo, hi) => [0.12, 0.3, 0.55, 0.82].filter((L) => L >= lo && L <= hi), (a, b, c, d) => depth.push(a, b, c, d));
+      // Swim lanes in the deep water along the bottom of the page
+      const deepY = (x) => Math.max(shore(x) + 140, by1 - 200);
+      const cx = Wp * 0.55, cy = Math.min(by1 - 110, deepY(cx));
+      const sx = Wp * 0.36, sy = 46;
       const pads = [];
-      [[-0.55, -0.35], [0.35, -0.45], [0.62, 0.28], [-0.2, 0.42], [0.05, -0.05]].forEach(([u, v], i) => {
-        const x = cx + u * sx, y = cy + v * sy;
-        if (inside(x, y, 0.7)) pads.push({ x, y, s: [54, 44, 60, 40, 50][i], r: i * 1.3, frog: i === 2 });
+      [[0.22, 70], [0.38, 95], [0.71, 60], [0.86, 85], [0.6, 120]].forEach(([fx, dy], i) => {
+        const x = Wp * fx, y = shore(x) + dy;
+        if (y < by1 - 40) pads.push({ x, y, s: [30, 24, 34, 26, 22][i], r: i * 1.3, frog: i === 2 });
       });
       const fish = [
-        { img: 0, rx: 0.55, ry: 0.5, sp: 0.16, ph: 0 },
-        { img: 1, rx: 0.68, ry: 0.42, sp: -0.12, ph: 2 },
-        { img: 2, rx: 0.35, ry: 0.3, sp: 0.22, ph: 4 },
-        { img: 0, rx: 0.78, ry: 0.55, sp: -0.09, ph: 1 },
+        { img: 0, rx: 0.8, ry: 0.9, sp: 0.07, ph: 0 },
+        { img: 1, rx: 0.95, ry: 0.6, sp: -0.05, ph: 2 },
+        { img: 2, rx: 0.5, ry: 0.8, sp: 0.09, ph: 4 },
+        { img: 0, rx: 0.65, ry: 0.5, sp: -0.06, ph: 1 },
       ];
-      pond = { off, bx0, by0, w, h, depth, pads, fish, cx, cy, sx, sy, top: armTop, bottom: by1 };
-      window.__pondInlet = armTop;
+      pond = { off, bx0, by0, w, h, depth, pads, fish, cx, cy, sx, sy, top: apexY - 20, bottom: by1 };
+      window.__pondInlet = apexY;
+      window.__pondShore = shore;
     }
 
     // --- Land contours, bent around the pond so the shoreline follows them
@@ -502,28 +502,28 @@
     // Fish swim slow loops under the lily pads
     P.fish.forEach((f, n) => {
       const th = f.ph + time * f.sp;
-      const x = P.cx + Math.cos(th) * P.sx * f.rx + Math.sin(th * 2.3) * 12;
-      const y = P.cy + Math.sin(th) * P.sy * f.ry + Math.cos(th * 1.7) * 6;
+      const x = P.cx + Math.cos(th) * P.sx * f.rx + Math.sin(th * 2.3) * 10;
+      const y = P.cy + Math.sin(th) * P.sy * f.ry + Math.cos(th * 1.7) * 5;
       const dx = -Math.sin(th) * f.rx * P.sx * f.sp, dy = Math.cos(th) * f.ry * P.sy * f.sp;
       const ang = Math.atan2(dy, dx) + Math.sin(time * 9 + n) * 0.08;
       const im = KOI[f.img];
       if (!im.complete) return;
-      ctx.save(); ctx.translate(x, y); ctx.rotate(ang); ctx.drawImage(im, -26, -10, 52, 21); ctx.restore();
+      ctx.save(); ctx.translate(x, y); ctx.rotate(ang); ctx.drawImage(im, -17, -7, 34, 14); ctx.restore();
     });
     // A little school of minnows
     if (MINNOW.complete) {
-      const th = 1 + time * 0.2;
+      const th = 1 + time * 0.08;
       for (let m = 0; m < 6; m++) {
         const t2 = th - m * 0.05;
-        const x = P.cx + Math.cos(t2) * P.sx * 0.45 + (m % 2) * 8, y = P.cy + Math.sin(t2) * P.sy * 0.62 + (m % 3) * 6;
-        ctx.save(); ctx.translate(x, y); ctx.rotate(t2 + Math.PI / 2 + Math.sin(time * 10 + m) * 0.1); ctx.drawImage(MINNOW, -9, -3.5, 18, 7); ctx.restore();
+        const x = P.cx + Math.cos(t2) * P.sx * 0.45 + (m % 2) * 6, y = P.cy + Math.sin(t2) * P.sy * 0.62 + (m % 3) * 4;
+        ctx.save(); ctx.translate(x, y); ctx.rotate(t2 + Math.PI / 2 + Math.sin(time * 10 + m) * 0.1); ctx.drawImage(MINNOW, -6, -2.5, 12, 5); ctx.restore();
       }
     }
     P.pads.forEach((p) => {
       if (!PAD.complete) return;
       const bob = Math.sin(time * 0.8 + p.r) * 0.06;
       ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r + bob); ctx.drawImage(PAD, -p.s / 2, -p.s / 2, p.s, p.s); ctx.restore();
-      if (p.frog && FROG.complete) { ctx.save(); ctx.translate(p.x, p.y - 2 - Math.max(0, Math.sin(time * 0.7)) ** 30 * 10); ctx.rotate(-0.3 + bob); ctx.drawImage(FROG, -22, -22, 44, 44); ctx.restore(); }
+      if (p.frog && FROG.complete) { ctx.save(); ctx.translate(p.x, p.y - 2 - Math.max(0, Math.sin(time * 0.7)) ** 30 * 10); ctx.rotate(-0.3 + bob); ctx.drawImage(FROG, -13, -13, 26, 26); ctx.restore(); }
     });
     return true;
   }
