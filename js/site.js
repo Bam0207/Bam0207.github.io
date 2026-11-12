@@ -118,45 +118,53 @@
     items.forEach((el) => el.classList.add('is-visible'));
   }
 
-  // A stream that runs down the left side of the page and fills in as you scroll.
+  // A stream that runs down the left side, flows as you scroll, and pours into the footer.
   const main = document.querySelector('main');
   if (!main) return;
   const NS = 'http://www.w3.org/2000/svg';
-  const svg = document.createElementNS(NS, 'svg');
-  svg.setAttribute('class', 'stream');
-  svg.setAttribute('aria-hidden', 'true');
-  const bed = document.createElementNS(NS, 'path');
-  bed.setAttribute('class', 'stream-bed');
-  const flow = document.createElementNS(NS, 'path');
-  flow.setAttribute('class', 'stream-flow');
-  const marks = document.createElementNS(NS, 'g');
-  svg.append(bed, flow, marks);
+  const mk = (tag, attrs) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
+  const svg = mk('svg', { class: 'stream', 'aria-hidden': 'true' });
+  const defs = mk('defs', {});
+  const mask = mk('mask', { id: 'flow-mask', maskUnits: 'userSpaceOnUse' });
+  const maskPath = mk('path', { fill: 'none', stroke: '#fff', 'stroke-width': 14, 'stroke-linecap': 'round' });
+  mask.appendChild(maskPath); defs.appendChild(mask);
+  const bank = mk('path', { class: 'stream-bank' });
+  const bed = mk('path', { class: 'stream-bed' });
+  const flow = mk('path', { class: 'stream-flow' });
+  const shimmer = mk('path', { class: 'stream-shimmer', mask: 'url(#flow-mask)' });
+  const marks = mk('g', {});
+  const front = mk('circle', { class: 'stream-front', r: 6 });
+  const ripples = mk('g', { class: 'stream-ripples' });
+  for (let i = 0; i < 3; i++) ripples.appendChild(mk('ellipse', { rx: 10, ry: 3, style: 'animation-delay:' + (i * 0.8) + 's' }));
+  svg.append(defs, bank, bed, flow, shimmer, marks, ripples, front);
   main.appendChild(svg);
-  let len = 0, stops = [];
+  let len = 0, stops = [], endY = 0;
 
   function build() {
     const h = main.offsetHeight;
-    svg.setAttribute('viewBox', '0 0 60 ' + h);
-    svg.style.height = h + 'px';
-    // Gentle meander: alternate bends every ~260px
+    const foot = document.querySelector('.footer-wave');
+    // Run the stream down into the middle of the footer wave
+    const fr = foot ? foot.getBoundingClientRect() : null;
+    endY = fr ? (fr.top - main.getBoundingClientRect().top + fr.height * 0.55) : h;
+    svg.setAttribute('viewBox', '0 0 60 ' + (endY + 20));
+    svg.style.height = (endY + 20) + 'px';
     let d = 'M30 0', y = 0, side = 1;
-    while (y < h) {
-      const step = Math.min(260, h - y);
-      d += ' C ' + (30 + 18 * side) + ' ' + (y + step * 0.33) + ', ' + (30 + 18 * side) + ' ' + (y + step * 0.66) + ', 30 ' + (y + step);
+    while (y < endY) {
+      const step = Math.min(260, endY - y);
+      const bend = endY - y < 300 ? 8 : 18; // straighten out before the pour
+      d += ' C ' + (30 + bend * side) + ' ' + (y + step * 0.33) + ', ' + (30 + bend * side) + ' ' + (y + step * 0.66) + ', 30 ' + (y + step);
       y += step; side = -side;
     }
-    bed.setAttribute('d', d);
-    flow.setAttribute('d', d);
+    [bank, bed, flow, shimmer, maskPath].forEach((p) => p.setAttribute('d', d));
     len = flow.getTotalLength();
     flow.style.strokeDasharray = len;
-    // A drop at each section heading
+    maskPath.style.strokeDasharray = len;
+    ripples.querySelectorAll('ellipse').forEach((e) => { e.setAttribute('cx', 30); e.setAttribute('cy', endY); });
     marks.innerHTML = '';
     stops = [];
     main.querySelectorAll('h1, h2').forEach((hd) => {
       const top = hd.getBoundingClientRect().top - main.getBoundingClientRect().top + hd.offsetHeight / 2;
-      const c = document.createElementNS(NS, 'circle');
-      c.setAttribute('cx', 30); c.setAttribute('cy', top); c.setAttribute('r', 7);
-      c.setAttribute('class', 'stream-drop');
+      const c = mk('circle', { cx: 30, cy: top, r: 7, class: 'stream-drop' });
       marks.appendChild(c);
       stops.push({ el: c, y: top });
     });
@@ -165,11 +173,19 @@
 
   function update() {
     const r = main.getBoundingClientRect();
-    // Water reaches the point on the page level with the middle of the screen
-    const reach = Math.min(r.height, Math.max(0, window.innerHeight * 0.55 - r.top));
-    const p = r.height ? reach / r.height : 0;
-    flow.style.strokeDashoffset = (len * (1 - p)).toFixed(1);
+    const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
+    let reach = Math.max(0, window.innerHeight * 0.6 - r.top);
+    if (atBottom) reach = endY;
+    reach = Math.min(endY, reach);
+    const p = endY ? reach / endY : 0;
+    const off = (len * (1 - p)).toFixed(1);
+    flow.style.strokeDashoffset = off;
+    maskPath.style.strokeDashoffset = off;
+    const pt = flow.getPointAtLength(len * p);
+    front.setAttribute('cx', pt.x); front.setAttribute('cy', pt.y);
+    front.style.opacity = p > 0.01 && p < 0.995 ? 1 : 0;
     stops.forEach((s) => s.el.classList.toggle('wet', s.y <= reach));
+    document.body.classList.toggle('stream-arrived', p >= 0.995);
   }
 
   let ticking = false;
