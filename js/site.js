@@ -125,7 +125,7 @@
 (function () {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const ribbon = document.querySelector('.ribbon-track');
-  const photos = [...document.querySelectorAll('.field-grid .photo img, .tile .photo img')];
+  const photos = [...document.querySelectorAll('.field-grid .photo img')];
   photos.forEach((img) => { img.classList.add('parallax'); img.style.transform = 'scale(1.12)'; });
   let ticking = false;
   function move() {
@@ -179,7 +179,7 @@
     cv.style.width = W + 'px'; cv.style.height = window.innerHeight + 'px';
     const top = 0; // start at the very top of the page
     const fr = foot.getBoundingClientRect();
-    const endY = window.__pondInlet ? window.__pondInlet + 90 : fr.top + window.scrollY - 40;
+    const endY = window.__pondInlet ? window.__pondInlet + 150 : fr.top + window.scrollY - 40;
     creekX = mr.left - 44 + window.scrollX; // runs into the pond's inlet
     crestY = fr.top + window.scrollY - 400000; // no splash: the trees hide the inlet
     const bushEl = foot.querySelector('.creek-bush');
@@ -244,11 +244,6 @@
     const i0 = idxAtY(sy - 80), i1 = Math.min(pts.length - 1, idxAtY(sy + vh + 80) + 1);
     if (i1 <= i0) return;
     ctx.save();
-    if (window.__pondShore) { // keep the creek on land: trim it along the pond's shoreline
-      ctx.beginPath(); ctx.moveTo(-10, sy - 200); ctx.lineTo(W + 10, sy - 200);
-      for (let lx = W + 10; lx >= -10; lx -= 3) ctx.lineTo(lx, window.__pondShore(creekX - W / 2 + lx) + 4);
-      ctx.closePath(); ctx.clip();
-    }
 
     // Dry creek bed and pebbles
     trace(i0, i1); ctx.strokeStyle = C.bed; ctx.lineWidth = HALF * 2 + 10; ctx.stroke();
@@ -285,6 +280,14 @@
       }
     }
 
+    // Let the creek dissolve into the pond: erase it gradually below the pond's edge
+    if (window.__pondInlet) {
+      const fy = window.__pondInlet - 10, fade = ctx.createLinearGradient(0, fy, 0, fy + 130);
+      fade.addColorStop(0, 'rgba(0,0,0,0)'); fade.addColorStop(1, 'rgba(0,0,0,1)');
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.fillStyle = fade; ctx.fillRect(-10, fy, W + 20, Math.max(0, sy + vh - fy + 200));
+      ctx.globalCompositeOperation = 'source-over';
+    }
     ctx.restore();
 
     // Bubbles marking each section heading
@@ -409,10 +412,11 @@
       const reachR = Math.max(260, sr.height * 0.62), reachL = Math.max(120, sr.height * 0.35);
       // Shoreline height at x: lowest at the creek (the apex), dropping toward both page edges
       const shore = (x) => {
-        const d = x - vx;
-        const t = d >= 0 ? d / Math.max(1, Wp - vx) : -d / Math.max(1, vx);
-        const drop = (d >= 0 ? reachR : reachL) * Math.pow(Math.min(1, t), 0.6);
-        return apexY + drop + (noise(x / 90, 7) - 0.5) * 34 + (noise(x / 30, 3) - 0.5) * 6;
+        const d = x - vx, ad = Math.max(0, Math.abs(d) - 16); // flat tip as wide as the creek
+        const t = d >= 0 ? ad / Math.max(1, Wp - vx) : ad / Math.max(1, vx);
+        const drop = (d >= 0 ? reachR : reachL) * Math.pow(Math.min(1, t), 0.75) + 18 * Math.pow(Math.min(1, ad / 40), 2);
+        const calm = Math.min(1, Math.abs(d) / 120);
+        return apexY + drop + calm * ((noise(x / 90, 7) - 0.5) * 34 + (noise(x / 30, 3) - 0.5) * 6);
       };
       // pondField < 1 on the water, smaller with depth (distance below the shoreline)
       pondField = (x, y) => Math.exp(-(y - shore(x)) / 120);
@@ -457,11 +461,14 @@
     }
 
     // --- Land contours, bent around the pond so the shoreline follows them
+    const shoreFn = window.__pondShore;
     const elev = (x, y) => {
       const dx = x - vx;
-      let e = -y * 0.05 + 0.085 * Math.sqrt(dx * dx + 900) + noise(x / 340, y / 340) * 18 + noise(x / 130 + 50, y / 130) * 5;
-      if (pond) { const g = pondField(x, y); e += 26 * Math.sqrt(Math.min(g, 6)) - 26 * Math.sqrt(6); }
-      return e;
+      const valley = 0.085 * Math.sqrt(dx * dx + 900) + noise(x / 340, y / 340) * 18 + noise(x / 130 + 50, y / 130) * 5;
+      if (!shoreFn) return -y * 0.05 + valley;
+      const h = shoreFn(x) - y;                       // height above the waterline
+      const w = Math.pow(clamp(h / 650, 0, 1), 1.6);  // 0 at the shore, 1 well uphill
+      return 0.05 * h + w * (valley - 0.085 * Math.sqrt(900));
     };
     const STEP = 4.5;
     buckets = new Map();

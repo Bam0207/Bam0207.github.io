@@ -441,3 +441,31 @@ h1.hello em { color: var(--accent); }
 @media (max-width: 760px) { .hero.sky { grid-template-columns: 1fr; } .hero.sky .hero-portrait { grid-column: 1; } h1.hello { white-space: normal; } .brand::after { display: none; } }
 h1.hello { font-size: clamp(44px, 5.4vw, 82px); }
 .hero.sky h1.hello { font-size: clamp(44px, 5.4vw, 82px); }
+
+/* ---------- v11 ---------- */
+/* Name at the far right of the header */
+.brand { order: 2; margin-right: 0; }
+.brand::after { display: none; }
+.brand::before { content: ""; display: inline-block; width: 1px; height: 18px; background: var(--line); margin-right: 24px; vertical-align: -2px; }
+.nav { order: 1; }
+
+/* Section tiles: tinted photos, centered titles, hover */
+.tiles { margin-top: 90px; }
+.tile { position: relative; display: grid; place-items: center; height: 340px; border-radius: var(--radius); overflow: hidden; text-decoration: none; isolation: isolate; }
+.tile > * { grid-area: 1 / 1; }
+.tile .photo { position: absolute; inset: 0; height: auto; border: 0; border-radius: 0; z-index: -1; }
+.tile .photo img { transition: transform 0.6s ease; }
+.tile .photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(20, 55, 64, 0.35), rgba(20, 55, 64, 0.62)); transition: background 0.4s ease; }
+.tile-title { display: flex; flex-direction: column; align-items: center; gap: 6px; color: #FFFFFF; text-align: center; transform: translateY(-10px); transition: transform 0.4s ease; }
+.tile-title h3 { color: #FFFFFF; font-family: "Instrument Serif", Georgia, serif; font-weight: 400; font-size: 38px; }
+.tile-title span { color: #FFFFFF; font-size: 20px; opacity: 0; transform: translateX(-8px); transition: opacity 0.3s ease, transform 0.3s ease; }
+.tile p { align-self: end; margin-bottom: 26px; color: #E6F1F2; font-size: 15px; text-align: center; padding: 0 20px; opacity: 0.9; transition: opacity 0.3s ease, transform 0.4s ease; }
+.tile:hover .photo img, .tile:focus-visible .photo img { transform: scale(1.07); }
+.tile:hover .photo::after, .tile:focus-visible .photo::after { background: linear-gradient(180deg, rgba(46, 116, 132, 0.55), rgba(20, 55, 64, 0.8)); }
+.tile:hover .tile-title, .tile:focus-visible .tile-title { transform: translateY(-16px); }
+.tile:hover .tile-title span, .tile:focus-visible .tile-title span { opacity: 1; transform: none; }
+.tile:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { .tile .photo img, .tile-title, .tile-title span { transition: none; } }
+.tile { align-content: stretch; grid-template-rows: minmax(0, 1fr); grid-template-columns: minmax(0, 1fr); }
+.tile-title { align-self: center; justify-self: center; }
+.tile .photo::after { background: linear-gradient(180deg, rgba(20, 55, 64, 0.32), rgba(20, 55, 64, 0.5) 55%, rgba(20, 55, 64, 0.78)); }
