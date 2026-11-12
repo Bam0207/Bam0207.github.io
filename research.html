@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600&display=swap">
-  <link rel="stylesheet" href="css/style.css?v=13">
+  <link rel="stylesheet" href="css/style.css?v=14">
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -91,10 +91,7 @@
           <h3>They agree overall, but not all year</h3>
           <p>Across 105 stations and 1,260 station-months, the two methods track each other closely (Pearson r = 0.89). But the satellite model runs high in winter and spring and low in late summer and fall.</p>
         </div>
-        <div class="fig-pair">
-          <figure class="figure-card"><img data-zoom src="images/research/fig1_station_month_agreement.png" alt="Scatter plot of satellite-based versus station-based ETo with a one-to-one line"><figcaption>Station-month agreement.</figcaption></figure>
-          <figure class="figure-card"><img data-zoom src="images/research/fig2_seasonal_cycle.png" alt="Monthly mean ETo for both methods with percent bias labels"><figcaption>Seasonal cycle and monthly percent bias.</figcaption></figure>
-        </div>
+        <figure class="figure-card single"><img data-zoom src="images/research/fig2_seasonal_cycle.png" alt="Monthly mean ETo for both methods with percent bias labels"><figcaption>Seasonal cycle and monthly percent bias.</figcaption></figure>
       </div>
     </section>
 
@@ -124,21 +121,7 @@
           <h3 id="why-h">Why? Mostly humidity.</h3>
           <p>Coastal stations ran high and desert stations ran low. Of the climate conditions I tested, minimum relative humidity explained the most (about 40% of each seasonal model's explained variation). The satellite model sees land surface temperature, not the moisture in the air, so it struggles where humidity shapes ETo the most.</p>
         </div>
-        <div class="fig-pair">
-          <figure class="figure-card"><img data-zoom src="images/research/fig3_station_bias_map.png" alt="Map of California stations colored by mean bias, red on the coast and blue in the deserts"><figcaption>Mean bias at each station.</figcaption></figure>
-          <figure class="figure-card"><img data-zoom src="images/research/fig6_environmental_correlates.png" alt="Bar chart of relative importance of climate predictors and scatter plots against minimum relative humidity"><figcaption>What explains the difference.</figcaption></figure>
-        </div>
-      </div>
-    </section>
-
-    <section class="section reveal" aria-labelledby="matters-h">
-      <div class="finding">
-        <div class="finding-text">
-          <h3 id="matters-h">Why it matters</h3>
-          <p>To see what this means for water budgets, I ran both ETo products through the same almond irrigation model. Switching products changed California's estimated almond net irrigation requirement by about <strong>525,000 acre-feet a year</strong> (roughly 7%), or about 1.5 million household-years of water.</p>
-          <p>Neither method is simply better. The right choice depends on where, when and what you're estimating, and that's the point: careful, local evaluation should come before a model is used to plan water.</p>
-        </div>
-        <figure class="figure-card single"><img data-zoom src="images/research/fig7_almond_net_irrigation.png" alt="Map of 2024 almond extent and bar chart of monthly almond net irrigation requirement for both ETo products"><figcaption>Almond extent and monthly net irrigation requirement.</figcaption></figure>
+        <figure class="figure-card single"><img data-zoom src="images/research/fig3_station_bias_map.png" alt="Map of California stations colored by mean bias, red on the coast and blue in the deserts"><figcaption>Mean bias at each station.</figcaption></figure>
       </div>
     </section>
 

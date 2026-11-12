@@ -540,3 +540,7 @@ h1.hello { font-size: clamp(44px, 5.4vw, 82px); }
   .finding-text { position: static; }
   .fig-pair { grid-template-columns: 1fr; }
 }
+
+/* research: fewer figures, single figure beside text */
+.finding .figure-card.single { max-width: 720px; justify-self: start; }
+.finding.flip .figure-card.single { max-width: 560px; justify-self: end; }
