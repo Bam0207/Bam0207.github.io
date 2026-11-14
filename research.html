@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600&display=swap">
-  <link rel="stylesheet" href="css/style.css?v=14">
+  <link rel="stylesheet" href="css/style.css?v=15">
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -28,71 +28,86 @@
     <section class="research-hero">
       <span class="eyebrow">Research</span>
       <h1>Can a satellite stand in for a weather station?</h1>
-      <p class="lede">My master's thesis tests whether a satellite-based machine learning model can estimate the air's thirst across California as well as the state's weather-station network, and what the difference means for the water budgets farms and agencies rely on.</p>
-      <div class="research-meta"><span class="status">In progress · expected December 2026</span><span class="muted">Advisor: Dr. Yiwen Chiu · Agricultural Research Institute NextGen Fellowship</span></div>
+      <p class="lede">My master's thesis compares two ways of measuring how thirsty California's air is, and what the difference means for farm water.</p>
+      <div class="research-meta"><span class="status">In progress · expected December 2026</span><span class="muted">Advisor: Dr. Yiwen Chiu · ARI NextGen Fellowship</span></div>
+    </section>
+
+    <section class="section eto-lab" aria-labelledby="eto-h">
+      <div class="eto-intro">
+        <h2 id="eto-h">First, what is ETo?</h2>
+        <p>Reference evapotranspiration (ETo) is how much water the air pulls out of a well-watered field in a day. Growers use it to decide how much to irrigate. Change the weather and watch it move.</p>
+      </div>
+      <div class="eto-card">
+        <div class="eto-stage">
+          <canvas id="eto-scene" role="img" aria-label="Animated farm scene with mountains, sky, crops and a sprinkler that responds to the weather sliders"></canvas>
+          <div class="eto-badge" aria-live="polite"><span>ETo</span><strong id="eto-value">5.3</strong><small>mm/day</small></div>
+        </div>
+        <div class="eto-panel">
+          <div class="eto-controls">
+            <div class="eto-presets" role="group" aria-label="Weather presets">
+              <button type="button" data-preset="coast">Foggy coast</button>
+              <button type="button" data-preset="valley">Valley summer</button>
+              <button type="button" data-preset="desert">Desert heat</button>
+            </div>
+            <label class="eto-slider"><span class="eto-slider-top"><span>Sunshine</span><output id="eto-sun-out"></output></span><input id="eto-sun" type="range" min="0" max="100" step="1" value="85"></label>
+            <label class="eto-slider"><span class="eto-slider-top"><span>Temperature</span><output id="eto-temp-out"></output></span><input id="eto-temp" type="range" min="5" max="40" step="0.5" value="22"></label>
+            <label class="eto-slider"><span class="eto-slider-top"><span>Humidity</span><output id="eto-rh-out"></output></span><input id="eto-rh" type="range" min="10" max="100" step="1" value="60"></label>
+            <label class="eto-slider"><span class="eto-slider-top"><span>Wind</span><output id="eto-wind-out"></output></span><input id="eto-wind" type="range" min="0" max="8" step="0.1" value="2"></label>
+          </div>
+          <div class="eto-calc">
+            <h3>Irrigation calculator</h3>
+            <div class="eto-calc-inputs">
+              <label>Crop
+                <select id="eto-crop">
+                  <option value="1.00">Lettuce</option>
+                  <option value="0.85">Strawberries</option>
+                  <option value="1.15">Tomatoes</option>
+                  <option value="0.90">Almonds</option>
+                  <option value="0.70">Wine grapes</option>
+                  <option value="0.95">Alfalfa</option>
+                </select>
+              </label>
+              <label>Field size (acres)<input id="eto-acres" type="number" min="1" max="10000" step="1" value="10"></label>
+              <label>System
+                <select id="eto-eff">
+                  <option value="0.90">Drip (90%)</option>
+                  <option value="0.75" selected>Sprinkler (75%)</option>
+                  <option value="0.60">Furrow (60%)</option>
+                </select>
+              </label>
+            </div>
+            <div class="eto-eq" aria-live="polite">
+              <div><strong id="eq-eto">5.3</strong><span>ETo</span></div><b>×</b>
+              <div><strong id="eq-kc">1.00</strong><span>Kc</span></div><b>=</b>
+              <div><strong id="eq-etc">5.3</strong><span>ETc mm/day</span></div>
+            </div>
+            <dl class="eto-out">
+              <div><dt>Water to apply</dt><dd id="out-week">1.5 in/week</dd></div>
+              <div><dt>Whole field</dt><dd id="out-gal">5,000 gal/day</dd></div>
+            </dl>
+            <p class="eto-note">Simplified FAO-56 Penman–Monteith for a midsummer day at sea level. It ignores rain and soil moisture, so it's for exploring, not scheduling.</p>
+          </div>
+        </div>
+      </div>
     </section>
 
     <section class="section reveal" aria-labelledby="how-h">
       <div class="section-head"><h2 id="how-h">How I got here</h2></div>
-      <ol class="story">
-        <li class="chapter">
-          <div class="chapter-when">01</div>
-          <div class="chapter-body">
-            <h3>Starting close to home</h3>
-            <p>I wanted my research to be useful to farmers, so I started in the Salinas Valley, a place that has always mattered to me. My first plan was a water footprint assessment: how much water goes into the crops grown there, and where it comes from.</p>
-            <p><a href="https://storymaps.arcgis.com/stories/7a6c8c4d5c5a45108e8350faed6211b3">See the early Salinas Valley StoryMap</a></p>
-          </div>
-        </li>
-        <li class="chapter">
-          <div class="chapter-when">02</div>
-          <div class="chapter-body">
-            <h3>The missing piece</h3>
-            <p>I quickly hit a wall. There's no easy way to measure how much water actually goes to irrigation. Pumping records show how much groundwater was paid for, but not where in the valley it was used or which crops it went to.</p>
-          </div>
-        </li>
-        <li class="chapter">
-          <div class="chapter-when">03</div>
-          <div class="chapter-body">
-            <h3>Following the water into the air</h3>
-            <p>That gap led me to evapotranspiration: the water that leaves a field as it evaporates from soil and transpires from plants. Farmers estimate it from reference evapotranspiration (ETo), a measure of the atmosphere's thirst, scaled by a crop coefficient.</p>
-            <div class="eq" aria-label="Reference evapotranspiration times crop coefficient equals crop water demand">
-              <div><strong>ETo</strong><span>the air's thirst</span></div><b>×</b>
-              <div><strong>Kc</strong><span>crop coefficient</span></div><b>=</b>
-              <div><strong>ETc</strong><span>crop water demand</span></div>
-            </div>
-            <p>Small differences in ETo ripple straight into water-use estimates. So which ETo you use matters.</p>
-          </div>
-        </li>
-        <li class="chapter">
-          <div class="chapter-when">04</div>
-          <div class="chapter-body">
-            <h3>Two ways to measure thirst</h3>
-            <div class="methods">
-              <div class="method"><h4>Weather stations</h4><p>CIMIS stations measure temperature, humidity, wind and sunlight, then use the FAO-56 Penman–Monteith equation. Accurate, but only where a station exists.</p></div>
-              <div class="method"><h4>Satellites + machine learning</h4><p>A random forest model (Liu et al., 2024) estimates ETo from MODIS land surface temperature, latitude and day of year. Continuous everywhere, but untested across California's climates.</p></div>
-            </div>
-          </div>
-        </li>
-        <li class="chapter now">
-          <div class="chapter-when">05</div>
-          <div class="chapter-body">
-            <h3>Scaling up to the whole state</h3>
-            <p>If the satellite model holds up, it could fill the gaps between stations. But a model trained in one place doesn't always transfer to another. So I scaled the question up to all of California: 107 CIMIS stations, eleven years of data (2014–2024), and both methods mapped onto the same 1 km grid.</p>
-            <figure class="figure-card"><img data-zoom src="images/thesis-workflow.jpg" alt="Workflow diagram: CIMIS station data and MODIS satellite data feed two monthly ETo products, compared in four linked analyses"><figcaption>The analysis workflow.</figcaption></figure>
-          </div>
-        </li>
+      <ol class="steps">
+        <li class="step"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M4 34 L16 18 L24 27 L32 14 L44 34 Z" fill="#CFE3E2"/><path d="M4 38 H44" stroke="#2E7484" stroke-width="2.5" stroke-linecap="round"/><path d="M10 42 H38" stroke="#7FB36A" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="3 3"/></svg><span class="step-n">01</span><h3>Close to home</h3><p>I wanted to help farmers in the Salinas Valley, so I started with a water footprint study. <a href="https://storymaps.arcgis.com/stories/7a6c8c4d5c5a45108e8350faed6211b3">StoryMap</a></p></li>
+        <li class="step"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="10" y="20" width="12" height="20" rx="2" fill="#CFE3E2"/><path d="M16 20 V12 H30 V18" fill="none" stroke="#2E7484" stroke-width="2.5" stroke-linecap="round"/><path d="M30 22 q-3 5 0 7 q3 -2 0 -7" fill="#4FB3C8"/><text x="36" y="40" font-family="Georgia,serif" font-size="16" fill="#225A67">?</text></svg><span class="step-n">02</span><h3>A missing piece</h3><p>Pumping records show how much water was used, but not where or on which crops.</p></li>
+        <li class="step"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="36" cy="12" r="6" fill="#F2C14E"/><path d="M14 40 q4 -8 0 -14 M22 40 q4 -8 0 -14 M30 40 q4 -8 0 -14" fill="none" stroke="#4FB3C8" stroke-width="2.5" stroke-linecap="round"/><path d="M6 42 H42" stroke="#7FB36A" stroke-width="2.5" stroke-linecap="round"/></svg><span class="step-n">03</span><h3>Into the air</h3><p>That led me to evapotranspiration, and to how growers estimate ETo.</p></li>
+        <li class="step"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="19" y="8" width="10" height="10" rx="2" fill="#2E7484"/><rect x="5" y="10" width="12" height="6" fill="#CFE3E2" stroke="#2E7484"/><rect x="31" y="10" width="12" height="6" fill="#CFE3E2" stroke="#2E7484"/><path d="M24 20 L12 40 H36 Z" fill="#4FB3C8" opacity=".25"/><path d="M8 42 H40" stroke="#2E7484" stroke-width="2.5" stroke-linecap="round"/></svg><span class="step-n">04</span><h3>Statewide</h3><p>Could a satellite model match 107 weather stations across California, 2014 to 2024?</p></li>
       </ol>
+      <figure class="figure-card workflow-fig"><img data-zoom src="images/thesis-workflow.jpg" alt="Workflow: CIMIS station data and MODIS satellite data feed two monthly ETo products, compared in three linked analyses"></figure>
     </section>
 
     <section class="section reveal" aria-labelledby="found-h">
       <div class="section-head"><h2 id="found-h">What I found</h2></div>
-      <div class="finding">
-        <div class="finding-text">
-          <h3>They agree overall, but not all year</h3>
-          <p>Across 105 stations and 1,260 station-months, the two methods track each other closely (Pearson r = 0.89). But the satellite model runs high in winter and spring and low in late summer and fall.</p>
-        </div>
-        <figure class="figure-card single"><img data-zoom src="images/research/fig2_seasonal_cycle.png" alt="Monthly mean ETo for both methods with percent bias labels"><figcaption>Seasonal cycle and monthly percent bias.</figcaption></figure>
-      </div>
+      <figure class="figure-card hero-fig">
+        <figcaption class="fig-head"><strong>Close overall (r = 0.89), but not all year.</strong> The satellite model runs high in winter and low in fall.</figcaption>
+        <img data-zoom src="images/research/fig2_seasonal_cycle.png" alt="Monthly mean ETo for both methods with percent bias labels">
+      </figure>
     </section>
 
     <section class="section reveal viewer-section" aria-labelledby="viewer-h">
@@ -116,24 +131,20 @@
     </section>
 
     <section class="section reveal" aria-labelledby="why-h">
-      <div class="finding flip">
-        <div class="finding-text">
-          <h3 id="why-h">Why? Mostly humidity.</h3>
-          <p>Coastal stations ran high and desert stations ran low. Of the climate conditions I tested, minimum relative humidity explained the most (about 40% of each seasonal model's explained variation). The satellite model sees land surface temperature, not the moisture in the air, so it struggles where humidity shapes ETo the most.</p>
-        </div>
-        <figure class="figure-card single"><img data-zoom src="images/research/fig3_station_bias_map.png" alt="Map of California stations colored by mean bias, red on the coast and blue in the deserts"><figcaption>Mean bias at each station.</figcaption></figure>
-      </div>
+      <figure class="figure-card hero-fig narrow">
+        <figcaption class="fig-head"><strong id="why-h">Mostly humidity.</strong> Coastal stations ran high and desert stations ran low. The satellite sees surface temperature, not moisture in the air.</figcaption>
+        <img data-zoom src="images/research/fig3_station_bias_map.png" alt="Map of California stations colored by mean bias, red on the coast and blue in the deserts">
+      </figure>
     </section>
 
     <section class="section reveal two-col" aria-label="Next steps and outreach">
       <div class="pillar">
         <h3>What's next</h3>
-        <p>I'm finishing the thesis this fall. Next, I'd like to compare more ET products, such as OpenET, and test whether local calibration helps the satellite model in coastal and desert settings.</p>
+        <p>Comparing more ET products, like OpenET, and testing local calibration on the coast and in the desert.</p>
       </div>
       <div class="pillar">
         <h3>Sharing it</h3>
-        <p>In September 2026 I went back to my high school, Oakwood School, to talk with AP Environmental Science seniors about GIS, my path into environmental science and this research.</p>
-        <p><a href="https://www.oakwoodway.org/community/news/details/~board/news/post/from-the-classroom-to-the-field-an-oakwood-alumnas-environmental-science-journey">Read about the visit</a></p>
+        <p>I talked about this work with AP Environmental Science seniors at Oakwood School, my high school. <a href="https://www.oakwoodway.org/community/news/details/~board/news/post/from-the-classroom-to-the-field-an-oakwood-alumnas-environmental-science-journey">Read about the visit</a></p>
       </div>
     </section>
 
@@ -153,6 +164,6 @@
       </nav>
     </div>
   </footer>
-  <script src="js/site.js?v=13" defer></script>
+  <script src="js/site.js?v=15" defer></script>
 </body>
 </html>

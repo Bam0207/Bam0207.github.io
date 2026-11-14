@@ -544,3 +544,65 @@ h1.hello { font-size: clamp(44px, 5.4vw, 82px); }
 /* research: fewer figures, single figure beside text */
 .finding .figure-card.single { max-width: 720px; justify-self: start; }
 .finding.flip .figure-card.single { max-width: 560px; justify-self: end; }
+
+/* ---------- v15: research page, ETo lab + image-led layout ---------- */
+.research-hero { padding: 56px 0 40px; }
+.research-hero .lede { font-size: 20px; max-width: 640px; }
+.eto-lab { padding-top: 24px; }
+.eto-intro { display: grid; gap: 10px; max-width: 720px; margin-bottom: 22px; }
+.eto-intro h2 { font-size: clamp(34px, 4vw, 52px); }
+.eto-card { background: #FFFFFF; border: 1px solid var(--line); border-radius: 18px; overflow: hidden; box-shadow: 0 18px 40px -28px rgba(31,78,88,0.45); }
+.eto-stage { position: relative; aspect-ratio: 16 / 7; min-height: 260px; background: #CFE6EE; }
+#eto-scene { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.eto-badge { position: absolute; left: 20px; top: 18px; display: grid; justify-items: start; padding: 10px 16px 12px; border-radius: 14px; background: rgba(255,255,255,0.86); backdrop-filter: blur(6px); box-shadow: 0 8px 22px -14px rgba(0,0,0,0.4); }
+.eto-badge span { font-size: 13px; font-weight: 600; letter-spacing: 0.08em; color: var(--muted); }
+.eto-badge strong { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; font-size: 54px; line-height: 0.95; color: #1F4E58; }
+.eto-badge small { font-size: 13px; color: var(--muted); }
+.eto-panel { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 0; border-top: 1px solid var(--line); }
+.eto-controls { padding: 22px 26px 26px; display: grid; gap: 16px; align-content: start; border-right: 1px solid var(--line); }
+.eto-presets { display: flex; flex-wrap: wrap; gap: 8px; }
+.eto-presets button { font: inherit; font-size: 14px; padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg); color: var(--text); cursor: pointer; }
+.eto-presets button:hover, .eto-presets button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+.eto-slider { display: grid; gap: 6px; }
+.eto-slider-top { display: flex; justify-content: space-between; font-size: 15px; font-weight: 500; }
+.eto-slider output { color: var(--accent); font-variant-numeric: tabular-nums; }
+.eto-slider input { width: 100%; accent-color: var(--accent); }
+.eto-calc { padding: 22px 26px 26px; display: grid; gap: 16px; align-content: start; background: #FBFDFC; }
+.eto-calc h3 { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; font-size: 28px; color: #1F4E58; }
+.eto-calc-inputs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.eto-calc-inputs label { display: grid; gap: 5px; font-size: 13px; color: var(--muted); }
+.eto-calc-inputs select, .eto-calc-inputs input { font: inherit; font-size: 15px; color: var(--text); padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: #FFFFFF; min-width: 0; }
+.eto-eq { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.eto-eq div { display: grid; text-align: center; min-width: 64px; }
+.eto-eq strong { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; font-size: 34px; line-height: 1; color: var(--accent); font-variant-numeric: tabular-nums; }
+.eto-eq span { font-size: 12px; color: var(--muted); }
+.eto-eq b { font-weight: 400; font-size: 22px; color: var(--muted); }
+.eto-out { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0; }
+.eto-out div { background: #EAF4F4; border-radius: 12px; padding: 12px 14px; }
+.eto-out dt { font-size: 13px; color: var(--muted); }
+.eto-out dd { margin: 2px 0 0; font-size: 22px; font-weight: 600; color: #1F4E58; font-variant-numeric: tabular-nums; }
+.eto-note { font-size: 13px; color: var(--muted); }
+
+.steps { list-style: none; padding: 0; margin: 0 0 28px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; counter-reset: none; }
+.step { position: relative; background: #FFFFFF; border: 1px solid var(--line); border-radius: 14px; padding: 18px 18px 20px; display: grid; gap: 8px; align-content: start; }
+.step svg { width: 52px; height: 52px; }
+.step-n { position: absolute; top: 16px; right: 18px; font-family: "Instrument Serif", Georgia, serif; font-size: 22px; color: #9BB8BC; }
+.step h3 { font-size: 18px; margin: 0; }
+.step p { font-size: 15px; color: var(--muted); }
+.workflow-fig { max-width: 980px; margin: 0 auto; }
+.hero-fig { max-width: 980px; margin: 0 auto; display: grid; gap: 14px; }
+.hero-fig.narrow { max-width: 760px; }
+.fig-head { font-size: 18px; color: #3A4A4E; margin: 0 0 4px; }
+.fig-head strong { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; font-size: 30px; color: #1F4E58; display: block; line-height: 1.15; }
+@media (max-width: 960px) {
+  .eto-panel { grid-template-columns: 1fr; }
+  .eto-controls { border-right: 0; border-bottom: 1px solid var(--line); }
+  .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .eto-stage { aspect-ratio: 4 / 3; }
+  .eto-badge strong { font-size: 40px; }
+  .eto-calc-inputs { grid-template-columns: 1fr 1fr; }
+  .steps { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) { .eto-out dd { font-size: 18px; } .eto-calc-inputs label:last-child { grid-column: 1 / -1; } }

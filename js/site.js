@@ -593,3 +593,251 @@
     dlg.showModal();
   });
 })();
+
+// 10. Research page: interactive ETo scene + irrigation calculator.
+(function () {
+  const canvas = document.getElementById('eto-scene');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const $ = (id) => document.getElementById(id);
+  const el = { sun: $('eto-sun'), temp: $('eto-temp'), rh: $('eto-rh'), wind: $('eto-wind'),
+    crop: $('eto-crop'), acres: $('eto-acres'), eff: $('eto-eff') };
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const presets = {
+    coast: { sun: 45, temp: 17, rh: 82, wind: 2.5 },
+    valley: { sun: 95, temp: 29, rh: 38, wind: 2 },
+    desert: { sun: 100, temp: 38, rh: 12, wind: 4 }
+  };
+
+  // FAO-56 Penman-Monteith, daily, sea level, midsummer extraterrestrial radiation.
+  function eto(sunPct, T, RH, u2) {
+    const Ra = 40, Rs = (0.25 + 0.5 * sunPct / 100) * Ra, Rso = 0.75 * Ra;
+    const es = 0.6108 * Math.exp(17.27 * T / (T + 237.3)), ea = es * RH / 100;
+    const Rnl = 4.903e-9 * Math.pow(T + 273.16, 4) * (0.34 - 0.14 * Math.sqrt(ea)) * (1.35 * Rs / Rso - 0.35);
+    const Rn = 0.77 * Rs - Rnl;
+    const d = 4098 * es / Math.pow(T + 237.3, 2), g = 0.0674;
+    return Math.max(0, (0.408 * d * Rn + g * 900 / (T + 273) * u2 * (es - ea)) / (d + g * (1 + 0.34 * u2)));
+  }
+
+  const target = {}, cur = {};
+  let model = { eto: 0, etc: 0, apply: 0 };
+  const fmt = (n, d) => n.toLocaleString('en-US', { maximumFractionDigits: d, minimumFractionDigits: d });
+
+  function read() {
+    target.sun = +el.sun.value / 100; target.temp = +el.temp.value;
+    target.rh = +el.rh.value / 100; target.wind = +el.wind.value;
+    const E = eto(+el.sun.value, target.temp, +el.rh.value, target.wind);
+    const kc = +el.crop.value, eff = +el.eff.value;
+    const acres = Math.max(0, +el.acres.value || 0);
+    const etc = E * kc, apply = etc / eff;
+    model = { eto: E, etc, apply };
+    $('eto-sun-out').textContent = el.sun.value + '% clear';
+    $('eto-temp-out').textContent = fmt(target.temp, 0) + ' °C · ' + fmt(target.temp * 9 / 5 + 32, 0) + ' °F';
+    $('eto-rh-out').textContent = el.rh.value + '%';
+    $('eto-wind-out').textContent = fmt(target.wind, 1) + ' m/s · ' + fmt(target.wind * 2.237, 0) + ' mph';
+    $('eto-value').textContent = fmt(E, 1);
+    $('eq-eto').textContent = fmt(E, 1);
+    $('eq-kc').textContent = fmt(kc, 2);
+    $('eq-etc').textContent = fmt(etc, 1);
+    $('out-week').textContent = fmt(apply * 7 / 25.4, 1) + ' in/week';
+    $('out-gal').textContent = fmt(Math.round(apply / 25.4 * 27154 * acres / 100) * 100, 0) + ' gal/day';
+    if (reduce) Object.assign(cur, target), draw(0);
+  }
+
+  ['sun', 'temp', 'rh', 'wind'].forEach((k) => el[k].addEventListener('input', () => {
+    document.querySelectorAll('.eto-presets button').forEach((b) => b.setAttribute('aria-pressed', 'false'));
+    read();
+  }));
+  ['crop', 'acres', 'eff'].forEach((k) => el[k].addEventListener('input', read));
+  document.querySelectorAll('.eto-presets button').forEach((b) => {
+    b.setAttribute('aria-pressed', 'false');
+    b.addEventListener('click', () => {
+      const p = presets[b.dataset.preset];
+      el.sun.value = p.sun; el.temp.value = p.temp; el.rh.value = p.rh; el.wind.value = p.wind;
+      document.querySelectorAll('.eto-presets button').forEach((x) => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+      read();
+    });
+  });
+
+  // ----- scene -----
+  let W = 0, H = 0, horizon = 0, rows = [], heads = [];
+  const clouds = Array.from({ length: 7 }, (_, i) => ({ x: i / 7, y: 0.08 + ((i * 37) % 23) / 100, s: 0.7 + ((i * 53) % 50) / 100 }));
+  clouds[0] = { x: 0.74, y: 0.14, s: 1.25 }; // one that sits over the sun
+  const vapor = [], drops = [];
+  const mix = (a, b, t) => a + (b - a) * t;
+  const hex = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+  const mixc = (a, b, t) => { const A = hex(a), B = hex(b); return '#' + A.map((v, i) => Math.round(mix(v, B[i], t)).toString(16).padStart(2, '0')).join(''); };
+
+  function resize() {
+    const r = canvas.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = r.width; H = r.height; canvas.width = W * dpr; canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    horizon = H * 0.55;
+    rows = [];
+    const N = 9;
+    for (let k = 0; k < N; k++) {
+      const f = Math.pow((k + 1) / N, 1.7), y = horizon + (H - horizon) * f, sc = 0.25 + f * 1.1;
+      const plants = [], gap = 26 * sc;
+      for (let x = -gap + (k % 2) * gap / 2; x < W + gap; x += gap) plants.push(x);
+      rows.push({ y, sc, plants });
+    }
+    heads = [{ x: W * 0.3, y: horizon + (H - horizon) * 0.62 }, { x: W * 0.7, y: horizon + (H - horizon) * 0.62 }];
+    if (reduce) draw(0);
+  }
+
+  function mountain(base, amp, seed, color) {
+    ctx.beginPath(); ctx.moveTo(0, horizon + 2);
+    for (let x = 0; x <= W; x += 8) {
+      const t = x / W;
+      const y = base - amp * (0.55 * Math.sin(t * 5.2 + seed) + 0.3 * Math.sin(t * 11.7 + seed * 2) + 0.15 * Math.sin(t * 23 + seed * 3) + 0.6);
+      ctx.lineTo(x, y);
+    }
+    ctx.lineTo(W, horizon + 2); ctx.closePath(); ctx.fillStyle = color; ctx.fill();
+  }
+
+  function cloud(cx, cy, s, alpha, shade) {
+    ctx.globalAlpha = alpha; ctx.fillStyle = shade; ctx.beginPath();
+    [[0, 0, 26], [24, -10, 22], [48, 0, 24], [22, 8, 24], [-20, 6, 18], [66, 8, 16]].forEach(([dx, dy, r]) => {
+      ctx.moveTo(cx + (dx + r) * s, cy + dy * s); ctx.arc(cx + dx * s, cy + dy * s, r * s, 0, Math.PI * 2);
+    });
+    ctx.fill(); ctx.globalAlpha = 1;
+  }
+
+  let last = 0, time = 0;
+  function draw(now) {
+    const dt = last ? Math.min(0.05, (now - last) / 1000) : 0.016; last = now; time += dt;
+    if (!reduce) for (const k in target) cur[k] = cur[k] === undefined ? target[k] : mix(cur[k], target[k], Math.min(1, dt * 4));
+    const s = cur.sun, heat = (cur.temp - 5) / 35, rh = cur.rh, u = cur.wind;
+    const unit = Math.min(W, 1100) / 1100 + 0.25;
+
+    // sky
+    const sky = ctx.createLinearGradient(0, 0, 0, horizon);
+    sky.addColorStop(0, mixc('#9AA8B0', '#4FA6D3', s));
+    sky.addColorStop(1, mixc(mixc('#D7DEE1', '#CDEBF4', s), '#F7D9A6', heat * s * 0.7));
+    ctx.fillStyle = sky; ctx.fillRect(0, 0, W, horizon + 4);
+
+    // sun
+    const sx = W * 0.8, sy = H * 0.2, sr = 26 * unit + heat * 6;
+    const glow = ctx.createRadialGradient(sx, sy, sr * 0.5, sx, sy, sr * 4);
+    glow.addColorStop(0, 'rgba(255,224,130,' + (0.55 * s) + ')'); glow.addColorStop(1, 'rgba(255,224,130,0)');
+    ctx.fillStyle = glow; ctx.fillRect(sx - sr * 4, sy - sr * 4, sr * 8, sr * 8);
+    ctx.save(); ctx.translate(sx, sy); ctx.rotate(time * 0.15);
+    ctx.strokeStyle = 'rgba(255,205,90,' + (0.2 + 0.7 * s) + ')'; ctx.lineWidth = 3 * unit; ctx.lineCap = 'round';
+    for (let i = 0; i < 12; i++) { ctx.rotate(Math.PI / 6); ctx.beginPath(); ctx.moveTo(sr * 1.35, 0); ctx.lineTo(sr * (1.6 + 0.5 * heat + 0.1 * Math.sin(time * 2 + i)), 0); ctx.stroke(); }
+    ctx.restore();
+    ctx.fillStyle = mixc('#F3E3B0', '#FFD45C', s); ctx.beginPath(); ctx.arc(sx, sy, sr, 0, Math.PI * 2); ctx.fill();
+
+    // mountains
+    mountain(horizon - H * 0.06, H * 0.2, 1.3, mixc('#93B4C0', '#C9D7DC', rh * 0.6));
+    mountain(horizon + 2, H * 0.12, 4.1, mixc('#5F8E87', '#A9C1BE', rh * 0.45));
+
+    // clouds (more and darker when it's less sunny)
+    const cAlpha = 0.12 + 0.88 * (1 - s), shade = mixc('#FFFFFF', '#C9D2D7', (1 - s) * 0.8);
+    clouds.forEach((c, i) => {
+      if (!reduce) c.x += (0.004 + u * 0.006) * dt * (0.8 + (i % 3) * 0.2);
+      if (c.x > 1.15) c.x = -0.15;
+      const vis = i === 0 ? cAlpha : Math.min(1, cAlpha * 1.1 + (i < 3 ? 0.06 : 0));
+      cloud(c.x * W, c.y * H, c.s * unit, vis, shade);
+    });
+
+    // humid haze near the horizon
+    const haze = ctx.createLinearGradient(0, horizon - H * 0.28, 0, horizon + H * 0.05);
+    haze.addColorStop(0, 'rgba(255,255,255,0)'); haze.addColorStop(1, 'rgba(240,246,248,' + (0.7 * rh) + ')');
+    ctx.fillStyle = haze; ctx.fillRect(0, horizon - H * 0.28, W, H * 0.33);
+
+    // field
+    const ground = ctx.createLinearGradient(0, horizon, 0, H);
+    ground.addColorStop(0, mixc('#9DB07A', '#C9B27A', heat * heat)); ground.addColorStop(1, mixc('#7C6A4F', '#9A7A55', heat * heat));
+    ctx.fillStyle = ground; ctx.fillRect(0, horizon, W, H - horizon);
+    rows.forEach((r, k) => {
+      ctx.fillStyle = 'rgba(92,70,48,0.35)'; ctx.fillRect(0, r.y - 4 * r.sc, W, 7 * r.sc);
+      const sway = Math.sin(time * (1.5 + u * 0.4) + k) * u * 0.9 * r.sc;
+      const leaf = mixc('#5FA64A', '#9BAF46', heat * heat * 0.6);
+      r.plants.forEach((x, i) => {
+        const px = x + sway + Math.sin(time * 2.2 + i * 0.7) * u * 0.25 * r.sc, py = r.y - 6 * r.sc, pr = 7.5 * r.sc;
+        ctx.fillStyle = leaf; ctx.beginPath(); ctx.ellipse(px, py, pr * 1.2, pr, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = 'rgba(210,240,160,0.55)'; ctx.beginPath(); ctx.ellipse(px - pr * 0.3, py - pr * 0.35, pr * 0.5, pr * 0.32, 0, 0, Math.PI * 2); ctx.fill();
+      });
+    });
+
+    // low fog when it's humid and gray
+    const fogA = Math.max(0, rh - 0.55) * 1.4 * (1.1 - s);
+    if (fogA > 0.01) {
+      const fog = ctx.createLinearGradient(0, horizon - H * 0.08, 0, horizon + (H - horizon) * 0.6);
+      fog.addColorStop(0, 'rgba(236,242,244,' + fogA + ')'); fog.addColorStop(1, 'rgba(236,242,244,0)');
+      ctx.fillStyle = fog; ctx.fillRect(0, horizon - H * 0.08, W, H);
+    }
+
+    // water vapor rising (rate follows ETo)
+    if (!reduce) {
+      let n = model.eto * 7 * dt * (W / 900);
+      while (n > 0) {
+        if (Math.random() < n) {
+          const r = rows[1 + Math.floor(Math.random() * (rows.length - 2))];
+          vapor.push({ x: Math.random() * W, y: r.y - 10 * r.sc, sc: r.sc, life: 0, max: 2.4 + Math.random() * 1.6, ph: Math.random() * 6 });
+        }
+        n -= 1;
+      }
+    }
+    ctx.lineCap = 'round';
+    for (let i = vapor.length - 1; i >= 0; i--) {
+      const v = vapor[i]; v.life += dt;
+      if (v.life > v.max) { vapor.splice(i, 1); continue; }
+      v.y -= (16 + 10 * v.sc) * dt; v.x += u * 9 * dt;
+      const a = Math.sin(Math.PI * v.life / v.max) * 0.75, len = 14 * v.sc + 6;
+      ctx.strokeStyle = 'rgba(232,247,255,' + (a * 0.7) + ')'; ctx.lineWidth = 1.6 * v.sc + 0.6;
+      ctx.beginPath(); ctx.moveTo(v.x, v.y);
+      ctx.bezierCurveTo(v.x + 5 * v.sc * Math.sin(time * 3 + v.ph), v.y - len / 3, v.x - 5 * v.sc * Math.sin(time * 3 + v.ph), v.y - 2 * len / 3, v.x + 2 * v.sc, v.y - len); ctx.stroke();
+    }
+
+    // sprinklers (spray follows the water to apply)
+    heads.forEach((h) => {
+      const sc = Math.max(0.55, Math.min(1.1, H / 460));
+      ctx.strokeStyle = '#5E6B70'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(h.x, h.y); ctx.lineTo(h.x, h.y - 30 * sc); ctx.stroke();
+      ctx.fillStyle = '#3E4A4F'; ctx.beginPath(); ctx.arc(h.x, h.y - 31 * sc, 4 * sc, 0, Math.PI * 2); ctx.fill();
+      if (!reduce) {
+        let n = model.apply * 22 * dt * sc;
+        while (n > 0) {
+          if (Math.random() < n) {
+            const ang = (Math.random() < 0.5 ? -1 : 1) * (0.35 + Math.random() * 0.9), sp = (95 + Math.random() * 75) * sc;
+            drops.push({ x: h.x, y: h.y - 31 * sc, vx: Math.sin(ang) * sp, vy: -Math.cos(ang) * sp * 0.9, g: 140 * sc, floor: h.y + (4 + Math.random() * 18) * sc });
+          }
+          n -= 1;
+        }
+      } else {
+        ctx.strokeStyle = 'rgba(79,179,200,0.7)'; ctx.lineWidth = 2;
+        [-1, 1].forEach((d) => { ctx.beginPath(); ctx.moveTo(h.x, h.y - 31); ctx.quadraticCurveTo(h.x + d * 45, h.y - 80, h.x + d * 90, h.y); ctx.stroke(); });
+      }
+    });
+    ctx.fillStyle = 'rgba(46,155,181,0.85)';
+    for (let i = drops.length - 1; i >= 0; i--) {
+      const d = drops[i];
+      d.vy += d.g * dt; d.vx += u * 8 * dt; d.x += d.vx * dt; d.y += d.vy * dt;
+      if (d.y > d.floor && d.vy > 0) { drops.splice(i, 1); continue; }
+      ctx.beginPath(); ctx.arc(d.x, d.y, 2.1, 0, Math.PI * 2); ctx.fill();
+    }
+
+    // windsock
+    const px = W * 0.92, py = horizon + (H - horizon) * 0.32, ph = 54 * unit;
+    ctx.strokeStyle = '#4A5559'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px, py - ph); ctx.stroke();
+    const lift = Math.min(1, u / 6), angle = mix(1.35, 0.05, lift) + Math.sin(time * (2 + u)) * 0.06 * lift;
+    ctx.save(); ctx.translate(px, py - ph + 2); ctx.rotate(angle);
+    const sl = 34 * unit;
+    for (let i = 0; i < 4; i++) {
+      ctx.fillStyle = i % 2 ? '#FFFFFF' : '#E9763A';
+      const x0 = sl * i / 4, x1 = sl * (i + 1) / 4, h0 = 7 * unit * (1 - 0.35 * i / 4), h1 = 7 * unit * (1 - 0.35 * (i + 1) / 4);
+      ctx.beginPath(); ctx.moveTo(x0, -h0); ctx.lineTo(x1, -h1); ctx.lineTo(x1, h1); ctx.lineTo(x0, h0); ctx.closePath(); ctx.fill();
+    }
+    ctx.restore();
+
+    if (!reduce && running) requestAnimationFrame(draw);
+  }
+
+  let running = false;
+  function start() { if (!running && !reduce) { running = true; last = 0; requestAnimationFrame(draw); } }
+  new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) start(); else running = false; })).observe(canvas);
+  window.addEventListener('resize', resize);
+  resize(); read();
+  Object.assign(cur, target);
+  draw(0);
+})();
