@@ -8,9 +8,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600&display=swap">
-  <link rel="stylesheet" href="css/style.css?v=15">
+  <link rel="stylesheet" href="css/style.css?v=16">
 </head>
-<body>
+<body class="research-page">
+  <canvas id="eto-scene" aria-hidden="true"></canvas>
   <a class="skip" href="#main">Skip to content</a>
   <header class="site-header">
     <div class="wrap">
@@ -25,69 +26,62 @@
   </header>
 
   <main id="main" class="wrap research">
-    <section class="research-hero">
-      <span class="eyebrow">Research</span>
-      <h1>Can a satellite stand in for a weather station?</h1>
-      <p class="lede">My master's thesis compares two ways of measuring how thirsty California's air is, and what the difference means for farm water.</p>
-      <div class="research-meta"><span class="status">In progress · expected December 2026</span><span class="muted">Advisor: Dr. Yiwen Chiu · ARI NextGen Fellowship</span></div>
-    </section>
-
-    <section class="section eto-lab" aria-labelledby="eto-h">
-      <div class="eto-intro">
-        <h2 id="eto-h">First, what is ETo?</h2>
-        <p>Reference evapotranspiration (ETo) is how much water the air pulls out of a well-watered field in a day. Growers use it to decide how much to irrigate. Change the weather and watch it move.</p>
+    <section class="eto-screen">
+      <div class="research-hero">
+        <span class="eyebrow">Research</span>
+        <h1>Can a satellite stand in for a weather station?</h1>
+        <p class="lede">My master's thesis compares two ways of measuring how thirsty California's air is, and what the difference means for farm water.</p>
+        <div class="research-meta"><span class="status">In progress · expected December 2026</span><span class="muted">Advisor: Dr. Yiwen Chiu · ARI NextGen Fellowship</span></div>
       </div>
-      <div class="eto-card">
-        <div class="eto-stage">
-          <canvas id="eto-scene" role="img" aria-label="Animated farm scene with mountains, sky, crops and a sprinkler that responds to the weather sliders"></canvas>
-          <div class="eto-badge" aria-live="polite"><span>ETo</span><strong id="eto-value">5.3</strong><small>mm/day</small></div>
+
+      <div class="eto-dock glass" aria-labelledby="eto-h">
+        <div class="eto-readout">
+          <h2 id="eto-h">What is ETo?</h2>
+          <div class="eto-badge" aria-live="polite"><strong id="eto-value">5.3</strong><small>mm/day</small></div>
+          <p>How much water the air pulls from a well-watered field each day.</p>
+
         </div>
-        <div class="eto-panel">
-          <div class="eto-controls">
-            <div class="eto-presets" role="group" aria-label="Weather presets">
-              <button type="button" data-preset="coast">Foggy coast</button>
-              <button type="button" data-preset="valley">Valley summer</button>
-              <button type="button" data-preset="desert">Desert heat</button>
-            </div>
+        <div class="eto-controls">
+          <div class="eto-presets" role="group" aria-label="Weather presets">
+            <button type="button" data-preset="coast">Foggy coast</button>
+            <button type="button" data-preset="valley">Valley summer</button>
+            <button type="button" data-preset="desert">Desert heat</button>
+          </div>
+
+          <div class="eto-sliders">
             <label class="eto-slider"><span class="eto-slider-top"><span>Sunshine</span><output id="eto-sun-out"></output></span><input id="eto-sun" type="range" min="0" max="100" step="1" value="85"></label>
             <label class="eto-slider"><span class="eto-slider-top"><span>Temperature</span><output id="eto-temp-out"></output></span><input id="eto-temp" type="range" min="5" max="40" step="0.5" value="22"></label>
             <label class="eto-slider"><span class="eto-slider-top"><span>Humidity</span><output id="eto-rh-out"></output></span><input id="eto-rh" type="range" min="10" max="100" step="1" value="60"></label>
             <label class="eto-slider"><span class="eto-slider-top"><span>Wind</span><output id="eto-wind-out"></output></span><input id="eto-wind" type="range" min="0" max="8" step="0.1" value="2"></label>
           </div>
-          <div class="eto-calc">
-            <h3>Irrigation calculator</h3>
-            <div class="eto-calc-inputs">
-              <label>Crop
-                <select id="eto-crop">
-                  <option value="1.00">Lettuce</option>
-                  <option value="0.85">Strawberries</option>
-                  <option value="1.15">Tomatoes</option>
-                  <option value="0.90">Almonds</option>
-                  <option value="0.70">Wine grapes</option>
-                  <option value="0.95">Alfalfa</option>
-                </select>
-              </label>
-              <label>Field size (acres)<input id="eto-acres" type="number" min="1" max="10000" step="1" value="10"></label>
-              <label>System
-                <select id="eto-eff">
-                  <option value="0.90">Drip (90%)</option>
-                  <option value="0.75" selected>Sprinkler (75%)</option>
-                  <option value="0.60">Furrow (60%)</option>
-                </select>
-              </label>
-            </div>
-            <div class="eto-eq" aria-live="polite">
-              <div><strong id="eq-eto">5.3</strong><span>ETo</span></div><b>×</b>
-              <div><strong id="eq-kc">1.00</strong><span>Kc</span></div><b>=</b>
-              <div><strong id="eq-etc">5.3</strong><span>ETc mm/day</span></div>
-            </div>
-            <dl class="eto-out">
-              <div><dt>Water to apply</dt><dd id="out-week">1.5 in/week</dd></div>
-              <div><dt>Whole field</dt><dd id="out-gal">5,000 gal/day</dd></div>
-            </dl>
-            <p class="eto-note">Simplified FAO-56 Penman–Monteith for a midsummer day at sea level. It ignores rain and soil moisture, so it's for exploring, not scheduling.</p>
-          </div>
         </div>
+        <div class="eto-calc">
+          <h3>Irrigation calculator</h3>
+          <div class="eto-calc-inputs">
+            <label>Crop<select id="eto-crop"><option value="lettuce">Lettuce</option><option value="broccoli">Broccoli</option><option value="strawberries">Strawberries</option><option value="tomatoes">Tomatoes</option><option value="corn">Corn</option><option value="cotton">Cotton</option><option value="rice">Rice</option><option value="alfalfa">Alfalfa</option><option value="almonds">Almonds</option><option value="pistachios">Pistachios</option><option value="citrus">Citrus</option><option value="grapes">Wine grapes</option></select></label>
+            <label>Acres<input id="eto-acres" type="number" min="1" max="10000" step="1" value="10"></label>
+            <label>System
+              <select id="eto-eff">
+                <option value="0.90">Drip (90%)</option>
+                <option value="0.75" selected>Sprinkler (75%)</option>
+                <option value="0.60">Furrow (60%)</option>
+              </select>
+            </label>
+          </div>
+          <div class="eto-results">
+          <div class="eto-eq" aria-live="polite">
+            <div><strong id="eq-eto">5.3</strong><span>ETo</span></div><b>×</b>
+            <div><strong id="eq-kc">1.00</strong><span>Kc</span></div><b>=</b>
+            <div><strong id="eq-etc">5.3</strong><span>ETc</span></div>
+          </div>
+          <dl class="eto-out">
+            <div><dt>Water to apply</dt><dd id="out-week">1.9 in/week</dd></div>
+            <div><dt>Whole field</dt><dd id="out-gal">75,600 gal/day</dd></div>
+          </dl>
+          </div>
+
+        </div>
+        <p class="eto-note">Simplified FAO-56 Penman–Monteith for a midsummer day at sea level. This tool was designed to visualize ETo, not to schedule irrigation.</p>
       </div>
     </section>
 
@@ -153,7 +147,6 @@
     </section>
   </main>
 
-  <div class="pond-space" aria-hidden="true"></div>
   <footer class="site-footer">
     <div class="wrap">
       <span>Brooke Murphy · Los Osos, California</span>
@@ -164,6 +157,6 @@
       </nav>
     </div>
   </footer>
-  <script src="js/site.js?v=15" defer></script>
+  <script src="js/site.js?v=16" defer></script>
 </body>
 </html>
