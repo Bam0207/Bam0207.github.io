@@ -944,7 +944,7 @@
     const steps = [
       { key: 'sun', title: 'Meet the weather', text: 'Each slider is one ingredient of atmospheric thirst (ETo). Drag one and watch the big number on the farm change. Here’s what each one does.' },
       { key: 'sun', to: 100, title: 'Turn up the sun', text: 'Sunlight is the energy that turns water into vapor. More sun means more evaporation, so ETo goes up.' },
-      { key: 'temp', to: 36, title: 'Warm it up', text: 'Warm air can hold more water vapor, so it pulls harder on wet leaves and soil.' },
+      { key: 'temp', to: 36, title: 'Warm it up', text: 'Warm air can hold more water vapor, so it pulls more water from wet leaves and soil.' },
       { key: 'rh', to: 15, title: 'Dry out the air', text: 'Dry air is thirstier. When the air is already holding very little moisture, water escapes faster.' },
       { key: 'wind', to: 6, title: 'Add some wind', text: 'Wind sweeps away the damp air sitting right above the crop and brings in drier air, so evaporation keeps going.' },
       { key: 'sun', reset: true, title: 'Now you try', text: 'Every change also flows into the irrigation calculator below: higher ETo means more water to apply. Pick a crop and play.' }
@@ -1025,4 +1025,126 @@
   }
   inp.addEventListener('input', update);
   update();
+})();
+
+// 12. Research page: hover a legend item to light up its terms in the Penman–Monteith equation.
+(function () {
+  const eq = document.querySelector('.pm-eq');
+  if (!eq) return;
+  document.querySelectorAll('.pm-legend li').forEach((li) => {
+    li.tabIndex = 0;
+    const on = () => eq.setAttribute('data-active', li.dataset.k), off = () => eq.removeAttribute('data-active');
+    li.addEventListener('mouseenter', on); li.addEventListener('focus', on);
+    li.addEventListener('mouseleave', off); li.addEventListener('blur', off);
+  });
+})();
+
+// 13. Research page: a three-step illustration of how a machine learning model
+//     learns from stations + satellites, then predicts everywhere.
+(function () {
+  const root = document.getElementById('ml-demo');
+  if (!root) return;
+  const svg = root.querySelector('.ml-svg'), tip = root.querySelector('.ml-tip'), cap = root.querySelector('.ml-caption');
+  const tabs = [...root.querySelectorAll('.ml-steps button')];
+  const NS = 'http://www.w3.org/2000/svg';
+  const mk = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); (parent || svg).appendChild(e); return e; };
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const COLS = 20, ROWS = 13, CW = 25, X0 = 20, Y0 = 34;
+  const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+  const ramp = (a, b) => (t) => 'rgb(' + hex(a).map((v, i) => Math.round(v + (hex(b)[i] - v) * t)).join(',') + ')';
+  const lstC = ramp('#FCEBD3', '#D45A26'), etoC = ramp('#E3F3F1', '#1F4E58');
+  const clamp = (v) => Math.max(0, Math.min(1, v));
+  const lst = (i, j) => clamp(0.12 + 0.72 * Math.pow(i / (COLS - 1), 0.85) + 0.12 * Math.sin(j * 0.6 + i * 0.35));
+  const eto = (i, j) => clamp(0.1 + 0.82 * lst(i, j) + 0.05 * Math.cos(i * 0.9 - j * 0.5));
+  const toC = (v) => Math.round(14 + v * 32), toMM = (v) => (1 + v * 7.5).toFixed(1);
+  const stations = [[1, 3], [2, 9], [4, 6], [6, 11], [8, 2], [9, 7], [11, 10], [13, 4], [15, 8], [17, 2], [18, 11]];
+
+  // map
+  mk('text', { x: X0, y: 22, class: 'ml-title', 'font-size': 15, 'font-weight': 600, fill: '#1F4E58' }).textContent = '';
+  const mapTitle = svg.lastChild;
+  const cells = [];
+  for (let i = 0; i < COLS; i++) for (let j = 0; j < ROWS; j++) {
+    const r = mk('rect', { x: X0 + i * CW, y: Y0 + j * CW, width: CW - 1, height: CW - 1, rx: 3, fill: lstC(lst(i, j)) });
+    r.style.transition = 'fill 0.6s ease';
+    r.dataset.i = i; r.dataset.j = j; cells.push(r);
+  }
+  const stG = mk('g', {});
+  stations.forEach(([i, j]) => {
+    const cx = X0 + i * CW + CW / 2, cy = Y0 + j * CW + CW / 2;
+    const g = mk('g', {}, stG);
+    mk('circle', { cx, cy, r: 13, fill: 'none', stroke: '#FFFFFF', 'stroke-width': 2, class: 'ml-ring' }, g);
+    mk('circle', { cx, cy, r: 7, fill: '#FFFFFF', stroke: '#1F4E58', 'stroke-width': 2.5 }, g);
+  });
+  // scatter
+  const PX0 = 600, PX1 = 840, PY0 = 60, PY1 = 300;
+  mk('text', { x: PX0 - 40, y: 22, 'font-size': 15, 'font-weight': 600, fill: '#1F4E58' }).textContent = 'What the model learns';
+  mk('line', { x1: PX0, y1: PY1, x2: PX1, y2: PY1, stroke: '#9BB8BC', 'stroke-width': 1.5 });
+  mk('line', { x1: PX0, y1: PY0, x2: PX0, y2: PY1, stroke: '#9BB8BC', 'stroke-width': 1.5 });
+  mk('text', { x: (PX0 + PX1) / 2, y: PY1 + 30, 'text-anchor': 'middle', 'font-size': 13, fill: '#4C5956' }).textContent = 'Satellite ground temperature →';
+  const yl = mk('text', { x: PX0 - 16, y: (PY0 + PY1) / 2, 'text-anchor': 'middle', 'font-size': 13, fill: '#4C5956', transform: `rotate(-90 ${PX0 - 16} ${(PY0 + PY1) / 2})` }); yl.textContent = 'Station ETo →';
+  const empty = mk('text', { x: (PX0 + PX1) / 2, y: (PY0 + PY1) / 2, 'text-anchor': 'middle', 'font-size': 14, fill: '#9BB8BC' }); empty.textContent = 'No examples yet';
+  const fit = mk('path', { d: '', fill: 'none', stroke: '#2E7484', 'stroke-width': 3, 'stroke-linecap': 'round' });
+  const pts = stations.map(([i, j], k) => {
+    const p = mk('circle', { cx: PX0 + 10 + lst(i, j) * (PX1 - PX0 - 20), cy: PY1 - 10 - eto(i, j) * (PY1 - PY0 - 20), r: 6, fill: '#E2683A', stroke: '#FFFFFF', 'stroke-width': 2 });
+    p.style.transition = 'opacity 0.4s ease ' + (k * 0.12) + 's, transform 0.4s ease ' + (k * 0.12) + 's';
+    p.style.transformOrigin = p.getAttribute('cx') + 'px ' + p.getAttribute('cy') + 'px';
+    return p;
+  });
+  // fitted curve through the cloud
+  let d = '';
+  for (let x = 0; x <= 1.0001; x += 0.05) { const y = clamp(0.1 + 0.82 * x); d += (d ? 'L' : 'M') + (PX0 + 10 + x * (PX1 - PX0 - 20)).toFixed(1) + ' ' + (PY1 - 10 - y * (PY1 - PY0 - 20)).toFixed(1); }
+  fit.setAttribute('d', d);
+  const fitLen = 330; fit.style.strokeDasharray = fitLen; fit.style.transition = 'stroke-dashoffset 1.2s ease 1.2s';
+  const legend = mk('g', { transform: `translate(${X0} ${Y0 + ROWS * CW + 14})` });
+  const legRect = mk('rect', { x: 0, y: 0, width: 160, height: 10, rx: 3 }, legend);
+  const defs = mk('defs', {});
+  const grad = mk('linearGradient', { id: 'ml-grad' }, defs);
+  const s0 = mk('stop', { offset: '0' }, grad), s1 = mk('stop', { offset: '1' }, grad);
+  legRect.setAttribute('fill', 'url(#ml-grad)');
+  const legLo = mk('text', { x: 168, y: 9, 'font-size': 12, fill: '#4C5956' }, legend);
+
+  const CAPS = [
+    '<strong>Collect examples.</strong> Satellites measure ground temperature everywhere (orange). Weather stations (white dots) measure ETo in only a few places.',
+    '<strong>Learn the pattern.</strong> Wherever a station and a satellite pixel overlap, the model gets one example. From many examples, it learns how ground temperature, location and season relate to ETo.',
+    '<strong>Predict everywhere.</strong> Now the model uses satellite data alone to estimate ETo for every pixel, including all the places without a station. Hover a pixel to see its estimate.'
+  ];
+  let step = -1, timers = [];
+  function show(n) {
+    step = n;
+    tabs.forEach((t, k) => t.setAttribute('aria-selected', k === n ? 'true' : 'false'));
+    cap.innerHTML = CAPS[n];
+    mapTitle.textContent = n < 2 ? 'Satellite: ground temperature' : 'Model: estimated ETo';
+    const pred = n === 2;
+    cells.forEach((r) => {
+      const i = +r.dataset.i, j = +r.dataset.j;
+      r.style.transitionDelay = pred && !reduce ? (i * 0.04) + 's' : '0s';
+      r.setAttribute('fill', pred ? etoC(eto(i, j)) : lstC(lst(i, j)));
+    });
+    s0.setAttribute('stop-color', pred ? '#E3F3F1' : '#FCEBD3'); s1.setAttribute('stop-color', pred ? '#1F4E58' : '#D45A26');
+    legLo.textContent = pred ? 'Lower → higher ETo' : 'Cooler → hotter ground';
+    const learned = n >= 1;
+    empty.style.opacity = learned ? 0 : 1;
+    pts.forEach((p) => { p.style.opacity = learned ? 1 : 0; p.style.transform = learned ? 'scale(1)' : 'scale(0.2)'; });
+    fit.style.strokeDashoffset = learned ? 0 : fitLen;
+    fit.style.transitionDelay = n === 1 && !reduce ? '1.4s' : '0s';
+    stG.querySelectorAll('.ml-ring').forEach((c) => c.classList.toggle('pulse', n === 1));
+  }
+  function stopAuto() { timers.forEach(clearTimeout); timers = []; }
+  tabs.forEach((t, k) => t.addEventListener('click', () => { stopAuto(); show(k); }));
+  svg.addEventListener('mousemove', (e) => {
+    const r = e.target.closest && e.target.closest('rect[data-i]');
+    if (!r || step !== 2) { tip.hidden = true; return; }
+    const i = +r.dataset.i, j = +r.dataset.j, box = svg.getBoundingClientRect(), sc = box.width / 860;
+    tip.textContent = 'Ground ' + toC(lst(i, j)) + ' °C → ETo ' + toMM(eto(i, j)) + ' mm/day';
+    tip.style.left = ((X0 + i * CW + CW / 2) * sc) + 'px'; tip.style.top = ((Y0 + j * CW) * sc) + 'px'; tip.hidden = false;
+  });
+  svg.addEventListener('mouseleave', () => { tip.hidden = true; });
+  show(0);
+  const io = new IntersectionObserver((es) => {
+    if (!es.some((e) => e.isIntersecting)) return;
+    io.disconnect();
+    if (reduce) return;
+    timers.push(setTimeout(() => show(1), 6000), setTimeout(() => show(2), 13000));
+  }, { threshold: 0.6 });
+  io.observe(svg);
 })();
