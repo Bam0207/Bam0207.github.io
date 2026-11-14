@@ -344,7 +344,7 @@
 (function () {
   const main = document.querySelector('main');
   const space = document.querySelector('.pond-space');
-  if (!main || document.getElementById('eto-scene')) return;
+  if (!main) return;
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const cv = document.createElement('canvas');
   cv.className = 'topo';
@@ -594,8 +594,8 @@
   });
 })();
 
-// 10. Research page: a live farm scene behind the whole page, driven by the
-//     weather sliders, with an irrigation calculator.
+// 10. Research page: a live farm scene driven by the weather sliders, an irrigation
+//     calculator, and a short guided tour that pops up the first time it scrolls into view.
 (function () {
   const canvas = document.getElementById('eto-scene');
   if (!canvas) return;
@@ -604,11 +604,6 @@
   const el = { sun: $('eto-sun'), temp: $('eto-temp'), rh: $('eto-rh'), wind: $('eto-wind'),
     crop: $('eto-crop'), acres: $('eto-acres'), eff: $('eto-eff') };
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const presets = {
-    coast: { sun: 45, temp: 17, rh: 82, wind: 2.5 },
-    valley: { sun: 95, temp: 29, rh: 38, wind: 2 },
-    desert: { sun: 100, temp: 38, rh: 12, wind: 4 }
-  };
   // FAO-56 mid-season crop coefficients (California values for pistachios).
   const KC = { lettuce: 1.0, broccoli: 1.05, strawberries: 0.85, tomatoes: 1.15, corn: 1.2, cotton: 1.15,
     rice: 1.2, alfalfa: 0.95, almonds: 0.9, pistachios: 1.1, citrus: 0.65, grapes: 0.7 };
@@ -624,7 +619,7 @@
 
   const target = {}, cur = {};
   let model = { eto: 0, etc: 0, apply: 0 };
-  let env = 'valley', prevEnv = 'valley', envFade = 1, crop = 'lettuce';
+  const env = 'valley'; let crop = 'lettuce';
   const fmt = (n, d) => n.toLocaleString('en-US', { maximumFractionDigits: d, minimumFractionDigits: d });
 
   function read() {
@@ -649,22 +644,9 @@
     if (reduce) { Object.assign(cur, target); draw(0); }
   }
 
-  function setEnv(e) { if (e === env) return; prevEnv = env; env = e; envFade = reduce ? 1 : 0; }
-  ['sun', 'temp', 'rh', 'wind'].forEach((k) => el[k].addEventListener('input', () => {
-    document.querySelectorAll('.eto-presets button').forEach((b) => b.setAttribute('aria-pressed', 'false'));
-    read();
-  }));
+  function paintFill(inp) { inp.style.setProperty('--fill', ((inp.value - inp.min) / (inp.max - inp.min) * 100) + '%'); }
+  ['sun', 'temp', 'rh', 'wind'].forEach((k) => { paintFill(el[k]); el[k].addEventListener('input', () => { paintFill(el[k]); read(); }); });
   ['crop', 'acres', 'eff'].forEach((k) => el[k].addEventListener('input', read));
-  document.querySelectorAll('.eto-presets button').forEach((b) => {
-    b.setAttribute('aria-pressed', 'false');
-    b.addEventListener('click', () => {
-      const p = presets[b.dataset.preset];
-      el.sun.value = p.sun; el.temp.value = p.temp; el.rh.value = p.rh; el.wind.value = p.wind;
-      document.querySelectorAll('.eto-presets button').forEach((x) => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
-      setEnv(b.dataset.preset);
-      read();
-    });
-  });
 
   // ----- helpers -----
   const mix = (a, b, t) => a + (b - a) * t;
@@ -683,20 +665,20 @@
     rows = [];
     const N = TREE[crop] ? 6 : crop === 'grapes' ? 7 : 9;
     for (let k = 0; k < N; k++) {
-      const f = Math.pow((k + 1) / N, 1.35), y = horizon + (H - horizon) * f, sc = (TREE[crop] ? 0.32 + f * 1.5 : 0.5 + f * 2.1);
+      const f = Math.pow((k + 1) / N, 1.35), y = horizon + (H - horizon) * f, sc = (TREE[crop] ? 0.25 + f * 1.05 : 0.3 + f * 1.25);
       const plants = [], gap = SPACING[crop] * sc;
       for (let x = -gap + (k % 2) * gap / 2; x < W + gap; x += gap) plants.push(x);
       rows.push({ y, sc, plants, k });
     }
-    const hy = horizon + (H - horizon) * 0.33;
-    heads = [{ x: W * 0.36, y: hy }, { x: W * 0.68, y: hy }];
+    const hy = horizon + (H - horizon) * 0.5;
+    heads = [{ x: W * 0.34, y: hy }, { x: W * 0.68, y: hy }];
   }
   function resize() {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    W = window.innerWidth; H = canvas.getBoundingClientRect().height || window.innerHeight;
+    const rect = canvas.getBoundingClientRect(); W = rect.width; H = rect.height;
     canvas.width = W * dpr; canvas.height = H * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    horizon = H * (W < 720 ? 0.42 : 0.45);
+    horizon = H * 0.5;
     layout();
     if (reduce) draw(0);
   }
@@ -740,24 +722,6 @@
         snowcaps(horizon - H * 0.05, H * 0.13, 1.3, 0.6);
         ridge(horizon + 2, H * 0.08, 4.1, mixc('#C5AE76', '#D6C9A6', rh * 0.4));
         for (let i = 0; i < 14; i++) oak(W * (i + 0.5) / 14 + rnd(i) * 30, horizon + 1, 0.8 + rnd(i + 3) * 0.6, '#6F8456');
-      } },
-    coast: { top: '#7FA06E', bottom: '#6C5E47', haze: [232, 238, 241],
-      draw(rh) {
-        ridge(horizon - H * 0.04, H * 0.13, 2.2, mixc('#86A39B', '#C4D0CF', rh * 0.7));
-        ctx.fillStyle = mixc('#5F95A8', '#B9CCD3', rh * 0.6); ctx.fillRect(W * 0.55, horizon - H * 0.03, W * 0.45, H * 0.03 + 2);
-        ctx.fillStyle = 'rgba(255,255,255,0.5)'; for (let i = 0; i < 6; i++) ctx.fillRect(W * (0.58 + i * 0.07), horizon - H * 0.018 + (i % 2) * 4, W * 0.03, 1.5);
-        ctx.beginPath(); ctx.moveTo(0, horizon + 2);
-        for (let x = 0; x <= W * 0.62; x += 6) ctx.lineTo(x, horizon - H * 0.07 * Math.sin(Math.PI * x / (W * 0.62)) - H * 0.02 * Math.sin(x / W * 9));
-        ctx.lineTo(W * 0.62, horizon + 2); ctx.closePath(); ctx.fillStyle = mixc('#6F9467', '#A8BDA4', rh * 0.5); ctx.fill();
-        [0.12, 0.2, 0.33, 0.45].forEach((f, i) => cypress(W * f, horizon - H * 0.07 * Math.sin(Math.PI * f / 0.62) + 2, 1 + rnd(i) * 0.5));
-      } },
-    desert: { top: '#D9BF8C', bottom: '#B38B5E', haze: [246, 232, 210],
-      draw(rh, t, u) {
-        ridge(horizon - H * 0.05, H * 0.13, 3.7, mixc('#B98A6E', '#D9C3B0', rh * 0.5), 1.1);
-        ctx.fillStyle = '#A8704F'; ctx.beginPath(); ctx.moveTo(W * 0.05, horizon + 2); ctx.lineTo(W * 0.1, horizon - H * 0.09); ctx.lineTo(W * 0.3, horizon - H * 0.095); ctx.lineTo(W * 0.36, horizon + 2); ctx.fill();
-        ctx.fillStyle = '#B97F5A'; ctx.beginPath(); ctx.moveTo(W * 0.66, horizon + 2); ctx.lineTo(W * 0.7, horizon - H * 0.05); ctx.lineTo(W * 0.84, horizon - H * 0.055); ctx.lineTo(W * 0.9, horizon + 2); ctx.fill();
-        ridge(horizon + 2, H * 0.03, 6.3, '#C9A274');
-        [0.08, 0.14, 0.52, 0.58, 0.63, 0.94].forEach((f, i) => palm(W * f, horizon + 2, 0.9 + rnd(i + 9) * 0.4, t + i, u));
       } }
   };
 
@@ -831,19 +795,18 @@
   function draw(now) {
     const dt = last ? Math.min(0.05, (now - last) / 1000) : 0.016; last = now; time += dt;
     if (!reduce) for (const k in target) cur[k] = cur[k] === undefined ? target[k] : mix(cur[k], target[k], Math.min(1, dt * 4));
-    envFade = Math.min(1, envFade + dt * 1.4);
     const s = cur.sun, heat = (cur.temp - 5) / 35, rh = cur.rh, u = cur.wind;
     const unit = Math.min(W, 1400) / 1400 + 0.35;
-    const L = LAND[env], P = LAND[prevEnv], f = envFade;
+    const L = LAND[env];
 
     // sky
     const sky = ctx.createLinearGradient(0, 0, 0, horizon);
     sky.addColorStop(0, mixc('#9AA8B0', '#4FA6D3', s));
-    sky.addColorStop(1, mixc(mixc('#D7DEE1', '#CDEBF4', s), env === 'desert' ? '#F4D7A8' : '#F7D9A6', heat * s * 0.7));
+    sky.addColorStop(1, mixc(mixc('#D7DEE1', '#CDEBF4', s), '#F7D9A6', heat * s * 0.7));
     ctx.fillStyle = sky; ctx.fillRect(0, 0, W, horizon + 4);
 
     // sun
-    const sx = W * 0.82, sy = H * 0.17, sr = 30 * unit + heat * 8;
+    const sx = W * 0.8, sy = H * 0.18, sr = 30 * unit + heat * 8;
     const glow = ctx.createRadialGradient(sx, sy, sr * 0.5, sx, sy, sr * 4);
     glow.addColorStop(0, 'rgba(255,224,130,' + (0.55 * s) + ')'); glow.addColorStop(1, 'rgba(255,224,130,0)');
     ctx.fillStyle = glow; ctx.fillRect(sx - sr * 4, sy - sr * 4, sr * 8, sr * 8);
@@ -862,17 +825,16 @@
     });
 
     // land behind the field: cross-fade between environments
-    if (f < 1) { P.draw(rh, time, u); ctx.globalAlpha = f; }
-    L.draw(rh, time, u); ctx.globalAlpha = 1;
+    L.draw(rh, time, u);
 
     // haze at the horizon
-    const hz = L.haze.map((v, i) => Math.round(mix(P.haze[i], v, f)));
+    const hz = L.haze;
     const haze = ctx.createLinearGradient(0, horizon - H * 0.25, 0, horizon + H * 0.04);
     haze.addColorStop(0, 'rgba(' + hz + ',0)'); haze.addColorStop(1, 'rgba(' + hz + ',' + (0.75 * rh) + ')');
     ctx.fillStyle = haze; ctx.fillRect(0, horizon - H * 0.25, W, H * 0.3);
 
     // field
-    let top = mixc(P.top, L.top, f), bottom = mixc(P.bottom, L.bottom, f);
+    let top = L.top, bottom = L.bottom;
     top = mixc(top, '#C9B27A', heat * heat * 0.6); bottom = mixc(bottom, '#9A7A55', heat * heat * 0.4);
     if (crop === 'rice') { top = mixc('#8DB3B0', top, 0.25); bottom = mixc('#5E8C93', bottom, 0.2); }
     if (crop === 'alfalfa') { top = mixc(top, '#7EAA5A', 0.7); bottom = mixc(bottom, '#4E8A3E', 0.75); }
@@ -920,7 +882,7 @@
 
     // sprinklers (spray follows the water to apply)
     heads.forEach((h) => {
-      const sc = Math.max(0.55, Math.min(1.1, H / 600));
+      const sc = Math.max(0.55, Math.min(1.1, H / 480));
       ctx.strokeStyle = '#5E6B70'; ctx.lineWidth = 3 * sc; ctx.beginPath(); ctx.moveTo(h.x, h.y); ctx.lineTo(h.x, h.y - 40 * sc); ctx.stroke();
       circle(h.x, h.y - 41 * sc, 4 * sc, '#3E4A4F');
       if (!reduce) {
@@ -963,9 +925,82 @@
 
   let running = false;
   function start() { if (!running && !reduce) { running = true; last = 0; requestAnimationFrame(draw); } }
-  document.addEventListener('visibilitychange', () => { if (document.hidden) running = false; else start(); });
+  new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) start(); else running = false; })).observe(canvas);
   window.addEventListener('resize', resize);
   resize(); read();
   Object.assign(cur, target);
-  draw(0); start();
+  draw(0);
+  setupTour();
+
+  // ----- guided tour -----
+  function setupTour() {
+    const card = document.querySelector('.eto-card'), coach = document.querySelector('.coach');
+    if (!card || !coach) return;
+    const stepEl = coach.querySelector('.coach-step'), titleEl = coach.querySelector('.coach-title'), textEl = coach.querySelector('.coach-text');
+    const nextBtn = coach.querySelector('.coach-next'), skipBtn = coach.querySelector('.coach-skip');
+    const prog = document.createElement('div'); prog.className = 'coach-progress'; prog.innerHTML = '<i></i>'; coach.insertBefore(prog, coach.querySelector('.coach-actions'));
+    const bar = prog.firstChild;
+    const start = { sun: +el.sun.value, temp: +el.temp.value, rh: +el.rh.value, wind: +el.wind.value };
+    const steps = [
+      { key: 'sun', title: 'Meet the weather', text: 'Each slider is one ingredient of atmospheric thirst (ETo). Drag one and watch the big number on the farm change. Here’s what each one does.' },
+      { key: 'sun', to: 100, title: 'Turn up the sun', text: 'Sunlight is the energy that turns water into vapor. More sun means more evaporation, so ETo goes up.' },
+      { key: 'temp', to: 36, title: 'Warm it up', text: 'Warm air can hold more water vapor, so it pulls harder on wet leaves and soil.' },
+      { key: 'rh', to: 15, title: 'Dry out the air', text: 'Dry air is thirstier. When the air is already holding very little moisture, water escapes faster.' },
+      { key: 'wind', to: 6, title: 'Add some wind', text: 'Wind sweeps away the damp air sitting right above the crop and brings in drier air, so evaporation keeps going.' },
+      { key: 'sun', reset: true, title: 'Now you try', text: 'Every change also flows into the irrigation calculator below: higher ETo means more water to apply. Pick a crop and play.' }
+    ];
+    let i = -1, timers = [], active = false, anim = 0;
+    const clear = () => { timers.forEach(clearTimeout); timers = []; cancelAnimationFrame(anim); };
+    const later = (fn, ms) => timers.push(setTimeout(fn, ms));
+    const label = (k) => el[k].closest('.eto-slider');
+    function tween(k, to, ms, done) {
+      const inp = el[k], from = +inp.value, t0 = performance.now();
+      if (reduce) { inp.value = to; paintFill(inp); read(); return done && done(); }
+      (function step(now) {
+        const p = Math.min(1, (now - t0) / ms), e = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+        inp.value = from + (to - from) * e; paintFill(inp); read();
+        if (p < 1) anim = requestAnimationFrame(step); else if (done) done();
+      })(performance.now());
+    }
+    function autoAdvance(ms) {
+      bar.style.transition = 'none'; bar.style.width = '0';
+      requestAnimationFrame(() => requestAnimationFrame(() => { bar.style.transition = 'width ' + ms + 'ms linear'; bar.style.width = '100%'; }));
+      later(go, ms);
+    }
+    function go() {
+      clear(); i += 1;
+      if (i >= steps.length) return end();
+      const st = steps[i];
+      document.querySelectorAll('.eto-slider').forEach((l) => l.classList.toggle('is-focus', !!st.to && l === label(st.key)));
+      stepEl.textContent = (i + 1) + ' of ' + steps.length;
+      titleEl.textContent = st.title; textEl.textContent = st.text;
+      nextBtn.textContent = i === steps.length - 1 ? 'Got it' : 'Next';
+      coach.hidden = false;
+      coach.style.top = label(st.key).offsetTop + 'px';
+      if (st.to !== undefined) {
+        const before = model.eto;
+        later(() => tween(st.key, st.to, 1500, () => {
+          textEl.textContent = st.text + ' ETo went from ' + fmt(before, 1) + ' to ' + fmt(model.eto, 1) + ' mm/day.';
+          autoAdvance(6000);
+        }), 500);
+      } else if (st.reset) {
+        let n = 0; const keys = Object.keys(start);
+        keys.forEach((k) => tween(k, start[k], 1200, () => { if (++n === keys.length) bar.style.width = '100%'; }));
+      } else autoAdvance(7000);
+    }
+    function end() {
+      clear(); active = false; coach.hidden = true;
+      document.querySelectorAll('.eto-slider').forEach((l) => l.classList.remove('is-focus'));
+    }
+    function begin() { if (active) return; active = true; i = -1; go(); }
+    nextBtn.addEventListener('click', () => (i >= steps.length - 1 ? end() : go()));
+    skipBtn.addEventListener('click', end);
+    document.querySelector('.eto-tour-btn').addEventListener('click', () => { end(); begin(); });
+    // A real drag by the visitor ends the tour so it never fights them.
+    ['sun', 'temp', 'rh', 'wind'].forEach((k) => el[k].addEventListener('input', (e) => { if (active && e.isTrusted) end(); }));
+    const io = new IntersectionObserver((es) => {
+      if (es.some((e) => e.isIntersecting)) { io.disconnect(); setTimeout(begin, 600); }
+    }, { threshold: 0.6 });
+    io.observe(card);
+  }
 })();

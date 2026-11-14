@@ -545,60 +545,66 @@ h1.hello { font-size: clamp(44px, 5.4vw, 82px); }
 .finding .figure-card.single { max-width: 720px; justify-self: start; }
 .finding.flip .figure-card.single { max-width: 560px; justify-self: end; }
 
-/* ---------- v16: research page sits on a live ETo scene ---------- */
-#eto-scene { position: fixed; inset: 0; width: 100vw; height: 100vh; height: 100lvh; z-index: -1; display: block; background: #CFE6EE; }
-.research-page { background: transparent; }
-.research-page .site-header { background: rgba(250, 252, 251, 0.78); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); position: relative; z-index: 3; }
-.research-page .site-footer { background: rgba(250, 252, 251, 0.94); position: relative; }
-.glass { background: rgba(250, 252, 251, 0.84); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.7); border-radius: 18px; box-shadow: 0 20px 44px -30px rgba(20, 50, 60, 0.6); }
+/* ---------- v17: research page with the ETo tool as a card ---------- */
+.research-hero { padding: 64px 0 56px; display: grid; gap: 18px; max-width: 900px; }
+.research-hero h1 { font-size: clamp(46px, 6.2vw, 88px); line-height: 1.02; }
+.research-hero .lede { font-size: 21px; max-width: 680px; }
+.research-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; font-size: 15px; }
 
-.eto-screen { min-height: calc(100vh - 88px); display: grid; grid-template-rows: auto 1fr auto; gap: 24px; padding: 28px 0 28px; }
-.research-hero.glass { padding: 26px 30px 26px; max-width: 700px; display: grid; gap: 14px; }
-.research-hero.glass h1 { font-size: clamp(38px, 4.6vw, 64px); line-height: 1.02; }
-.research-hero.glass .lede { font-size: 18px; max-width: 600px; }
-.research-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; font-size: 14px; }
-.eto-dock { grid-row: 3; display: grid; grid-template-columns: minmax(170px, 0.62fr) minmax(0, 1.35fr) minmax(0, 1.25fr); }
-.eto-dock > div { padding: 20px 22px; }
-.eto-dock > div + div { border-left: 1px solid rgba(31, 78, 88, 0.12); }
-.eto-readout { display: grid; gap: 8px; align-content: start; }
-.eto-readout h2 { font-size: 30px; line-height: 1; }
-.eto-readout p { font-size: 14px; color: var(--muted); }
-.eto-badge { display: flex; align-items: baseline; gap: 6px; margin-top: 4px; }
-.eto-badge strong { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; font-size: 64px; line-height: 0.9; color: #1F4E58; font-variant-numeric: tabular-nums; }
-.eto-badge small { font-size: 14px; color: var(--muted); }
-.eto-controls { display: grid; gap: 14px; align-content: start; }
-.eto-presets { display: flex; flex-wrap: wrap; gap: 8px; }
-.eto-presets button { font: inherit; font-size: 14px; padding: 6px 13px; border-radius: 999px; border: 1px solid var(--line); background: #FFFFFF; color: var(--text); cursor: pointer; }
-.eto-presets button:hover { border-color: var(--accent); color: var(--accent); }
-.eto-presets button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #FFFFFF; }
-.eto-sliders { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 22px; }
-.eto-slider { display: grid; gap: 4px; }
-.eto-slider-top { display: flex; justify-content: space-between; gap: 8px; font-size: 14px; font-weight: 500; }
-.eto-slider output { color: var(--accent); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.eto-slider input { width: 100%; accent-color: var(--accent); }
-.eto-calc { display: grid; gap: 12px; align-content: start; }
-.eto-calc h3 { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; font-size: 24px; color: #1F4E58; line-height: 1; }
-.eto-calc-inputs { display: grid; grid-template-columns: 1.2fr 0.7fr 1.2fr; gap: 8px; }
+.eto-lab h2 { font-size: clamp(30px, 3.4vw, 44px); margin-bottom: 22px; max-width: 760px; }
+.eto-card { background: #FFFFFF; border: 1px solid var(--line); border-radius: 20px; box-shadow: 0 22px 46px -32px rgba(31,78,88,0.5); }
+.eto-main { display: grid; grid-template-columns: minmax(0, 1.75fr) minmax(300px, 1fr); }
+.eto-stage { position: relative; min-height: 460px; background: #CFE6EE; border-radius: 20px 0 0 0; overflow: hidden; }
+#eto-scene { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.eto-badge { position: absolute; left: 18px; top: 16px; display: grid; justify-items: start; padding: 10px 16px 12px; border-radius: 14px; background: rgba(255,255,255,0.88); backdrop-filter: blur(6px); box-shadow: 0 8px 22px -14px rgba(0,0,0,0.4); }
+.eto-badge span { font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.eto-badge strong { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; font-size: 60px; line-height: 0.95; color: #1F4E58; font-variant-numeric: tabular-nums; }
+.eto-badge small { font-size: 13px; color: var(--muted); }
+
+.eto-side { position: relative; padding: 24px 26px 26px; display: grid; gap: 22px; align-content: start; border-left: 1px solid var(--line); background: #FBFDFC; border-radius: 0 20px 0 0; }
+.eto-side-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.eto-side-head h3 { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; font-size: 28px; color: #1F4E58; line-height: 1; }
+.eto-tour-btn { font: inherit; font-size: 13px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--accent); background: #FFFFFF; color: var(--accent); cursor: pointer; }
+.eto-tour-btn:hover { background: var(--accent); color: #FFFFFF; }
+.eto-slider { display: grid; gap: 8px; padding: 8px 10px; margin: -8px -10px; border-radius: 12px; transition: background 0.3s, box-shadow 0.3s; }
+.eto-slider.is-focus { background: #E6F3F4; box-shadow: 0 0 0 2px var(--accent); }
+.eto-slider-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.eto-slider-name { display: inline-flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 600; color: #1F4E58; }
+.eto-slider-name svg { width: 24px; height: 24px; }
+.eto-slider output { font-size: 16px; color: var(--accent); font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 500; }
+.eto-slider-hint { font-size: 13px; color: var(--muted); }
+.eto-slider input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 12px; border-radius: 999px; background: linear-gradient(90deg, var(--accent) 0 var(--fill, 50%), #DCE8E6 var(--fill, 50%) 100%); outline: none; margin: 6px 0; cursor: pointer; }
+.eto-slider input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 28px; height: 28px; border-radius: 50%; background: #FFFFFF; border: 3px solid var(--accent); box-shadow: 0 3px 8px rgba(31,78,88,0.35); }
+.eto-slider input[type="range"]::-moz-range-thumb { width: 24px; height: 24px; border-radius: 50%; background: #FFFFFF; border: 3px solid var(--accent); box-shadow: 0 3px 8px rgba(31,78,88,0.35); }
+.eto-slider input[type="range"]:focus-visible { box-shadow: 0 0 0 3px rgba(46,116,132,0.35); }
+
+.coach { position: absolute; right: calc(100% + 16px); width: 290px; z-index: 5; background: #1F4E58; color: #FFFFFF; border-radius: 14px; padding: 16px 18px 14px; box-shadow: 0 18px 40px -16px rgba(0,0,0,0.45); display: grid; gap: 6px; transition: top 0.35s ease, opacity 0.3s; }
+.coach[hidden] { display: none; }
+.coach::after { content: ""; position: absolute; right: -8px; top: 26px; width: 16px; height: 16px; background: #1F4E58; transform: rotate(45deg); border-radius: 2px; }
+.coach-step { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #A9D6DC; }
+.coach-title { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; font-size: 24px; line-height: 1.1; margin: 0; }
+.coach-text { font-size: 15px; line-height: 1.5; color: #E6F2F3; }
+.coach-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px; }
+.coach-actions button { font: inherit; font-size: 14px; padding: 6px 14px; border-radius: 999px; cursor: pointer; border: 1px solid rgba(255,255,255,0.5); background: transparent; color: #FFFFFF; }
+.coach-actions .coach-next { background: #FFFFFF; color: #1F4E58; border-color: #FFFFFF; font-weight: 600; }
+.coach-progress { height: 3px; border-radius: 3px; background: rgba(255,255,255,0.2); overflow: hidden; }
+.coach-progress i { display: block; height: 100%; width: 0; background: #A9D6DC; }
+
+.eto-calc { display: grid; grid-template-columns: auto minmax(0, 1.3fr) auto minmax(0, 1fr); gap: 14px 26px; align-items: center; padding: 20px 26px 22px; border-top: 1px solid var(--line); }
+.eto-calc h3 { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; font-size: 24px; color: #1F4E58; line-height: 1.05; max-width: 120px; }
+.eto-calc-inputs { display: grid; grid-template-columns: 1.3fr 0.7fr 1.2fr; gap: 8px; }
 .eto-calc-inputs label { display: grid; gap: 4px; font-size: 12px; color: var(--muted); }
-.eto-calc-inputs select, .eto-calc-inputs input { font: inherit; font-size: 14px; color: var(--text); padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; background: #FFFFFF; min-width: 0; }
+.eto-calc-inputs select, .eto-calc-inputs input { font: inherit; font-size: 15px; color: var(--text); padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #FFFFFF; min-width: 0; }
 .eto-eq { display: flex; align-items: center; gap: 10px; }
-.eto-eq div { display: grid; text-align: center; min-width: 52px; }
-.eto-eq strong { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; font-size: 28px; line-height: 1; color: var(--accent); font-variant-numeric: tabular-nums; }
-.eto-eq span { font-size: 11px; color: var(--muted); }
-.eto-eq b { font-weight: 400; font-size: 20px; color: var(--muted); }
+.eto-eq div { display: grid; text-align: center; min-width: 54px; }
+.eto-eq strong { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; font-size: 32px; line-height: 1; color: var(--accent); font-variant-numeric: tabular-nums; }
+.eto-eq span { font-size: 11px; color: var(--muted); max-width: 80px; line-height: 1.25; }
+.eto-eq b { font-weight: 400; font-size: 22px; color: var(--muted); }
 .eto-out { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0; }
-.eto-out div { background: rgba(214, 236, 238, 0.8); border-radius: 10px; padding: 8px 12px; }
+.eto-out div { background: #EAF4F4; border-radius: 10px; padding: 8px 12px; }
 .eto-out dt { font-size: 12px; color: var(--muted); }
-.eto-out dd { margin: 1px 0 0; font-size: 18px; font-weight: 600; color: #1F4E58; font-variant-numeric: tabular-nums; }
-.eto-note { font-size: 12px; color: var(--muted); line-height: 1.45; }
-
-/* content cards floating over the scene */
-.research-page main > .section { background: rgba(250, 252, 251, 0.93); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 18px; padding: 40px clamp(20px, 4vw, 48px); margin: 0 0 56px; border: 1px solid rgba(255, 255, 255, 0.7); }
-.research-page main > .section.two-col { background: none; backdrop-filter: none; -webkit-backdrop-filter: none; border: 0; padding: 0; }
-.research-page main > .section.two-col .pillar { background: rgba(250, 252, 251, 0.93); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
-.research-page main > .section.closing { padding: 48px clamp(20px, 5vw, 64px); }
-.research-page .viewer-section { margin-bottom: 56px; }
-.research-page main { padding-bottom: 40px; }
+.eto-out dd { margin: 1px 0 0; font-size: 17px; font-weight: 600; color: #1F4E58; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.eto-note { grid-column: 1 / -1; font-size: 12px; color: var(--muted); margin: 0; }
 
 .steps { list-style: none; padding: 0; margin: 0 0 28px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
 .step { position: relative; background: #FFFFFF; border: 1px solid var(--line); border-radius: 14px; padding: 18px 18px 20px; display: grid; gap: 8px; align-content: start; }
@@ -613,75 +619,26 @@ h1.hello { font-size: clamp(44px, 5.4vw, 82px); }
 .fig-head strong { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; font-size: 30px; color: #1F4E58; display: block; line-height: 1.15; }
 
 @media (max-width: 1100px) {
-  .eto-dock { grid-template-columns: 1fr 1fr; }
-  .eto-readout { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; }
-  .eto-readout p { flex: 1 1 260px; }
-  .eto-dock > div + div { border-left: 0; border-top: 1px solid rgba(31, 78, 88, 0.12); }
-  .eto-calc { border-left: 1px solid rgba(31, 78, 88, 0.12) !important; }
+  .eto-calc { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .eto-calc h3 { max-width: none; grid-column: 1 / -1; }
+  .eto-calc-inputs { grid-column: 1 / -1; }
   .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
-@media (max-width: 720px) {
-  .eto-screen { min-height: 0; gap: 16px; }
-  .eto-dock { grid-template-columns: 1fr; margin-top: 46vh; }
-  .eto-calc { border-left: 0 !important; }
-  .eto-sliders { grid-template-columns: 1fr; }
+@media (max-width: 900px) {
+  .eto-main { grid-template-columns: minmax(0, 1fr); }
+  .eto-stage { min-height: 0; aspect-ratio: 4 / 3; border-radius: 20px 20px 0 0; }
+  .eto-side { border-left: 0; border-top: 1px solid var(--line); border-radius: 0; }
+  .coach { right: 0; left: 0; width: auto; transform: translateY(calc(-100% - 12px)); }
+  .coach::after { right: auto; left: 40px; top: auto; bottom: -8px; }
+}
+@media (max-width: 600px) {
+  .eto-calc { grid-template-columns: minmax(0, 1fr); }
   .eto-calc-inputs { grid-template-columns: 1fr 1fr; }
   .eto-calc-inputs label:last-child { grid-column: 1 / -1; }
+  .eto-badge strong { font-size: 42px; }
   .steps { grid-template-columns: 1fr; }
-  .research-hero.glass { padding: 20px; }
+  .research-hero { padding: 40px 0 36px; }
 }
-/* v16b: hero on the sky, compact dock so the scene shows */
-.eto-screen { padding: 22px 0 22px; gap: 16px; }
-.research-hero { padding: 6px 0 0; max-width: 640px; display: grid; gap: 10px; }
-.research-hero h1 { font-size: clamp(36px, 4.2vw, 58px); line-height: 1.02; text-shadow: 0 0 18px rgba(255,255,255,0.85), 0 0 4px rgba(255,255,255,0.9); }
-.research-hero .lede { font-size: 17px; color: #26393D; text-shadow: 0 0 10px rgba(255,255,255,0.95), 0 0 3px rgba(255,255,255,0.9); max-width: 560px; }
-.research-hero .eyebrow { text-shadow: 0 0 8px rgba(255,255,255,0.95); }
-.research-meta .muted { color: #2F4448; text-shadow: 0 0 8px rgba(255,255,255,0.95); }
-.research-meta .status { background: rgba(255,255,255,0.85); }
-.eto-dock { grid-template-columns: minmax(200px, 0.75fr) minmax(0, 1.2fr) minmax(0, 1.55fr); }
-.eto-dock > div { padding: 16px 20px 10px; }
-.eto-readout { display: grid; grid-template-columns: auto 1fr; align-items: baseline; gap: 4px 12px; }
-.eto-readout h2 { font-size: 24px; grid-column: 1 / -1; }
-.eto-readout .eto-badge { grid-column: 1 / -1; margin: 0; }
-.eto-badge strong { font-size: 54px; }
-.eto-readout p { grid-column: 1 / -1; font-size: 13px; line-height: 1.4; }
-.eto-readout .eto-presets { grid-column: 1 / -1; gap: 6px; }
-.eto-presets button { font-size: 13px; padding: 5px 11px; }
-.eto-controls { align-content: center; }
-.eto-sliders { gap: 14px 20px; }
-.eto-calc { gap: 10px; }
-.eto-calc h3 { font-size: 22px; }
-.eto-results { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: center; }
-.eto-eq { gap: 6px; }
-.eto-eq div { min-width: 40px; }
-.eto-eq strong { font-size: 24px; }
-.eto-out dd { font-size: 16px; }
-.eto-out div { padding: 6px 10px; }
-.eto-note { grid-column: 1 / -1; padding: 6px 20px 12px; margin: 0; font-size: 11.5px; border-top: 1px solid rgba(31,78,88,0.1); }
-@media (max-width: 1100px) {
-  .eto-dock { grid-template-columns: 1fr 1fr; }
-  .eto-readout { grid-column: 1 / -1; grid-template-columns: auto auto 1fr; }
-  .eto-readout h2, .eto-readout .eto-badge, .eto-readout p { grid-column: auto; }
-  .eto-results { grid-template-columns: 1fr; }
-}
-@media (max-width: 720px) {
-  .eto-readout { grid-template-columns: 1fr; }
-  .eto-readout h2, .eto-readout .eto-badge, .eto-readout p, .eto-readout .eto-presets { grid-column: 1 / -1; }
-  .eto-dock { margin-top: 34vh; }
-}
-.research-hero { position: relative; }
-.research-hero::before { content: ""; position: absolute; inset: -40px -120px -40px -80px; z-index: -1; background: radial-gradient(ellipse at 35% 50%, rgba(255,255,255,0.62), rgba(255,255,255,0) 68%); pointer-events: none; }
-.eto-readout { grid-template-columns: 1fr; align-content: center; }
-.eto-controls { align-content: start; gap: 12px; }
-.eto-out dd { white-space: nowrap; font-size: 15px; }
-.eto-results { grid-template-columns: auto minmax(0, 1fr); }
-.research-hero::before { background: radial-gradient(closest-side, rgba(255,255,255,0.6), rgba(255,255,255,0.35) 55%, rgba(255,255,255,0)); }
-@media (max-width: 720px) {
-  .eto-dock { grid-template-columns: minmax(0, 1fr); }
-  .eto-dock > div + div { border-left: 0 !important; border-top: 1px solid rgba(31,78,88,0.12); }
-  .eto-sliders { grid-template-columns: minmax(0, 1fr); }
-  .eto-presets { flex-direction: row; }
-  .eto-results { grid-template-columns: minmax(0, 1fr); }
-  .research-hero::before { inset: -20px -20px; }
-  .research-hero h1 { font-size: 34px; }
-}
+.eto-calc { grid-template-columns: auto minmax(0, 1fr); }
+.eto-calc h3 { max-width: 140px; }
+@media (max-width: 600px) { .eto-calc { grid-template-columns: minmax(0, 1fr); } .eto-calc h3 { max-width: none; } .eto-eq { flex-wrap: wrap; } }

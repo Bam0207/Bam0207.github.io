@@ -8,10 +8,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600&display=swap">
-  <link rel="stylesheet" href="css/style.css?v=16">
+  <link rel="stylesheet" href="css/style.css?v=17">
 </head>
-<body class="research-page">
-  <canvas id="eto-scene" aria-hidden="true"></canvas>
+<body>
   <a class="skip" href="#main">Skip to content</a>
   <header class="site-header">
     <div class="wrap">
@@ -26,33 +25,33 @@
   </header>
 
   <main id="main" class="wrap research">
-    <section class="eto-screen">
-      <div class="research-hero">
-        <span class="eyebrow">Research</span>
-        <h1>Can a satellite stand in for a weather station?</h1>
-        <p class="lede">My master's thesis compares two ways of measuring how thirsty California's air is, and what the difference means for farm water.</p>
-        <div class="research-meta"><span class="status">In progress · expected December 2026</span><span class="muted">Advisor: Dr. Yiwen Chiu · ARI NextGen Fellowship</span></div>
-      </div>
+    <section class="research-hero">
+      <span class="eyebrow">Research</span>
+      <h1>Can a satellite stand in for a weather station?</h1>
+      <p class="lede">My thesis project compares two ways of measuring atmospheric thirst and the difference it makes for irrigating crops.</p>
+      <div class="research-meta"><span class="status">In progress · expected December 2026</span><span class="muted">Advisor: Dr. Yiwen Chiu · ARI NextGen Fellowship</span></div>
+    </section>
 
-      <div class="eto-dock glass" aria-labelledby="eto-h">
-        <div class="eto-readout">
-          <h2 id="eto-h">What is ETo?</h2>
-          <div class="eto-badge" aria-live="polite"><strong id="eto-value">5.3</strong><small>mm/day</small></div>
-          <p>How much water the air pulls from a well-watered field each day.</p>
-
-        </div>
-        <div class="eto-controls">
-          <div class="eto-presets" role="group" aria-label="Weather presets">
-            <button type="button" data-preset="coast">Foggy coast</button>
-            <button type="button" data-preset="valley">Valley summer</button>
-            <button type="button" data-preset="desert">Desert heat</button>
+    <section class="section eto-lab" aria-labelledby="eto-h">
+      <h2 id="eto-h">Check out this tool to understand atmospheric thirst</h2>
+      <div class="eto-card">
+        <div class="eto-main">
+          <div class="eto-stage">
+            <canvas id="eto-scene" role="img" aria-label="Animated farm with mountains, sky, crops and sprinklers that respond to the weather sliders"></canvas>
+            <div class="eto-badge" aria-live="polite"><span>ETo · atmospheric thirst</span><strong id="eto-value">5.3</strong><small>mm of water per day</small></div>
           </div>
-
-          <div class="eto-sliders">
-            <label class="eto-slider"><span class="eto-slider-top"><span>Sunshine</span><output id="eto-sun-out"></output></span><input id="eto-sun" type="range" min="0" max="100" step="1" value="85"></label>
-            <label class="eto-slider"><span class="eto-slider-top"><span>Temperature</span><output id="eto-temp-out"></output></span><input id="eto-temp" type="range" min="5" max="40" step="0.5" value="22"></label>
-            <label class="eto-slider"><span class="eto-slider-top"><span>Humidity</span><output id="eto-rh-out"></output></span><input id="eto-rh" type="range" min="10" max="100" step="1" value="60"></label>
-            <label class="eto-slider"><span class="eto-slider-top"><span>Wind</span><output id="eto-wind-out"></output></span><input id="eto-wind" type="range" min="0" max="8" step="0.1" value="2"></label>
+          <div class="eto-side">
+            <div class="eto-side-head"><h3>The weather</h3><button type="button" class="eto-tour-btn">Show me how</button></div>
+            <label class="eto-slider" data-key="sun"><span class="eto-slider-top"><span class="eto-slider-name"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="#F2C14E"/><g stroke="#E9A93A" stroke-width="2" stroke-linecap="round"><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></g></svg>Sunshine</span><output id="eto-sun-out"></output></span><input id="eto-sun" type="range" min="0" max="100" step="1" value="70"><span class="eto-slider-hint">Energy to evaporate water</span></label>
+            <label class="eto-slider" data-key="temp"><span class="eto-slider-top"><span class="eto-slider-name"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4a2 2 0 0 1 4 0v9.3a4 4 0 1 1-4 0z" fill="none" stroke="#2E7484" stroke-width="2"/><circle cx="12" cy="17" r="2.2" fill="#E2683A"/><path d="M12 8v8" stroke="#E2683A" stroke-width="2" stroke-linecap="round"/></svg>Temperature</span><output id="eto-temp-out"></output></span><input id="eto-temp" type="range" min="5" max="40" step="0.5" value="22"><span class="eto-slider-hint">Warm air holds more vapor</span></label>
+            <label class="eto-slider" data-key="rh"><span class="eto-slider-top"><span class="eto-slider-name"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3s6 6.6 6 11a6 6 0 0 1-12 0c0-4.4 6-11 6-11z" fill="#4FB3C8"/></svg>Humidity</span><output id="eto-rh-out"></output></span><input id="eto-rh" type="range" min="10" max="100" step="1" value="65"><span class="eto-slider-hint">How damp the air already is</span></label>
+            <label class="eto-slider" data-key="wind"><span class="eto-slider-top"><span class="eto-slider-name"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9h11a3 3 0 1 0-3-3M3 15h15a3 3 0 1 1-3 3M3 12h8" fill="none" stroke="#2E7484" stroke-width="2" stroke-linecap="round"/></svg>Wind</span><output id="eto-wind-out"></output></span><input id="eto-wind" type="range" min="0" max="8" step="0.1" value="1.5"><span class="eto-slider-hint">Carries moist air away</span></label>
+            <div class="coach" hidden>
+              <span class="coach-step"></span>
+              <h4 class="coach-title"></h4>
+              <p class="coach-text"></p>
+              <div class="coach-actions"><button type="button" class="coach-skip">Skip</button><button type="button" class="coach-next">Next</button></div>
+            </div>
           </div>
         </div>
         <div class="eto-calc">
@@ -68,20 +67,17 @@
               </select>
             </label>
           </div>
-          <div class="eto-results">
           <div class="eto-eq" aria-live="polite">
             <div><strong id="eq-eto">5.3</strong><span>ETo</span></div><b>×</b>
-            <div><strong id="eq-kc">1.00</strong><span>Kc</span></div><b>=</b>
-            <div><strong id="eq-etc">5.3</strong><span>ETc</span></div>
+            <div><strong id="eq-kc">1.00</strong><span>Crop factor (Kc)</span></div><b>=</b>
+            <div><strong id="eq-etc">5.3</strong><span>Crop water use</span></div>
           </div>
           <dl class="eto-out">
             <div><dt>Water to apply</dt><dd id="out-week">1.9 in/week</dd></div>
             <div><dt>Whole field</dt><dd id="out-gal">75,600 gal/day</dd></div>
           </dl>
-          </div>
-
+          <p class="eto-note">Simplified FAO-56 Penman–Monteith for a midsummer day at sea level. This tool was designed to visualize ETo, not to schedule irrigation.</p>
         </div>
-        <p class="eto-note">Simplified FAO-56 Penman–Monteith for a midsummer day at sea level. This tool was designed to visualize ETo, not to schedule irrigation.</p>
       </div>
     </section>
 
@@ -157,6 +153,6 @@
       </nav>
     </div>
   </footer>
-  <script src="js/site.js?v=16" defer></script>
+  <script src="js/site.js?v=17" defer></script>
 </body>
 </html>
