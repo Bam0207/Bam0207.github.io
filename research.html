@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600&display=swap">
-  <link rel="stylesheet" href="css/style.css?v=17">
+  <link rel="stylesheet" href="css/style.css?v=18">
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -29,33 +29,30 @@
       <span class="eyebrow">Research</span>
       <h1>Can a satellite stand in for a weather station?</h1>
       <p class="lede">My thesis project compares two ways of measuring atmospheric thirst and the difference it makes for irrigating crops.</p>
-      <div class="research-meta"><span class="status">In progress · expected December 2026</span><span class="muted">Advisor: Dr. Yiwen Chiu · ARI NextGen Fellowship</span></div>
     </section>
 
-    <section class="section eto-lab" aria-labelledby="eto-h">
-      <h2 id="eto-h">Check out this tool to understand atmospheric thirst</h2>
-      <div class="eto-card">
+    <section class="eto-lab" aria-labelledby="eto-h">
+      <div class="eto-layout">
+        <div class="eto-card">
+          <div class="eto-card-head">
+            <div class="eto-card-title"><span class="tool-tag">Interactive</span><h2 id="eto-h">ETo Calculator</h2></div>
+            <button type="button" class="eto-tour-btn">Show me how</button>
+          </div>
         <div class="eto-main">
           <div class="eto-stage">
             <canvas id="eto-scene" role="img" aria-label="Animated farm with mountains, sky, crops and sprinklers that respond to the weather sliders"></canvas>
             <div class="eto-badge" aria-live="polite"><span>ETo · atmospheric thirst</span><strong id="eto-value">5.3</strong><small>mm of water per day</small></div>
           </div>
           <div class="eto-side">
-            <div class="eto-side-head"><h3>The weather</h3><button type="button" class="eto-tour-btn">Show me how</button></div>
+            <h3 class="eto-side-title">The weather</h3>
             <label class="eto-slider" data-key="sun"><span class="eto-slider-top"><span class="eto-slider-name"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="#F2C14E"/><g stroke="#E9A93A" stroke-width="2" stroke-linecap="round"><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></g></svg>Sunshine</span><output id="eto-sun-out"></output></span><input id="eto-sun" type="range" min="0" max="100" step="1" value="70"><span class="eto-slider-hint">Energy to evaporate water</span></label>
             <label class="eto-slider" data-key="temp"><span class="eto-slider-top"><span class="eto-slider-name"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4a2 2 0 0 1 4 0v9.3a4 4 0 1 1-4 0z" fill="none" stroke="#2E7484" stroke-width="2"/><circle cx="12" cy="17" r="2.2" fill="#E2683A"/><path d="M12 8v8" stroke="#E2683A" stroke-width="2" stroke-linecap="round"/></svg>Temperature</span><output id="eto-temp-out"></output></span><input id="eto-temp" type="range" min="5" max="40" step="0.5" value="22"><span class="eto-slider-hint">Warm air holds more vapor</span></label>
             <label class="eto-slider" data-key="rh"><span class="eto-slider-top"><span class="eto-slider-name"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3s6 6.6 6 11a6 6 0 0 1-12 0c0-4.4 6-11 6-11z" fill="#4FB3C8"/></svg>Humidity</span><output id="eto-rh-out"></output></span><input id="eto-rh" type="range" min="10" max="100" step="1" value="65"><span class="eto-slider-hint">How damp the air already is</span></label>
             <label class="eto-slider" data-key="wind"><span class="eto-slider-top"><span class="eto-slider-name"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9h11a3 3 0 1 0-3-3M3 15h15a3 3 0 1 1-3 3M3 12h8" fill="none" stroke="#2E7484" stroke-width="2" stroke-linecap="round"/></svg>Wind</span><output id="eto-wind-out"></output></span><input id="eto-wind" type="range" min="0" max="8" step="0.1" value="1.5"><span class="eto-slider-hint">Carries moist air away</span></label>
-            <div class="coach" hidden>
-              <span class="coach-step"></span>
-              <h4 class="coach-title"></h4>
-              <p class="coach-text"></p>
-              <div class="coach-actions"><button type="button" class="coach-skip">Skip</button><button type="button" class="coach-next">Next</button></div>
-            </div>
           </div>
         </div>
         <div class="eto-calc">
-          <h3>Irrigation calculator</h3>
+          <h3>From ETo to irrigation</h3>
           <div class="eto-calc-inputs">
             <label>Crop<select id="eto-crop"><option value="lettuce">Lettuce</option><option value="broccoli">Broccoli</option><option value="strawberries">Strawberries</option><option value="tomatoes">Tomatoes</option><option value="corn">Corn</option><option value="cotton">Cotton</option><option value="rice">Rice</option><option value="alfalfa">Alfalfa</option><option value="almonds">Almonds</option><option value="pistachios">Pistachios</option><option value="citrus">Citrus</option><option value="grapes">Wine grapes</option></select></label>
             <label>Acres<input id="eto-acres" type="number" min="1" max="10000" step="1" value="10"></label>
@@ -78,32 +75,76 @@
           </dl>
           <p class="eto-note">Simplified FAO-56 Penman–Monteith for a midsummer day at sea level. This tool was designed to visualize ETo, not to schedule irrigation.</p>
         </div>
+        </div>
+        <div class="coach" hidden>
+              <span class="coach-step"></span>
+              <h4 class="coach-title"></h4>
+              <p class="coach-text"></p>
+              <div class="coach-actions"><button type="button" class="coach-skip">Skip</button><button type="button" class="coach-next">Next</button></div>
+            </div>
       </div>
     </section>
 
-    <section class="section reveal" aria-labelledby="how-h">
-      <div class="section-head"><h2 id="how-h">How I got here</h2></div>
-      <ol class="steps">
-        <li class="step"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M4 34 L16 18 L24 27 L32 14 L44 34 Z" fill="#CFE3E2"/><path d="M4 38 H44" stroke="#2E7484" stroke-width="2.5" stroke-linecap="round"/><path d="M10 42 H38" stroke="#7FB36A" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="3 3"/></svg><span class="step-n">01</span><h3>Close to home</h3><p>I wanted to help farmers in the Salinas Valley, so I started with a water footprint study. <a href="https://storymaps.arcgis.com/stories/7a6c8c4d5c5a45108e8350faed6211b3">StoryMap</a></p></li>
-        <li class="step"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="10" y="20" width="12" height="20" rx="2" fill="#CFE3E2"/><path d="M16 20 V12 H30 V18" fill="none" stroke="#2E7484" stroke-width="2.5" stroke-linecap="round"/><path d="M30 22 q-3 5 0 7 q3 -2 0 -7" fill="#4FB3C8"/><text x="36" y="40" font-family="Georgia,serif" font-size="16" fill="#225A67">?</text></svg><span class="step-n">02</span><h3>A missing piece</h3><p>Pumping records show how much water was used, but not where or on which crops.</p></li>
-        <li class="step"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="36" cy="12" r="6" fill="#F2C14E"/><path d="M14 40 q4 -8 0 -14 M22 40 q4 -8 0 -14 M30 40 q4 -8 0 -14" fill="none" stroke="#4FB3C8" stroke-width="2.5" stroke-linecap="round"/><path d="M6 42 H42" stroke="#7FB36A" stroke-width="2.5" stroke-linecap="round"/></svg><span class="step-n">03</span><h3>Into the air</h3><p>That led me to evapotranspiration, and to how growers estimate ETo.</p></li>
-        <li class="step"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="19" y="8" width="10" height="10" rx="2" fill="#2E7484"/><rect x="5" y="10" width="12" height="6" fill="#CFE3E2" stroke="#2E7484"/><rect x="31" y="10" width="12" height="6" fill="#CFE3E2" stroke="#2E7484"/><path d="M24 20 L12 40 H36 Z" fill="#4FB3C8" opacity=".25"/><path d="M8 42 H40" stroke="#2E7484" stroke-width="2.5" stroke-linecap="round"/></svg><span class="step-n">04</span><h3>Statewide</h3><p>Could a satellite model match 107 weather stations across California, 2014 to 2024?</p></li>
-      </ol>
-      <figure class="figure-card workflow-fig"><img data-zoom src="images/thesis-workflow.jpg" alt="Workflow: CIMIS station data and MODIS satellite data feed two monthly ETo products, compared in three linked analyses"></figure>
+    <section class="q-section reveal" aria-labelledby="q1">
+      <div class="q-head"><span class="q-num">01</span><h2 id="q1">How do farmers estimate ETo?</h2></div>
+      <p class="q-lede">Most rely on weather stations. Researchers check those numbers with instruments that measure water loss directly.</p>
+      <div class="tools-grid">
+        <div class="tool-item"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 18v40M22 58h20M26 58l6-14 6 14" fill="none" stroke="#1F4E58" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M32 18v-6M24 12h16" stroke="#1F4E58" stroke-width="2.4" stroke-linecap="round"/><circle cx="24" cy="12" r="3.5" fill="#4FB3C8"/><circle cx="40" cy="12" r="3.5" fill="#4FB3C8"/><rect x="36" y="26" width="14" height="9" rx="1.5" fill="#2E7484"/><path d="M38 29h10M38 32h10" stroke="#9FD3DC" stroke-width="1"/><rect x="20" y="30" width="8" height="10" rx="1.5" fill="#FFFFFF" stroke="#1F4E58" stroke-width="2"/><path d="M50 16a4 4 0 0 1 4 4" fill="none" stroke="#F2C14E" stroke-width="2.4" stroke-linecap="round"/></svg><h3>Weather stations</h3><p>Measure sun, temperature, humidity and wind. California's CIMIS network has about 150.</p></div>
+        <div class="tool-item"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M8 26h48" stroke="#7FB36A" stroke-width="3" stroke-linecap="round"/><rect x="18" y="26" width="28" height="22" fill="#B8996E"/><path d="M18 33h28M18 40h28" stroke="#9C7E58" stroke-width="1.4"/><path d="M32 26v-9M32 20c-5-4-9-3-10-1 3 2 7 3 10 1zM32 18c5-4 9-3 10-1-3 2-7 3-10 1z" fill="#62AA4C" stroke="#4E8E3C" stroke-width="1.2"/><rect x="14" y="48" width="36" height="5" rx="1.5" fill="#2E7484"/><path d="M20 53v5M44 53v5" stroke="#1F4E58" stroke-width="2.4" stroke-linecap="round"/><path d="M48 18c0 4 4 4 4 8M54 14c0 4 4 4 4 8" fill="none" stroke="#4FB3C8" stroke-width="2" stroke-linecap="round"/></svg><h3>Lysimeters</h3><p>Weigh a block of soil and crop to see exactly how much water it loses.</p></div>
+        <div class="tool-item"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M30 60V12M24 60l6-18 6 18" fill="none" stroke="#1F4E58" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M30 14h16" stroke="#1F4E58" stroke-width="2.4" stroke-linecap="round"/><path d="M42 10v8M50 10v8M42 10l8 8M50 10l-8 8" stroke="#2E7484" stroke-width="1.8"/><rect x="40" y="20" width="12" height="5" rx="1.5" fill="#4FB3C8"/><path d="M8 40c4-6 10-6 12 0s-6 6-4 0M10 26c3-5 8-5 9 0s-5 5-3 0" fill="none" stroke="#9FD3DC" stroke-width="2" stroke-linecap="round"/><path d="M6 60h52" stroke="#7FB36A" stroke-width="3" stroke-linecap="round"/></svg><h3>Eddy covariance towers</h3><p>Measure the water vapor carried up and away by swirling air above a field.</p></div>
+      </div>
+      <div class="pm-callout"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="8" y="12" width="48" height="40" rx="6" fill="#1F4E58"/><text x="32" y="38" text-anchor="middle" font-family="Georgia,serif" font-size="16" fill="#FFFFFF" font-style="italic">PM</text><circle cx="16" cy="20" r="2" fill="#F2C14E"/><circle cx="23" cy="20" r="2" fill="#E2683A"/><circle cx="30" cy="20" r="2" fill="#4FB3C8"/><circle cx="37" cy="20" r="2" fill="#9FD3DC"/></svg><div><h3>The Penman–Monteith equation</h3><p>The international standard (FAO-56) for turning weather station data into ETo. It's the same math behind the calculator above.</p></div></div>
     </section>
 
-    <section class="section reveal" aria-labelledby="found-h">
-      <div class="section-head"><h2 id="found-h">What I found</h2></div>
+    <section class="q-section reveal" aria-labelledby="q2">
+      <div class="q-head"><span class="q-num">02</span><h2 id="q2">What does ETo have to do with water?</h2></div>
+      <p class="q-lede">ETo is the starting point for how much water a crop needs.</p>
+      <div class="eq-chain">
+        <div class="eq-row"><span class="eq-term">ETo</span><b>×</b><span class="eq-term">Kc</span><b>=</b><span class="eq-term accent">ET<sub>c</sub></span><small>atmospheric thirst × crop factor = crop water use</small></div>
+        <div class="eq-row"><span class="eq-term accent">ET<sub>c</sub></span><b>×</b><span class="eq-term">acres</span><b>=</b><span class="eq-term dark">NIR</span><small>crop water use × area = net irrigation requirement</small></div>
+      </div>
+      <div class="nir-tool" id="nir-tool">
+        <div class="nir-control">
+          <label for="nir-shift">Nudge ETo</label>
+          <output id="nir-shift-out">+0%</output>
+          <input id="nir-shift" type="range" min="-20" max="20" step="1" value="0">
+          <p class="nir-note">One million acres of a crop with Kc = 1.0 over a 180-day season, starting from ETo of 5.0 mm/day.</p>
+        </div>
+        <div class="nir-results">
+          <div><span>ETo</span><strong id="nir-eto">5.00</strong><small>mm/day</small></div>
+          <div><span>NIR</span><strong id="nir-total">2.95</strong><small>million acre-feet</small></div>
+          <div class="nir-diff"><span>Change</span><strong id="nir-diff">0</strong><small id="nir-pools">acre-feet</small></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="q-section reveal" aria-labelledby="q3">
+      <div class="q-head"><span class="q-num">03</span><h2 id="q3">What about places without a weather station?</h2></div>
+      <p class="q-lede">Stations are far apart, so most farms sit somewhere in between. New machine learning (ML) models use satellite imagery to estimate ETo everywhere.</p>
+      <div class="coverage">
+          <figure><svg viewBox="0 0 240 160" role="img" aria-label="Scattered weather stations with gaps between them"><rect width="240" height="160" rx="10" fill="#F1F6F5"/><text x="70" y="60" font-family="Georgia,serif" font-size="18" fill="#9BB8BC">?</text><text x="160" y="110" font-family="Georgia,serif" font-size="18" fill="#9BB8BC">?</text><text x="190" y="40" font-family="Georgia,serif" font-size="18" fill="#9BB8BC">?</text><text x="40" y="130" font-family="Georgia,serif" font-size="18" fill="#9BB8BC">?</text><text x="120" y="25" font-family="Georgia,serif" font-size="18" fill="#9BB8BC">?</text><circle cx="83" cy="34" r="5" fill="#2E7484"/><circle cx="83" cy="34" r="9" fill="none" stroke="#2E7484" stroke-opacity=".25"/><circle cx="152" cy="24" r="5" fill="#2E7484"/><circle cx="152" cy="24" r="9" fill="none" stroke="#2E7484" stroke-opacity=".25"/><circle cx="128" cy="62" r="5" fill="#2E7484"/><circle cx="128" cy="62" r="9" fill="none" stroke="#2E7484" stroke-opacity=".25"/><circle cx="26" cy="81" r="5" fill="#2E7484"/><circle cx="26" cy="81" r="9" fill="none" stroke="#2E7484" stroke-opacity=".25"/><circle cx="22" cy="71" r="5" fill="#2E7484"/><circle cx="22" cy="71" r="9" fill="none" stroke="#2E7484" stroke-opacity=".25"/><circle cx="29" cy="26" r="5" fill="#2E7484"/><circle cx="29" cy="26" r="9" fill="none" stroke="#2E7484" stroke-opacity=".25"/><circle cx="104" cy="123" r="5" fill="#2E7484"/><circle cx="104" cy="123" r="9" fill="none" stroke="#2E7484" stroke-opacity=".25"/><circle cx="40" cy="43" r="5" fill="#2E7484"/><circle cx="40" cy="43" r="9" fill="none" stroke="#2E7484" stroke-opacity=".25"/><circle cx="147" cy="139" r="5" fill="#2E7484"/><circle cx="147" cy="139" r="9" fill="none" stroke="#2E7484" stroke-opacity=".25"/><circle cx="136" cy="66" r="5" fill="#2E7484"/><circle cx="136" cy="66" r="9" fill="none" stroke="#2E7484" stroke-opacity=".25"/><circle cx="221" cy="20" r="5" fill="#2E7484"/><circle cx="221" cy="20" r="9" fill="none" stroke="#2E7484" stroke-opacity=".25"/><circle cx="196" cy="52" r="5" fill="#2E7484"/><circle cx="196" cy="52" r="9" fill="none" stroke="#2E7484" stroke-opacity=".25"/><circle cx="45" cy="30" r="5" fill="#2E7484"/><circle cx="45" cy="30" r="9" fill="none" stroke="#2E7484" stroke-opacity=".25"/></svg><figcaption><strong>Weather stations</strong> Accurate, but only where they stand.</figcaption></figure>
+          <figure><svg viewBox="0 0 240 160" role="img" aria-label="A continuous satellite grid covering every pixel"><clipPath id="cv-clip"><rect width="240" height="160" rx="10"/></clipPath><g clip-path="url(#cv-clip)"><rect x="0" y="0" width="14" height="14" fill="rgb(156,198,214)"/><rect x="0" y="15" width="14" height="14" fill="rgb(151,196,212)"/><rect x="0" y="30" width="14" height="14" fill="rgb(154,197,213)"/><rect x="0" y="45" width="14" height="14" fill="rgb(159,200,215)"/><rect x="0" y="60" width="14" height="14" fill="rgb(160,201,215)"/><rect x="0" y="75" width="14" height="14" fill="rgb(155,198,213)"/><rect x="0" y="90" width="14" height="14" fill="rgb(143,191,209)"/><rect x="0" y="105" width="14" height="14" fill="rgb(129,182,205)"/><rect x="0" y="120" width="14" height="14" fill="rgb(118,176,201)"/><rect x="0" y="135" width="14" height="14" fill="rgb(115,174,200)"/><rect x="0" y="150" width="14" height="14" fill="rgb(122,178,202)"/><rect x="15" y="0" width="14" height="14" fill="rgb(138,188,208)"/><rect x="15" y="15" width="14" height="14" fill="rgb(132,184,206)"/><rect x="15" y="30" width="14" height="14" fill="rgb(134,185,206)"/><rect x="15" y="45" width="14" height="14" fill="rgb(141,190,209)"/><rect x="15" y="60" width="14" height="14" fill="rgb(148,194,211)"/><rect x="15" y="75" width="14" height="14" fill="rgb(150,195,212)"/><rect x="15" y="90" width="14" height="14" fill="rgb(145,192,210)"/><rect x="15" y="105" width="14" height="14" fill="rgb(135,186,207)"/><rect x="15" y="120" width="14" height="14" fill="rgb(126,181,204)"/><rect x="15" y="135" width="14" height="14" fill="rgb(124,179,203)"/><rect x="15" y="150" width="14" height="14" fill="rgb(130,183,205)"/><rect x="30" y="0" width="14" height="14" fill="rgb(126,181,204)"/><rect x="30" y="15" width="14" height="14" fill="rgb(118,176,201)"/><rect x="30" y="30" width="14" height="14" fill="rgb(120,178,202)"/><rect x="30" y="45" width="14" height="14" fill="rgb(130,183,205)"/><rect x="30" y="60" width="14" height="14" fill="rgb(142,190,209)"/><rect x="30" y="75" width="14" height="14" fill="rgb(151,196,212)"/><rect x="30" y="90" width="14" height="14" fill="rgb(153,197,213)"/><rect x="30" y="105" width="14" height="14" fill="rgb(149,194,211)"/><rect x="30" y="120" width="14" height="14" fill="rgb(143,191,209)"/><rect x="30" y="135" width="14" height="14" fill="rgb(141,189,209)"/><rect x="30" y="150" width="14" height="14" fill="rgb(146,192,210)"/><rect x="45" y="0" width="14" height="14" fill="rgb(121,178,202)"/><rect x="45" y="15" width="14" height="14" fill="rgb(114,174,200)"/><rect x="45" y="30" width="14" height="14" fill="rgb(116,175,200)"/><rect x="45" y="45" width="14" height="14" fill="rgb(128,182,204)"/><rect x="45" y="60" width="14" height="14" fill="rgb(144,191,210)"/><rect x="45" y="75" width="14" height="14" fill="rgb(159,200,215)"/><rect x="45" y="90" width="14" height="14" fill="rgb(168,205,218)"/><rect x="45" y="105" width="14" height="14" fill="rgb(169,206,218)"/><rect x="45" y="120" width="14" height="14" fill="rgb(166,204,217)"/><rect x="45" y="135" width="14" height="14" fill="rgb(162,202,216)"/><rect x="45" y="150" width="14" height="14" fill="rgb(164,203,216)"/><rect x="60" y="0" width="14" height="14" fill="rgb(126,181,204)"/><rect x="60" y="15" width="14" height="14" fill="rgb(120,177,202)"/><rect x="60" y="30" width="14" height="14" fill="rgb(122,178,202)"/><rect x="60" y="45" width="14" height="14" fill="rgb(134,185,206)"/><rect x="60" y="60" width="14" height="14" fill="rgb(152,196,212)"/><rect x="60" y="75" width="14" height="14" fill="rgb(171,207,219)"/><rect x="60" y="90" width="14" height="14" fill="rgb(185,215,223)"/><rect x="60" y="105" width="14" height="14" fill="rgb(191,219,225)"/><rect x="60" y="120" width="14" height="14" fill="rgb(190,218,225)"/><rect x="60" y="135" width="14" height="14" fill="rgb(185,215,223)"/><rect x="60" y="150" width="14" height="14" fill="rgb(183,214,223)"/><rect x="75" y="0" width="14" height="14" fill="rgb(140,189,208)"/><rect x="75" y="15" width="14" height="14" fill="rgb(134,186,206)"/><rect x="75" y="30" width="14" height="14" fill="rgb(136,186,207)"/><rect x="75" y="45" width="14" height="14" fill="rgb(147,193,211)"/><rect x="75" y="60" width="14" height="14" fill="rgb(165,203,217)"/><rect x="75" y="75" width="14" height="14" fill="rgb(186,216,224)"/><rect x="75" y="90" width="14" height="14" fill="rgb(203,225,229)"/><rect x="75" y="105" width="14" height="14" fill="rgb(211,231,232)"/><rect x="75" y="120" width="14" height="14" fill="rgb(211,230,232)"/><rect x="75" y="135" width="14" height="14" fill="rgb(205,227,230)"/><rect x="75" y="150" width="14" height="14" fill="rgb(198,223,228)"/><rect x="90" y="0" width="14" height="14" fill="rgb(160,200,215)"/><rect x="90" y="15" width="14" height="14" fill="rgb(155,198,213)"/><rect x="90" y="30" width="14" height="14" fill="rgb(155,198,213)"/><rect x="90" y="45" width="14" height="14" fill="rgb(163,202,216)"/><rect x="90" y="60" width="14" height="14" fill="rgb(179,211,221)"/><rect x="90" y="75" width="14" height="14" fill="rgb(198,223,228)"/><rect x="90" y="90" width="14" height="14" fill="rgb(216,233,234)"/><rect x="90" y="105" width="14" height="14" fill="rgb(226,239,237)"/><rect x="90" y="120" width="14" height="14" fill="rgb(226,239,237)"/><rect x="90" y="135" width="14" height="14" fill="rgb(218,235,234)"/><rect x="90" y="150" width="14" height="14" fill="rgb(207,228,231)"/><rect x="105" y="0" width="14" height="14" fill="rgb(183,214,223)"/><rect x="105" y="15" width="14" height="14" fill="rgb(179,212,221)"/><rect x="105" y="30" width="14" height="14" fill="rgb(176,210,220)"/><rect x="105" y="45" width="14" height="14" fill="rgb(180,212,222)"/><rect x="105" y="60" width="14" height="14" fill="rgb(190,218,225)"/><rect x="105" y="75" width="14" height="14" fill="rgb(206,227,230)"/><rect x="105" y="90" width="14" height="14" fill="rgb(222,237,236)"/><rect x="105" y="105" width="14" height="14" fill="rgb(232,243,239)"/><rect x="105" y="120" width="14" height="14" fill="rgb(232,243,239)"/><rect x="105" y="135" width="14" height="14" fill="rgb(223,237,236)"/><rect x="105" y="150" width="14" height="14" fill="rgb(208,229,231)"/><rect x="120" y="0" width="14" height="14" fill="rgb(205,227,230)"/><rect x="120" y="15" width="14" height="14" fill="rgb(202,225,229)"/><rect x="120" y="30" width="14" height="14" fill="rgb(196,221,227)"/><rect x="120" y="45" width="14" height="14" fill="rgb(193,220,226)"/><rect x="120" y="60" width="14" height="14" fill="rgb(197,222,227)"/><rect x="120" y="75" width="14" height="14" fill="rgb(207,228,231)"/><rect x="120" y="90" width="14" height="14" fill="rgb(219,235,235)"/><rect x="120" y="105" width="14" height="14" fill="rgb(228,240,238)"/><rect x="120" y="120" width="14" height="14" fill="rgb(229,241,238)"/><rect x="120" y="135" width="14" height="14" fill="rgb(219,235,235)"/><rect x="120" y="150" width="14" height="14" fill="rgb(202,225,229)"/><rect x="135" y="0" width="14" height="14" fill="rgb(223,237,236)"/><rect x="135" y="15" width="14" height="14" fill="rgb(219,235,235)"/><rect x="135" y="30" width="14" height="14" fill="rgb(209,229,231)"/><rect x="135" y="45" width="14" height="14" fill="rgb(201,224,229)"/><rect x="135" y="60" width="14" height="14" fill="rgb(197,222,227)"/><rect x="135" y="75" width="14" height="14" fill="rgb(201,224,229)"/><rect x="135" y="90" width="14" height="14" fill="rgb(208,229,231)"/><rect x="135" y="105" width="14" height="14" fill="rgb(215,233,233)"/><rect x="135" y="120" width="14" height="14" fill="rgb(216,233,234)"/><rect x="135" y="135" width="14" height="14" fill="rgb(207,228,231)"/><rect x="135" y="150" width="14" height="14" fill="rgb(190,218,225)"/><rect x="150" y="0" width="14" height="14" fill="rgb(232,243,239)"/><rect x="150" y="15" width="14" height="14" fill="rgb(227,240,237)"/><rect x="150" y="30" width="14" height="14" fill="rgb(215,233,233)"/><rect x="150" y="45" width="14" height="14" fill="rgb(201,225,229)"/><rect x="150" y="60" width="14" height="14" fill="rgb(191,219,225)"/><rect x="150" y="75" width="14" height="14" fill="rgb(187,217,224)"/><rect x="150" y="90" width="14" height="14" fill="rgb(190,218,225)"/><rect x="150" y="105" width="14" height="14" fill="rgb(195,221,227)"/><rect x="150" y="120" width="14" height="14" fill="rgb(197,222,227)"/><rect x="150" y="135" width="14" height="14" fill="rgb(191,218,225)"/><rect x="150" y="150" width="14" height="14" fill="rgb(176,210,220)"/><rect x="165" y="0" width="14" height="14" fill="rgb(232,243,239)"/><rect x="165" y="15" width="14" height="14" fill="rgb(227,240,237)"/><rect x="165" y="30" width="14" height="14" fill="rgb(213,232,233)"/><rect x="165" y="45" width="14" height="14" fill="rgb(195,221,227)"/><rect x="165" y="60" width="14" height="14" fill="rgb(179,212,221)"/><rect x="165" y="75" width="14" height="14" fill="rgb(170,206,218)"/><rect x="165" y="90" width="14" height="14" fill="rgb(168,205,218)"/><rect x="165" y="105" width="14" height="14" fill="rgb(171,207,219)"/><rect x="165" y="120" width="14" height="14" fill="rgb(174,209,220)"/><rect x="165" y="135" width="14" height="14" fill="rgb(172,208,219)"/><rect x="165" y="150" width="14" height="14" fill="rgb(163,202,216)"/><rect x="180" y="0" width="14" height="14" fill="rgb(222,237,236)"/><rect x="180" y="15" width="14" height="14" fill="rgb(217,234,234)"/><rect x="180" y="30" width="14" height="14" fill="rgb(204,226,230)"/><rect x="180" y="45" width="14" height="14" fill="rgb(184,215,223)"/><rect x="180" y="60" width="14" height="14" fill="rgb(164,203,216)"/><rect x="180" y="75" width="14" height="14" fill="rgb(151,195,212)"/><rect x="180" y="90" width="14" height="14" fill="rgb(146,192,210)"/><rect x="180" y="105" width="14" height="14" fill="rgb(148,194,211)"/><rect x="180" y="120" width="14" height="14" fill="rgb(153,197,213)"/><rect x="180" y="135" width="14" height="14" fill="rgb(156,199,214)"/><rect x="180" y="150" width="14" height="14" fill="rgb(153,197,213)"/><rect x="195" y="0" width="14" height="14" fill="rgb(204,226,230)"/><rect x="195" y="15" width="14" height="14" fill="rgb(201,225,229)"/><rect x="195" y="30" width="14" height="14" fill="rgb(189,218,225)"/><rect x="195" y="45" width="14" height="14" fill="rgb(171,207,219)"/><rect x="195" y="60" width="14" height="14" fill="rgb(150,195,212)"/><rect x="195" y="75" width="14" height="14" fill="rgb(134,186,206)"/><rect x="195" y="90" width="14" height="14" fill="rgb(127,181,204)"/><rect x="195" y="105" width="14" height="14" fill="rgb(129,183,205)"/><rect x="195" y="120" width="14" height="14" fill="rgb(137,187,207)"/><rect x="195" y="135" width="14" height="14" fill="rgb(146,192,210)"/><rect x="195" y="150" width="14" height="14" fill="rgb(149,194,211)"/><rect x="210" y="0" width="14" height="14" fill="rgb(182,213,222)"/><rect x="210" y="15" width="14" height="14" fill="rgb(181,213,222)"/><rect x="210" y="30" width="14" height="14" fill="rgb(173,208,219)"/><rect x="210" y="45" width="14" height="14" fill="rgb(158,200,214)"/><rect x="210" y="60" width="14" height="14" fill="rgb(140,189,208)"/><rect x="210" y="75" width="14" height="14" fill="rgb(124,180,203)"/><rect x="210" y="90" width="14" height="14" fill="rgb(116,175,200)"/><rect x="210" y="105" width="14" height="14" fill="rgb(118,176,201)"/><rect x="210" y="120" width="14" height="14" fill="rgb(128,182,204)"/><rect x="210" y="135" width="14" height="14" fill="rgb(142,190,209)"/><rect x="210" y="150" width="14" height="14" fill="rgb(153,196,213)"/><rect x="225" y="0" width="14" height="14" fill="rgb(158,200,214)"/><rect x="225" y="15" width="14" height="14" fill="rgb(162,202,216)"/><rect x="225" y="30" width="14" height="14" fill="rgb(159,200,215)"/><rect x="225" y="45" width="14" height="14" fill="rgb(150,195,212)"/><rect x="225" y="60" width="14" height="14" fill="rgb(136,186,207)"/><rect x="225" y="75" width="14" height="14" fill="rgb(122,178,202)"/><rect x="225" y="90" width="14" height="14" fill="rgb(114,174,200)"/><rect x="225" y="105" width="14" height="14" fill="rgb(117,175,201)"/><rect x="225" y="120" width="14" height="14" fill="rgb(128,182,204)"/><rect x="225" y="135" width="14" height="14" fill="rgb(145,192,210)"/><rect x="225" y="150" width="14" height="14" fill="rgb(162,202,216)"/></g></svg><figcaption><strong>Satellites + machine learning</strong> An estimate for every 1 km pixel.</figcaption></figure>
+        </div>
+      <div class="liu-card">
+        <h3>Liu et al. (2024)</h3>
+        <p>A random forest model that estimates ETo from MODIS land surface temperature, latitude and day of year. It was trained in China.</p>
+        <p class="liu-q">Would it work in California?</p>
+      </div>
+    </section>
+
+    <section class="q-section reveal" aria-labelledby="q4">
+      <div class="q-head"><span class="q-num">04</span><h2 id="q4">Does it hold up in California?</h2></div>
+      <p class="q-lede">I compared the satellite model (RS-ML) with station-based ETo from 107 CIMIS stations, 2014 to 2024.</p>
       <figure class="figure-card hero-fig">
         <figcaption class="fig-head"><strong>Close overall (r = 0.89), but not all year.</strong> The satellite model runs high in winter and low in fall.</figcaption>
         <img data-zoom src="images/research/fig2_seasonal_cycle.png" alt="Monthly mean ETo for both methods with percent bias labels">
       </figure>
     </section>
 
-    <section class="section reveal viewer-section" aria-labelledby="viewer-h">
+    <section class="q-section reveal viewer-section" aria-labelledby="viewer-h">
       <div class="viewer-head">
-        <h2 id="viewer-h">Where they disagree, month by month</h2>
-        <p class="muted">Red means the satellite model estimates more ETo than the station-based map; blue means less. Watch the coast stay red while the interior turns blue through summer.</p>
+        <h2 id="viewer-h">Where do they disagree?</h2>
+        <p class="muted">Red means the satellite model estimates more ETo than the station-based map; blue means less. Press play and watch the coast stay red while the interior turns blue in summer.</p>
       </div>
       <div class="month-viewer" id="month-viewer" data-base="images/research/f5-" data-months="jan,feb,mar,apr,may,jun,jul,aug,sep,oct,nov,dec" data-names="January,February,March,April,May,June,July,August,September,October,November,December">
         <div class="viewer-stage">
@@ -120,21 +161,11 @@
       </div>
     </section>
 
-    <section class="section reveal" aria-labelledby="why-h">
-      <figure class="figure-card hero-fig narrow">
-        <figcaption class="fig-head"><strong id="why-h">Mostly humidity.</strong> Coastal stations ran high and desert stations ran low. The satellite sees surface temperature, not moisture in the air.</figcaption>
-        <img data-zoom src="images/research/fig3_station_bias_map.png" alt="Map of California stations colored by mean bias, red on the coast and blue in the deserts">
-      </figure>
-    </section>
-
-    <section class="section reveal two-col" aria-label="Next steps and outreach">
-      <div class="pillar">
-        <h3>What's next</h3>
-        <p>Comparing more ET products, like OpenET, and testing local calibration on the coast and in the desert.</p>
-      </div>
-      <div class="pillar">
-        <h3>Sharing it</h3>
-        <p>I talked about this work with AP Environmental Science seniors at Oakwood School, my high school. <a href="https://www.oakwoodway.org/community/news/details/~board/news/post/from-the-classroom-to-the-field-an-oakwood-alumnas-environmental-science-journey">Read about the visit</a></p>
+    <section class="q-section reveal" aria-labelledby="q5">
+      <div class="q-head"><span class="q-num">05</span><h2 id="q5">What's next?</h2></div>
+      <div class="two-col">
+        <div class="pillar"><h3>More comparisons</h3><p>Testing more ET products, like OpenET, and local calibration on the coast and in the desert.</p></div>
+        <div class="pillar"><h3>Sharing it</h3><p>I talked about this work with AP Environmental Science seniors at Oakwood School, my high school. <a href="https://www.oakwoodway.org/community/news/details/~board/news/post/from-the-classroom-to-the-field-an-oakwood-alumnas-environmental-science-journey">Read about the visit</a></p></div>
       </div>
     </section>
 
@@ -153,6 +184,6 @@
       </nav>
     </div>
   </footer>
-  <script src="js/site.js?v=17" defer></script>
+  <script src="js/site.js?v=18" defer></script>
 </body>
 </html>

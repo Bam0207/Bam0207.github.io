@@ -642,3 +642,90 @@ h1.hello { font-size: clamp(44px, 5.4vw, 82px); }
 .eto-calc { grid-template-columns: auto minmax(0, 1fr); }
 .eto-calc h3 { max-width: 140px; }
 @media (max-width: 600px) { .eto-calc { grid-template-columns: minmax(0, 1fr); } .eto-calc h3 { max-width: none; } .eto-eq { flex-wrap: wrap; } }
+
+/* ---------- v18: bigger tool, margin pop-ups, question-led story ---------- */
+.research-hero { padding: 52px 0 40px; gap: 16px; }
+.eto-lab { --lab-w: min(1480px, calc(100vw - 48px)); width: var(--lab-w); margin: 0 0 120px calc((100% - var(--lab-w)) / 2); }
+.eto-layout { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 26px; align-items: start; }
+.eto-card-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 22px; border-bottom: 1px solid var(--line); }
+.eto-card-title { display: flex; align-items: center; gap: 12px; }
+.eto-card-title h2 { font-family: "DM Sans", system-ui, sans-serif; font-weight: 600; font-size: 20px; letter-spacing: 0.01em; color: #1F4E58; margin: 0; }
+.tool-tag { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #FFFFFF; background: var(--accent); padding: 4px 9px; border-radius: 999px; }
+.eto-stage { min-height: 580px; border-radius: 0; }
+.eto-side { border-radius: 0; gap: 26px; padding: 26px 28px; }
+.eto-side-title { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; font-size: 28px; color: #1F4E58; line-height: 1; margin: 0; }
+.eto-slider-name { font-size: 19px; }
+.eto-slider input[type="range"] { height: 14px; }
+.eto-slider input[type="range"]::-webkit-slider-thumb { width: 32px; height: 32px; }
+
+/* the walkthrough lives in the right margin, pointing at the slider */
+.coach { position: absolute; right: 0; left: auto; width: 260px; transform: none; }
+.coach::after { left: -8px; right: auto; top: 26px; bottom: auto; }
+
+/* question sections */
+.q-section { padding: 40px 0 120px; display: grid; gap: 22px; }
+.q-head { display: grid; gap: 6px; }
+.q-num { font-family: "Instrument Serif", Georgia, serif; font-size: 22px; color: #9BB8BC; }
+.q-head h2 { font-size: clamp(38px, 4.6vw, 64px); line-height: 1.05; max-width: 900px; }
+.q-lede { font-size: 20px; color: #3A4A4E; max-width: 720px; }
+.tools-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin-top: 8px; }
+.tool-item { background: #FFFFFF; border: 1px solid var(--line); border-radius: 16px; padding: 22px; display: grid; gap: 8px; align-content: start; }
+.tool-item svg { width: 72px; height: 72px; }
+.tool-item h3 { font-size: 19px; margin: 0; }
+.tool-item p { font-size: 15px; color: var(--muted); }
+.pm-callout { display: flex; gap: 18px; align-items: center; background: #EAF4F4; border-radius: 16px; padding: 18px 22px; }
+.pm-callout svg { width: 64px; height: 64px; flex: none; }
+.pm-callout h3 { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; font-size: 26px; color: #1F4E58; margin: 0 0 4px; }
+.pm-callout p { color: #3A4A4E; }
+
+.eq-chain { display: grid; gap: 14px; }
+.eq-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+.eq-term { font-family: "Instrument Serif", Georgia, serif; font-size: clamp(36px, 4vw, 54px); line-height: 1; color: #1F4E58; padding: 8px 18px; background: #FFFFFF; border: 1px solid var(--line); border-radius: 14px; }
+.eq-term.accent { color: #FFFFFF; background: var(--accent); border-color: var(--accent); }
+.eq-term.dark { color: #FFFFFF; background: #1F4E58; border-color: #1F4E58; }
+.eq-row b { font-weight: 400; font-size: 32px; color: var(--muted); }
+.eq-row small { flex-basis: 100%; font-size: 14px; color: var(--muted); }
+.nir-tool { display: grid; grid-template-columns: minmax(260px, 0.9fr) minmax(0, 1.6fr); gap: 28px; align-items: center; background: #FFFFFF; border: 1px solid var(--line); border-radius: 18px; padding: 26px 28px; margin-top: 8px; }
+.nir-control { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; }
+.nir-control label { font-size: 19px; font-weight: 600; color: #1F4E58; }
+.nir-control output { font-family: "Instrument Serif", Georgia, serif; font-size: 34px; color: var(--accent); font-variant-numeric: tabular-nums; }
+.nir-control input { grid-column: 1 / -1; -webkit-appearance: none; appearance: none; height: 14px; border-radius: 999px; background: linear-gradient(90deg, #DCE8E6 0 var(--lo, 50%), var(--accent) var(--lo, 50%) var(--hi, 50%), #DCE8E6 var(--hi, 50%) 100%); cursor: pointer; }
+.nir-control input::-webkit-slider-thumb { -webkit-appearance: none; width: 32px; height: 32px; border-radius: 50%; background: #FFFFFF; border: 3px solid var(--accent); box-shadow: 0 3px 8px rgba(31,78,88,0.35); }
+.nir-control input::-moz-range-thumb { width: 26px; height: 26px; border-radius: 50%; background: #FFFFFF; border: 3px solid var(--accent); }
+.nir-note { grid-column: 1 / -1; font-size: 13px; color: var(--muted); }
+.nir-results { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.nir-results div { background: #F1F6F5; border-radius: 14px; padding: 14px 16px; display: grid; gap: 2px; }
+.nir-results span { font-size: 13px; color: var(--muted); }
+.nir-results strong { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; font-size: 40px; line-height: 1; color: #1F4E58; font-variant-numeric: tabular-nums; }
+.nir-results small { font-size: 13px; color: var(--muted); }
+.nir-results .nir-diff { background: #1F4E58; }
+.nir-results .nir-diff span, .nir-results .nir-diff small { color: #CDE6E9; }
+.nir-results .nir-diff strong { color: #FFFFFF; }
+
+.coverage { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; max-width: 900px; }
+.coverage figure { margin: 0; display: grid; gap: 10px; }
+.coverage svg { width: 100%; height: auto; display: block; }
+.coverage figcaption { font-size: 15px; color: var(--muted); }
+.coverage figcaption strong { display: block; color: #1F4E58; font-size: 17px; }
+.liu-card { background: #1F4E58; color: #FFFFFF; border-radius: 18px; padding: 26px 30px; max-width: 900px; display: grid; gap: 8px; }
+.liu-card h3 { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; font-size: 30px; margin: 0; }
+.liu-card p { color: #DDEDEF; font-size: 17px; }
+.liu-card .liu-q { font-family: "Instrument Serif", Georgia, serif; font-size: 28px; color: #FFFFFF; }
+.research .viewer-section { margin-bottom: 120px; }
+.q-section .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+@media (max-width: 1180px) {
+  .eto-layout { grid-template-columns: minmax(0, 1fr); }
+  .coach { right: 16px; width: 300px; transform: translateY(calc(-100% - 12px)); }
+  .coach::after { left: 40px; top: auto; bottom: -8px; }
+}
+@media (max-width: 900px) {
+  .tools-grid, .nir-results { grid-template-columns: minmax(0, 1fr); }
+  .nir-tool { grid-template-columns: minmax(0, 1fr); }
+  .coverage, .q-section .two-col { grid-template-columns: minmax(0, 1fr); }
+  .eto-stage { min-height: 0; }
+  .coach { left: 16px; width: auto; }
+  .q-section { padding-bottom: 80px; }
+}
+.eto-tour-btn { white-space: nowrap; }
+@media (max-width: 600px) { .eto-card-head { padding: 12px 14px; } .tool-tag { display: none; } .eto-card-title h2 { font-size: 18px; } }

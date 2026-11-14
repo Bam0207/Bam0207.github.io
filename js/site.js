@@ -976,17 +976,17 @@
       titleEl.textContent = st.title; textEl.textContent = st.text;
       nextBtn.textContent = i === steps.length - 1 ? 'Got it' : 'Next';
       coach.hidden = false;
-      coach.style.top = label(st.key).offsetTop + 'px';
+      const lay = coach.parentElement.getBoundingClientRect(); coach.style.top = (label(st.key).getBoundingClientRect().top - lay.top) + 'px';
       if (st.to !== undefined) {
         const before = model.eto;
         later(() => tween(st.key, st.to, 1500, () => {
           textEl.textContent = st.text + ' ETo went from ' + fmt(before, 1) + ' to ' + fmt(model.eto, 1) + ' mm/day.';
-          autoAdvance(6000);
+          autoAdvance(11000);
         }), 500);
       } else if (st.reset) {
         let n = 0; const keys = Object.keys(start);
         keys.forEach((k) => tween(k, start[k], 1200, () => { if (++n === keys.length) bar.style.width = '100%'; }));
-      } else autoAdvance(7000);
+      } else autoAdvance(12000);
     }
     function end() {
       clear(); active = false; coach.hidden = true;
@@ -1003,4 +1003,26 @@
     }, { threshold: 0.6 });
     io.observe(card);
   }
+})();
+
+// 11. Research page: nudge ETo and watch the net irrigation requirement move.
+(function () {
+  const inp = document.getElementById('nir-shift');
+  if (!inp) return;
+  const $ = (id) => document.getElementById(id);
+  const BASE = 5, KC = 1, DAYS = 180, ACRES = 1e6, MM_PER_FT = 304.8, POOL_AF = 2.03;
+  const fmt = (n, d) => n.toLocaleString('en-US', { maximumFractionDigits: d, minimumFractionDigits: d });
+  const nir = (eto) => eto * KC * DAYS / MM_PER_FT * ACRES; // acre-feet
+  function update() {
+    const pct = +inp.value, eto = BASE * (1 + pct / 100), total = nir(eto), diff = total - nir(BASE);
+    $('nir-shift-out').textContent = (pct > 0 ? '+' : '') + pct + '%';
+    $('nir-eto').textContent = fmt(eto, 2);
+    $('nir-total').textContent = fmt(total / 1e6, 2);
+    $('nir-diff').textContent = diff === 0 ? '0' : (diff > 0 ? '+' : '−') + fmt(Math.abs(diff) / 1000, 0) + 'k';
+    $('nir-pools').textContent = diff === 0 ? 'acre-feet' : 'acre-feet, about ' + fmt(Math.abs(diff) / POOL_AF, 0) + ' Olympic pools';
+    const mid = 50, pos = (pct + 20) / 40 * 100;
+    inp.style.setProperty('--lo', Math.min(mid, pos) + '%'); inp.style.setProperty('--hi', Math.max(mid, pos) + '%');
+  }
+  inp.addEventListener('input', update);
+  update();
 })();
