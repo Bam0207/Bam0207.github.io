@@ -1505,3 +1505,17 @@ main > .section + .section { margin-top: 120px !important; }
 @media (max-width: 860px) { .research .q-section .two-col { grid-template-columns: minmax(0, 1fr); } }
 .research .contact { margin-bottom: 80px; }
 .research .q-section .pillar { align-content: start; gap: 8px; }
+
+/* ===== v38: NR 418 coursework, button placement ===== */
+.course-head { display: grid; gap: 14px; padding: 72px 0 24px; border-top: 1px solid var(--line); margin-top: 24px; max-width: 900px; }
+.course-head h2 { font-size: clamp(36px, 4.4vw, 56px); line-height: 1.05; }
+.course-head p { font-size: 19px; line-height: 1.6; color: #3A4A4E; }
+.course-skills li { font-size: 13px; }
+.project .photo.tall { height: 520px; }
+.project .photo.contain { background: #FFFFFF; }
+.strip .photo.contain img { object-fit: contain; background: #FFFFFF; }
+.chapter-end .keep-actions { margin-top: 0; }
+.chapter-end::before { top: 22px; }
+.research .q-section .two-col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.research .next-page { margin: 0 0 120px; }
+@media (max-width: 860px) { .project .photo.tall { height: 380px; } }

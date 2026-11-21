@@ -28,6 +28,14 @@
   });
 })();
 
+// 1b. External links (including ones built by scripts, like map pop-ups) open in a new tab.
+document.addEventListener('click', (e) => {
+  const a = e.target.closest && e.target.closest('a[href]');
+  if (!a || a.target) return;
+  let u; try { u = new URL(a.href, location.href); } catch (err) { return; }
+  if ((u.protocol === 'http:' || u.protocol === 'https:') && u.host !== location.host) { a.target = '_blank'; a.rel = 'noopener'; }
+});
+
 // 2. Portfolio filters: buttons with data-filter show projects whose data-topics include it.
 (function () {
   const bar = document.querySelector('.filters');
@@ -42,7 +50,7 @@
       projects.forEach((p) => {
         const match = f === 'all' || p.dataset.topics.split(' ').includes(f);
         p.hidden = !match;
-        if (match) shown++;
+        if (match && p.classList.contains('project')) shown++;
       });
       const status = document.querySelector('.filter-status');
       if (status) status.textContent = shown + (shown === 1 ? ' project' : ' projects');
@@ -1120,7 +1128,7 @@
 // 11d. About page: stop the timeline line at the "Keep exploring" dot.
 (function () {
   const story = document.querySelector('.story'), end = document.querySelector('.chapter-end'); if (!story || !end) return;
-  const fit = () => story.style.setProperty('--end-h', (end.offsetHeight - 18) + 'px');
+  const fit = () => story.style.setProperty('--end-h', (end.offsetHeight - 30) + 'px');
   fit(); window.addEventListener('resize', fit); window.addEventListener('load', fit);
 })();
 
@@ -1745,8 +1753,8 @@
     const out = $('.retro-counter span'), line = $('.retro-counter'); if (!out) return;
     let seen = false; try { seen = localStorage.getItem('bm-fisher') != null; } catch (e) {}
     const show = (n) => { out.textContent = String(n).padStart(6, '0'); try { localStorage.setItem('bm-fisher', n); } catch (e) {} };
-    const url = 'https://api.counterapi.dev/v1/bam0207-github-io/fishers' + (seen ? '' : '/up');
-    fetch(url).then((r) => r.ok ? r.json() : Promise.reject()).then((d) => { if (typeof d.count === 'number') show(seen ? (+localStorage.getItem('bm-fisher') || d.count) : d.count); else throw 0; })
+    const url = 'https://abacus.jasoncameron.dev/' + (seen ? 'get' : 'hit') + '/bam0207-github-io/fishers';
+    fetch(url).then((r) => r.ok ? r.json() : Promise.reject()).then((d) => { if (typeof d.value === 'number') show(seen ? (+localStorage.getItem('bm-fisher') || d.value) : d.value); else throw 0; })
       .catch(() => { let n = null; try { n = localStorage.getItem('bm-fisher'); } catch (e) {} if (n) out.textContent = String(n).padStart(6, '0'); else line.textContent = 'Thanks for fishing!'; });
   })();
   window.__fish = { caught, KEYS, showCatch, tryChest, chest, lure, litter, get hooked() { return hooked; }, _reelTest: () => { hooked = fish[0]; reel(); } }; // handy for testing
