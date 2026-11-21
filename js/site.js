@@ -71,14 +71,14 @@
   const el = document.getElementById('work-map');
   if (!el || typeof L === 'undefined') return;
   const places = [
-    { name: 'Valley Water', note: 'Groundwater contours, PFAS and recharge-pond sampling · 2026', lat: 37.25, lng: -121.86, kind: 'water', link: 'portfolio.html#groundwater-contours', img: 'images/recharge-pond.jpg' },
-    { name: 'Anderson Dam retrofit', note: 'Site visit with Valley Water · 2026', lat: 37.17, lng: -121.63, kind: 'water', img: 'images/anderson-dam.jpg' },
-    { name: 'Salinas Valley', note: 'Irrigation calculator and thesis pilot · 2026', lat: 36.45, lng: -121.35, kind: 'water', link: 'portfolio.html#irrigation-calculator', img: 'images/cover-calculator.svg' },
-    { name: 'Cal Poly, San Luis Obispo', note: 'M.S. research, GIS Developer, TA', lat: 35.30, lng: -120.66, kind: 'research', link: 'research.html', img: 'images/cover-eto.svg' },
-    { name: 'Bartleson Ranch', note: 'Reservoir and utility mapping · 2025', lat: 35.11, lng: -120.57, kind: 'water', link: 'portfolio.html#bartleson-ranch', img: 'images/bartleson.jpg' },
-    { name: 'Cachuma Lake', note: 'Aquatic invasive species monitoring · 2024–25', lat: 34.58, lng: -119.98, kind: 'water' },
-    { name: 'Santa Clara County Parks', note: 'Milkweed conservation and prescribed burns · 2022', lat: 37.34, lng: -121.70, kind: 'land', link: 'portfolio.html#milkweed', img: 'images/scc-burn.jpg' },
-    { name: 'Cascade-Siskiyou National Monument', note: 'Biological monitoring · 2020', lat: 42.08, lng: -122.47, kind: 'land' }
+    { org: 'Valley Water', role: 'Groundwater Management Intern · 2026', lat: 37.25, lng: -121.86, kind: 'water', img: 'images/recharge-pond.jpg', pos: 'center 35%', link: 'about.html#exp-valleywater', more: 'What I did there' },
+    { org: 'Valley Water', role: 'Anderson Dam retrofit site visit · 2026', lat: 37.17, lng: -121.63, kind: 'water', img: 'images/anderson-dam.jpg', link: 'about.html#exp-valleywater', more: 'What I did there' },
+    { org: 'Cal Poly SLO', role: 'M.S. research, GIS Developer and teaching · 2025–now', lat: 35.30, lng: -120.66, kind: 'research', img: 'images/cover-eto.svg', link: 'research.html', more: 'Explore my research' },
+    { org: 'Cal Poly SLO', role: 'Salinas Valley pilot and irrigation calculator · 2026', lat: 36.45, lng: -121.35, kind: 'research', img: 'images/cover-calculator.svg', link: 'portfolio.html#irrigation-calculator', more: 'See the project' },
+    { org: 'Cal Poly SLO', role: 'Applied GIS: Bartleson Ranch mapping · 2025', lat: 35.11, lng: -120.57, kind: 'research', img: 'images/bartleson.jpg', pos: 'center 40%', link: 'portfolio.html#bartleson-ranch', more: 'See the project' },
+    { org: 'Santa Barbara County Parks', role: 'Program Coordinator, Cachuma Lake · 2024–25', lat: 34.58, lng: -119.98, kind: 'water', link: 'about.html#exp-sbparks', more: 'What I did there' },
+    { org: 'Santa Clara County Parks', role: 'Natural Resources Management Intern · 2022', lat: 37.34, lng: -121.70, kind: 'land', img: 'images/scc-burn.jpg', pos: '35% center', link: 'about.html#exp-sccparks', more: 'What I did there' },
+    { org: 'Bureau of Land Management', role: 'Biological Monitoring Volunteer, Cascade-Siskiyou National Monument · 2020', lat: 42.08, lng: -122.47, kind: 'land', img: 'images/blm-oregon.jpg', pos: 'center 30%', link: 'about.html#exp-blm', more: 'What I did there' }
   ];
   const colors = { water: '#4FB3C8', research: '#FFFFFF', land: '#F2A23A' };
   const map = L.map(el, { scrollWheelZoom: false }).setView([37.0, -120.6], 6);
@@ -93,11 +93,12 @@
   const bounds = [];
   places.forEach((p) => {
     const m = L.circleMarker([p.lat, p.lng], { radius: 9, color: '#0B1E24', weight: 2, fillColor: colors[p.kind], fillOpacity: 1 }).addTo(map);
-    let html = '';
-    if (p.img) html += '<img src="' + p.img + '" alt="" class="popup-img">';
-    html += '<strong>' + p.name + '</strong><br><span>' + p.note + '</span>';
-    if (p.link) html += '<br><a href="' + p.link + '">See the project</a>';
-    m.bindPopup(html, { maxWidth: 240 });
+    let html = '<div class="pop">';
+    html += p.img ? '<img src="' + p.img + '" alt="" class="pop-img"' + (p.pos ? ' style="object-position:' + p.pos + '"' : '') + '>' : '<div class="pop-img pop-img-empty" aria-hidden="true"></div>';
+    html += '<div class="pop-body"><strong class="pop-org">' + p.org + '</strong><span class="pop-role">' + p.role + '</span>';
+    if (p.link) html += '<a class="pop-link" href="' + p.link + '">' + p.more + ' <span aria-hidden="true">&rarr;</span></a>';
+    html += '</div></div>';
+    m.bindPopup(html, { maxWidth: 260, minWidth: 260 });
     bounds.push([p.lat, p.lng]);
   });
   map.fitBounds(bounds, { padding: [30, 30] });
@@ -1147,4 +1148,27 @@
     timers.push(setTimeout(() => show(1), 6000), setTimeout(() => show(2), 13000));
   }, { threshold: 0.6 });
   io.observe(svg);
+})();
+
+// 14. Navigation: mark the current page, and a water "wipe" between pages.
+(function () {
+  const here = (location.pathname.split('/').pop() || 'index.html');
+  document.querySelectorAll('.site-header .nav a').forEach((a) => { if (a.getAttribute('href') === here) a.setAttribute('aria-current', 'page'); });
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  try { sessionStorage.removeItem('wave'); } catch (e) {}
+  setTimeout(() => document.documentElement.classList.remove('wave-in'), 900);
+  if (reduce) return;
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest && e.target.closest('a[href]');
+    if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || a.target === '_blank' || a.hasAttribute('download')) return;
+    const url = new URL(a.href, location.href);
+    if (url.origin !== location.origin || !/\.html$|\/$/.test(url.pathname)) return;
+    if (url.pathname === location.pathname) return; // same-page anchors scroll normally
+    e.preventDefault();
+    const veil = document.createElement('div'); veil.className = 'wave-veil'; document.body.appendChild(veil);
+    requestAnimationFrame(() => requestAnimationFrame(() => veil.classList.add('up')));
+    try { sessionStorage.setItem('wave', '1'); } catch (err) {}
+    setTimeout(() => { location.href = url.href; }, 620);
+  });
+  window.addEventListener('pageshow', (e) => { if (e.persisted) document.querySelectorAll('.wave-veil').forEach((v) => v.remove()); });
 })();

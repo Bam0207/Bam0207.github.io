@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <script>try{if(sessionStorage.getItem("wave")&&!matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("wave-in")}catch(e){}</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Brooke Murphy | Environmental Scientist</title>
@@ -9,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600&display=swap">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <link rel="stylesheet" href="css/style.css?v=19">
+  <link rel="stylesheet" href="css/style.css?v=21">
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -26,39 +27,21 @@
   </header>
 
   <main id="main" class="wrap">
-    <section class="hero sky">
+    <section class="hero sky hero-simple">
       <div class="hero-text">
         <h1 class="hello">Hi, I'm <em>Brooke</em>.</h1>
         <p class="lede">I'm an environmental scientist based in Los Osos, California.</p>
-        <div class="links hero-links"><a class="btn-hero" href="about.html">About me<span aria-hidden="true">&rarr;</span></a><a class="btn-hero" href="portfolio.html">About my work<span aria-hidden="true">&rarr;</span></a></div>
+        <p class="hero-sub">I use GIS, remote sensing and field data to understand water on California's farms and in its watersheds. Right now I'm finishing my M.S. at Cal Poly SLO.</p>
       </div>
       <figure class="hero-portrait">
         <div class="photo"><img src="images/headshot.jpg" alt="Portrait of Brooke Murphy"></div>
       </figure>
-    </section>
-
-
-    <section class="section reveal tiles" aria-label="Sections">
-      <a class="tile" href="about.html">
-        <div class="photo"><img src="images/bartleson.jpg" alt="Brooke and classmates mapping water utilities with an RTK GNSS receiver at Bartleson Ranch" style="object-position: center 40%"></div>
-        <div class="tile-title"><h3>About</h3><span aria-hidden="true">&rarr;</span></div>
-        <p>Background and professional experience</p>
-      </a>
-      <a class="tile" href="research.html">
-        <div class="photo"><img src="images/cover-eto.svg" alt=""></div>
-        <div class="tile-title"><h3>Research</h3><span aria-hidden="true">&rarr;</span></div>
-        <p>Remote sensing and machine learning for evapotranspiration</p>
-      </a>
-      <a class="tile" href="portfolio.html">
-        <div class="photo"><img src="images/bartleson-utilities.jpg" alt="Map of Bartleson Ranch water utilities" style="object-position: center 15%"></div>
-        <div class="tile-title"><h3>GIS portfolio</h3><span aria-hidden="true">&rarr;</span></div>
-        <p>Maps, models and field data</p>
-      </a>
+      <a class="scroll-cue" href="#where">Where I've worked <span aria-hidden="true">&darr;</span></a>
     </section>
 
     <section class="section reveal map-wrap" aria-labelledby="where">
       <div class="section-head"><h2 id="where">Where I've worked</h2></div>
-      <div id="work-map" role="region" aria-label="Map of places Brooke has worked. Click a dot for details."></div>
+      <div id="work-map" role="region" aria-label="Map of places Brooke has worked. Select a dot for the organization, a photo and a link to more."></div>
       <div class="legend"><span style="--dot:#4FB3C8">Water</span><span style="--dot:#F2A23A">Land and fire</span><span style="--dot:#FFFFFF; --ring:#0B1E24">Research and teaching</span></div>
     </section>
 
@@ -97,6 +80,6 @@
     </div>
   </footer>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="js/site.js?v=19" defer></script>
+  <script src="js/site.js?v=21" defer></script>
 </body>
 </html>

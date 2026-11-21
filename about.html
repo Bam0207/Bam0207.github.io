@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <script>try{if(sessionStorage.getItem("wave")&&!matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("wave-in")}catch(e){}</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>About | Brooke Murphy</title>
@@ -8,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600&display=swap">
-  <link rel="stylesheet" href="css/style.css?v=19">
+  <link rel="stylesheet" href="css/style.css?v=21">
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -39,12 +40,13 @@
     <section class="section reveal" id="story" aria-labelledby="story-h">
       <div class="section-head"><h2 id="story-h">How I got here</h2></div>
       <ol class="story">
-        <li class="chapter">
+        <li class="chapter has-photo">
           <div class="chapter-when">2020</div>
           <div class="chapter-body">
             <h3>Learning to read a landscape</h3>
             <p>My first fieldwork was as a biological monitoring volunteer for the Bureau of Land Management in Oregon's Cascade-Siskiyou National Monument, studying how previously clear-cut forests were recovering under different restoration strategies. I also volunteered with the Vesper Meadow Education Program implementing basket willow amendments at a wetland restoration project. While living in the area, I began to see the landscape as a complex system of interconnected processes.</p>
           </div>
+          <figure class="chapter-photo"><img data-zoom src="images/blm-oregon.jpg" alt="Brooke in a hard hat bucking a fallen log with a chainsaw in an Oregon pine forest"><figcaption>Forest work in southern Oregon, 2020</figcaption></figure>
         </li>
         <li class="chapter">
           <div class="chapter-when">2021–2023</div>
@@ -107,16 +109,16 @@
       <div class="section-head"><h2 id="xp-h">Experience</h2></div>
       <h3 class="xp-group">Professional</h3>
       <ol class="timeline">
-        <li><span class="when">Oct 2026 – present</span><div><h3>GIS Developer</h3><span class="org">Cal Poly, San Luis Obispo</span><p>Restructuring and building out an open-source introductory GIS course site in Markdown with MkDocs Material, Git and GitHub Pages.</p></div></li>
-        <li><span class="when">Apr 2024 – Jan 2025</span><div><h3>Program Coordinator</h3><span class="org">Santa Barbara County Parks, Cachuma Lake</span><p>Ran plankton tows, substrate sampling, vessel inspection and decontamination for the Aquatic Invasive Species Mitigation Program, and coordinated with agencies, volunteers and the public.</p></div></li>
+        <li id="exp-calpoly-gis"><span class="when">Oct 2026 – present</span><div><h3>GIS Developer</h3><span class="org">Cal Poly, San Luis Obispo</span><p>Restructuring and building out an open-source introductory GIS course site in Markdown with MkDocs Material, Git and GitHub Pages.</p></div></li>
+        <li id="exp-sbparks"><span class="when">Apr 2024 – Jan 2025</span><div><h3>Program Coordinator</h3><span class="org">Santa Barbara County Parks, Cachuma Lake</span><p>Ran plankton tows, substrate sampling, vessel inspection and decontamination for the Aquatic Invasive Species Mitigation Program, and coordinated with agencies, volunteers and the public.</p></div></li>
       </ol>
       <h3 class="xp-group">Research and internships</h3>
       <ol class="timeline">
-        <li><span class="when">2025 – present</span><div><h3>Graduate Researcher</h3><span class="org">Cal Poly, San Luis Obispo · ARI NextGen Fellow</span><p>Comparing remote sensing-based and station-based reference evapotranspiration for agricultural water-use planning.</p></div></li>
-        <li><span class="when">Jun – Aug 2026</span><div><h3>Groundwater Management Intern</h3><span class="org">Valley Water, Santa Clara County</span><p>Groundwater data QA/QC, historical well records, database updates and StoryMaps; PFAS soil-core logging, recharge-pond sampling, lab coordination and domestic well testing.</p></div></li>
-        <li><span class="when">Jun – Aug 2022</span><div><h3>Natural Resources Management Intern</h3><span class="org">Santa Clara County Parks</span><p>Directed a restoration study for California milkweed on public lands and supported CAL FIRE prescribed burns.</p></div></li>
-        <li><span class="when">Aug – Dec 2020</span><div><h3>Biological Monitoring Volunteer</h3><span class="org">Bureau of Land Management, Cascade-Siskiyou National Monument</span><p>Studied soil horizons, conifer forest health and biodiversity in clear-cut areas.</p></div></li>
-        <li><span class="when">Aug – Dec 2020</span><div><h3>Wetland Restoration Volunteer</h3><span class="org">Vesper Meadow Education Program, Oregon</span><p>Installed basket willow amendments at a wetland restoration project.</p></div></li>
+        <li id="exp-research"><span class="when">2025 – present</span><div><h3>Graduate Researcher</h3><span class="org">Cal Poly, San Luis Obispo · ARI NextGen Fellow</span><p>Comparing remote sensing-based and station-based reference evapotranspiration for agricultural water-use planning.</p></div></li>
+        <li id="exp-valleywater"><span class="when">Jun – Aug 2026</span><div><h3>Groundwater Management Intern</h3><span class="org">Valley Water, Santa Clara County</span><p>Groundwater data QA/QC, historical well records, database updates and StoryMaps; PFAS soil-core logging, recharge-pond sampling, lab coordination and domestic well testing.</p></div></li>
+        <li id="exp-sccparks"><span class="when">Jun – Aug 2022</span><div><h3>Natural Resources Management Intern</h3><span class="org">Santa Clara County Parks</span><p>Directed a restoration study for California milkweed on public lands and supported CAL FIRE prescribed burns.</p></div></li>
+        <li id="exp-blm"><span class="when">Aug – Dec 2020</span><div><h3>Biological Monitoring Volunteer</h3><span class="org">Bureau of Land Management, Cascade-Siskiyou National Monument</span><p>Studied soil horizons, conifer forest health and biodiversity in clear-cut areas.</p></div></li>
+        <li id="exp-vesper"><span class="when">Aug – Dec 2020</span><div><h3>Wetland Restoration Volunteer</h3><span class="org">Vesper Meadow Education Program, Oregon</span><p>Installed basket willow amendments at a wetland restoration project.</p></div></li>
       </ol>
       <h3 class="xp-group">Teaching</h3>
       <ol class="timeline">
@@ -156,6 +158,6 @@
       </nav>
     </div>
   </footer>
-  <script src="js/site.js?v=19" defer></script>
+  <script src="js/site.js?v=21" defer></script>
 </body>
 </html>
