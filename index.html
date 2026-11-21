@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600&display=swap">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <link rel="stylesheet" href="css/style.css?v=22">
+  <link rel="stylesheet" href="css/style.css?v=23">
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -79,7 +79,19 @@
       </nav>
     </div>
   </footer>
+  <section class="deep" id="deep" aria-label="Underwater: dive into the pond and try a small fishing game">
+    <div class="deep-sticky">
+      <canvas class="deep-canvas" aria-hidden="true"></canvas>
+      <div class="deep-hud">
+        <div class="deep-stat deep-depth">Depth <strong>0.0 m</strong></div>
+        <div class="deep-stat deep-score">Species caught <strong>0/6</strong></div>
+        <button type="button" class="deep-rain" aria-pressed="false">Make it rain</button>
+      </div>
+      <p class="deep-help">You've dived into the pond. Move your mouse (or use the arrow keys) to steer the canoe, and scroll to lower your line. Touch a fish with the hook to catch it.</p>
+      <div class="deep-card" role="status" hidden></div>
+    </div>
+  </section>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="js/site.js?v=22" defer></script>
+  <script src="js/site.js?v=23" defer></script>
 </body>
 </html>
