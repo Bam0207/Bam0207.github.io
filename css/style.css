@@ -1404,3 +1404,23 @@ main > .section + .section { margin-top: 120px !important; }
 .next-btn:hover, .next-btn:focus-visible { background: #2E7484; transform: translateY(-2px); gap: 22px; }
 .next-btn:focus-visible { outline: 3px solid #4FB3C8; outline-offset: 4px; }
 @media (max-width: 899px) { .next-page { margin-top: 60px; } }
+
+/* ===== v35: roomier timeline, end cap, calculator close, footer credit ===== */
+.chapter { padding-bottom: 96px; gap: 0 52px; }
+.chapter.has-photo { grid-template-columns: 100px minmax(0, 1fr) minmax(0, 440px); }
+.chapter-photo img { height: 300px; }
+.chapter-photo figcaption { margin-top: 10px; }
+.story::before { bottom: 30px; }
+.chapter-end { padding-bottom: 0; }
+.chapter-end::before { width: 20px; height: 20px; left: 109px; top: 8px; background: #2E7484; border-color: #2E7484; box-shadow: 0 0 0 6px rgba(46,116,132,0.15); }
+.keep-exploring { font-family: "Instrument Serif", Georgia, serif; font-size: 34px; color: #1F4E58; margin: 0; line-height: 1.1; }
+.keep-sub { margin: 0; color: var(--muted); }
+.keep-sub a { color: #2E7484; }
+@media (max-width: 1100px) { .chapter.has-photo { grid-template-columns: 100px minmax(0, 1fr) minmax(0, 340px); } .chapter-photo img { height: 240px; } }
+@media (max-width: 899px) { .chapter { padding-bottom: 56px; } .chapter-photo img { height: 240px; } .chapter-end::before { left: -3px; } }
+.eto-context { max-width: 720px; margin: 0 0 18px; font-size: 18px; line-height: 1.6; color: #3A4A4E; }
+.eto-head-actions { display: flex; align-items: center; gap: 10px; }
+.eto-close { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line); background: #FFFFFF; color: #1F4E58; display: grid; place-items: center; cursor: pointer; transition: background .2s, color .2s; }
+.eto-close svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; }
+.eto-close:hover, .eto-close:focus-visible { background: #1F4E58; color: #FFFFFF; }
+.story::before { bottom: auto; height: calc(100% - var(--end-h, 70px)); } 

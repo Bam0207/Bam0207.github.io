@@ -1103,6 +1103,25 @@
     if (L.top > 140) window.scrollTo({ top, behavior: 'smooth' });
     anim.finished.then(() => { focusIt(); window.dispatchEvent(new Event('resize')); });
   });
+  const closeBtn = lab.querySelector('.eto-close');
+  if (closeBtn) closeBtn.addEventListener('click', () => {
+    const done = () => {
+      lab.classList.remove('open'); wrap.classList.remove('gone'); btn.setAttribute('aria-expanded', 'false');
+      lab.querySelectorAll('.coach').forEach((c) => { c.hidden = true; });
+      const top = wrap.getBoundingClientRect().top + window.scrollY - 140;
+      window.scrollTo({ top, behavior: reduce ? 'auto' : 'smooth' });
+      btn.focus({ preventScroll: true });
+    };
+    if (reduce || !lab.animate) { done(); return; }
+    lab.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(0.97) translateY(-12px)' }], { duration: 320, easing: 'ease-in' }).finished.then(done);
+  });
+})();
+
+// 11d. About page: stop the timeline line at the "Keep exploring" dot.
+(function () {
+  const story = document.querySelector('.story'), end = document.querySelector('.chapter-end'); if (!story || !end) return;
+  const fit = () => story.style.setProperty('--end-h', (end.offsetHeight - 18) + 'px');
+  fit(); window.addEventListener('resize', fit); window.addEventListener('load', fit);
 })();
 
 // 11c. About page: hand-drawn arrows draw themselves as they scroll into view
