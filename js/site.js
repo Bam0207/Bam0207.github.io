@@ -1073,16 +1073,80 @@
   update();
 })();
 
-// 12. Research page: hover a legend item to light up its terms in the Penman–Monteith equation.
+// 11b. Research page: the "Try the ETo calculator" button grows into the calculator.
 (function () {
-  const eq = document.querySelector('.pm-eq');
-  if (!eq) return;
-  document.querySelectorAll('.pm-legend li').forEach((li) => {
-    li.tabIndex = 0;
-    const on = () => eq.setAttribute('data-active', li.dataset.k), off = () => eq.removeAttribute('data-active');
-    li.addEventListener('mouseenter', on); li.addEventListener('focus', on);
-    li.addEventListener('mouseleave', off); li.addEventListener('blur', off);
+  const btn = document.querySelector('.eto-launch-btn'), lab = document.querySelector('.eto-lab'), wrap = document.querySelector('.eto-launch');
+  if (!btn || !lab) return;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  btn.addEventListener('click', () => {
+    const r = btn.getBoundingClientRect();
+    wrap.classList.add('gone'); lab.classList.add('open'); btn.setAttribute('aria-expanded', 'true');
+    window.dispatchEvent(new Event('resize')); // let the farm canvas size itself now that it's visible
+    const L = lab.getBoundingClientRect();
+    const focusIt = () => { const h = lab.querySelector('#eto-h'); if (h) { h.tabIndex = -1; h.focus({ preventScroll: true }); } };
+    if (reduce || !lab.animate) { focusIt(); return; }
+    const from = 'inset(' + Math.max(0, r.top - L.top) + 'px ' + Math.max(0, L.right - r.right) + 'px ' + Math.max(0, L.bottom - r.bottom) + 'px ' + Math.max(0, r.left - L.left) + 'px round 999px)';
+    const anim = lab.animate([{ clipPath: from, opacity: 0.6 }, { clipPath: 'inset(0px 0px 0px 0px round 20px)', opacity: 1 }], { duration: 750, easing: 'cubic-bezier(0.65, 0, 0.35, 1)' });
+    const top = L.top + window.scrollY - 90;
+    if (L.top > 140) window.scrollTo({ top, behavior: 'smooth' });
+    anim.finished.then(() => { focusIt(); window.dispatchEvent(new Event('resize')); });
   });
+})();
+
+// 11c. About page: the hand-drawn arrow draws itself, then swoops you down to "What I do".
+(function () {
+  const a = document.querySelector('.about-swoop'); if (!a) return;
+  setTimeout(() => a.classList.add('drawn'), 500);
+})();
+
+// 12. Research page: hover (or focus) a highlighted term in the Penman–Monteith
+//     equation to see what it means and what measures it.
+(function () {
+  const eq = document.querySelector('.pm-eq'), pop = document.querySelector('.pm-pop'), block = document.querySelector('.pm-block');
+  if (!eq || !pop) return;
+  const INFO = {
+    delta: { sym: 'Δ', name: 'Slope of the vapor pressure curve', unit: 'kPa per °C',
+      what: 'How quickly the air’s capacity to hold water vapor rises as it warms. Warm days push this number up, so more energy goes into evaporation.',
+      how: 'Calculated from air temperature, so it comes from the same shielded temperature sensors (thermistors) on weather stations like CIMIS.' },
+    rn: { sym: 'R<sub>n</sub>', name: 'Net radiation', unit: 'MJ per m² per day',
+      what: 'The sun’s energy the field actually keeps: incoming sunlight minus what is reflected and radiated back to the sky. It is the main energy source for ET.',
+      how: 'Pyranometers on weather stations measure incoming solar radiation, and net radiometers measure the full balance. Satellites like GOES estimate solar radiation from space for Spatial CIMIS.' },
+    temp: { sym: 'T', name: 'Air temperature', unit: '°C, at 2 m',
+      what: 'Mean daily air temperature about two meters above the ground. The 900 / (T + 273) term converts it to kelvin and scales how strongly the wind and dry air matter.',
+      how: 'Temperature sensors in ventilated radiation shields on weather stations. Satellites like Landsat and MODIS measure land surface temperature, a related but different value.' },
+    wind: { sym: 'u<sub>2</sub>', name: 'Wind speed', unit: 'm per s, at 2 m',
+      what: 'Wind carries moist air away from leaves and replaces it with drier air, so evaporation keeps going. It shows up on the top and bottom of the equation.',
+      how: 'Cup or sonic anemometers on weather stations. Readings taken at other heights are adjusted to the standard 2 m.' },
+    vpd: { sym: 'e<sub>s</sub> − e<sub>a</sub>', name: 'Vapor pressure deficit', unit: 'kPa',
+      what: 'How far the air is from being saturated: the most vapor it could hold (e<sub>s</sub>) minus what it actually holds (e<sub>a</sub>). Dry air pulls water out of plants faster.',
+      how: 'Relative humidity sensors (capacitive hygrometers) or dew point readings, combined with air temperature, on weather stations.' }
+  };
+  let cur = null;
+  function show(t) {
+    const d = INFO[t.dataset.v]; if (!d) return;
+    cur = t;
+    pop.innerHTML = '<div class="pm-pop-head"><span class="pm-pop-sym pm-k-' + t.dataset.k + '">' + d.sym + '</span><div><strong>' + d.name + '</strong><small>' + d.unit + '</small></div></div>' +
+      '<p>' + d.what + '</p><p class="pm-pop-how"><span>Measured by</span>' + d.how + '</p>';
+    pop.hidden = false;
+    eq.setAttribute('data-active', t.dataset.v);
+    const br = block.getBoundingClientRect(), tr = t.getBoundingClientRect(), pw = pop.offsetWidth, ph = pop.offsetHeight;
+    let left = tr.left + tr.width / 2 - br.left - pw / 2;
+    left = Math.max(12, Math.min(br.width - pw - 12, left));
+    const below = tr.top - br.top < ph + 70 || tr.top < ph + 80; // not enough room above: open below
+    pop.style.left = left + 'px';
+    pop.style.top = (below ? tr.bottom - br.top + 14 : tr.top - br.top - ph - 54) + 'px';
+    pop.style.setProperty('--ax', (tr.left + tr.width / 2 - br.left - left) + 'px');
+    pop.classList.toggle('below', below);
+    t.setAttribute('aria-describedby', 'pm-pop');
+  }
+  function hide() { pop.hidden = true; eq.removeAttribute('data-active'); if (cur) cur.removeAttribute('aria-describedby'); cur = null; }
+  eq.querySelectorAll('.pm-t[data-v]').forEach((t) => {
+    t.addEventListener('mouseenter', () => show(t)); t.addEventListener('focus', () => show(t));
+    t.addEventListener('mouseleave', hide); t.addEventListener('blur', hide);
+    t.addEventListener('click', () => (cur === t && !pop.hidden ? hide() : show(t)));
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hide(); });
+  window.addEventListener('scroll', () => { if (!pop.hidden && cur && document.activeElement !== cur) hide(); }, { passive: true });
 })();
 
 // 13. Research page: a three-step illustration of how a machine learning model
@@ -1195,27 +1259,13 @@
   io.observe(svg);
 })();
 
-// 14. Navigation: mark the current page, and a water "wipe" between pages.
+// 14. Navigation: mark the current page. Page changes slide sideways like
+//     swiping between columns (CSS view transitions; see the head of each page).
 (function () {
   const here = (location.pathname.split('/').pop() || 'index.html');
   document.querySelectorAll('.site-header .nav a').forEach((a) => { if (a.getAttribute('href') === here) a.setAttribute('aria-current', 'page'); });
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  try { sessionStorage.removeItem('wave'); } catch (e) {}
-  setTimeout(() => document.documentElement.classList.remove('wave-in'), 900);
-  if (reduce) return;
-  document.addEventListener('click', (e) => {
-    const a = e.target.closest && e.target.closest('a[href]');
-    if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || a.target === '_blank' || a.hasAttribute('download')) return;
-    const url = new URL(a.href, location.href);
-    if (url.origin !== location.origin || !/\.html$|\/$/.test(url.pathname)) return;
-    if (url.pathname === location.pathname) return; // same-page anchors scroll normally
-    e.preventDefault();
-    const veil = document.createElement('div'); veil.className = 'wave-veil'; document.body.appendChild(veil);
-    requestAnimationFrame(() => requestAnimationFrame(() => veil.classList.add('up')));
-    try { sessionStorage.setItem('wave', '1'); } catch (err) {}
-    setTimeout(() => { location.href = url.href; }, 620);
-  });
-  window.addEventListener('pageshow', (e) => { if (e.persisted) document.querySelectorAll('.wave-veil').forEach((v) => v.remove()); });
+  // also count the page as "last seen" in browsers without view transitions
+  window.addEventListener('pagehide', () => { try { sessionStorage.setItem('lastPage', here); } catch (e) {} });
 })();
 
 // 15. Home page: a fishing game below the pond. Move the lure with the arrow keys
@@ -1247,7 +1297,7 @@
   const CRAWDAD_FACT = 'Most crawdads in California’s rivers and ponds are introduced. The signal crayfish, brought here in 1912, now threatens the Shasta crayfish, California’s last native crayfish.';
   const KEYS = Object.keys(SPECIES);
   const caught = new Set();
-  const SURF = 160, MAXD = 12, BOAT_S = 1.45, FISH_S = 1.18;
+  const SURF = 160, MAXD = 12, BOAT_S = 1.8, FISH_S = 1.18;
   let umb = 0, hasKey = false, follow = false;
   const litter = [];
   let W = 0, H = 0, WH = 0, FLOOR = 0, dpr = 1, cam = 0, time = 0, last = 0, running = false, playing = false, raining = false;
@@ -1338,24 +1388,21 @@
       ctx.closePath(); ctx.fill(); ctx.strokeStyle = 'rgba(120,40,60,0.5)'; ctx.lineWidth = 1; ctx.stroke();
       ctx.fillStyle = '#4A3A30'; ctx.beginPath(); ctx.arc(ux, top - 6 * umb, 1.4, 0, Math.PI * 2); ctx.fill();
     }
-    // the dog: black with a white face, sitting at the bow behind her
-    ctx.save(); ctx.translate(-36, -9); ctx.scale(1.25, 1.25);
-    ell(ctx, 0, -6, 7.5, 7, '#1E1E22');                       // body
-    ell(ctx, 6, -9, 3, 5, '#1E1E22');                         // chest
-    ctx.strokeStyle = '#1E1E22'; ctx.lineWidth = 2.6; ctx.beginPath(); ctx.moveTo(-6, -6); ctx.quadraticCurveTo(-13, -10 + (reduce ? 0 : Math.sin(time * 7) * 3), -12, -16); ctx.stroke(); // wagging tail
-    ell(ctx, 7, -17, 5.6, 5, '#1E1E22');                      // head
-    ell(ctx, 9, -15.5, 3.6, 3.6, '#F6F4EE');                  // white face
-    ell(ctx, 7.5, -19.5, 1.6, 3, '#F6F4EE');                  // white blaze
-    ell(ctx, 12.6, -15.6, 2.4, 1.8, '#F6F4EE');               // muzzle
-    ell(ctx, 14.6, -16, 1, 0.9, '#111');                      // nose
-    ell(ctx, 3.4, -18, 2, 3.6, '#1E1E22', -0.4);              // ear
-    ell(ctx, 9.6, -18.4, 0.8, 0.8, '#111');                   // eye
+    // the dog: just her head peeking over the side (black with a white face)
+    ctx.save(); ctx.translate(-30, -13.5);
+    ell(ctx, -4.4, 0.6, 1.9, 3.8, '#1E1E22', 0.35); ell(ctx, 4.4, 0.6, 1.9, 3.8, '#1E1E22', -0.35); // floppy ears
+    ell(ctx, 0, 0, 5.2, 4.8, '#1E1E22');                          // head
+    ell(ctx, 0, 1.8, 3, 3, '#F6F4EE'); ell(ctx, 0, -2.2, 1, 2.2, '#F6F4EE'); // white face and blaze
+    ell(ctx, 0, 1.4, 1, 0.75, '#1A1A1A');                        // nose
+    ell(ctx, -1.9, -0.9, 0.7, 0.7, '#1A1A1A'); ell(ctx, 1.9, -0.9, 0.7, 0.7, '#1A1A1A'); // eyes
     ctx.restore();
     // paddler: hair, head, life vest (no face)
     ell(ctx, -4, -16, 7, 9, '#F2A23A');
     ctx.fillStyle = '#5A3A26'; ctx.beginPath(); ctx.ellipse(-4, -30, 6.5, 7, 0, 0, Math.PI * 2); ctx.fill();
     ctx.beginPath(); ctx.moveTo(-10, -31); ctx.quadraticCurveTo(-12, -21, -9, -19); ctx.lineTo(1, -19); ctx.quadraticCurveTo(4, -22, 2, -31); ctx.fill();
-    ell(ctx, -4, -29, 5, 5.5, '#F2CDB2'); ctx.fillStyle = '#5A3A26'; ctx.beginPath(); ctx.ellipse(-4, -33, 6, 3.6, 0, Math.PI, 0); ctx.fill();
+    ell(ctx, -4, -29, 5, 5.5, '#F2CDB2');
+    // a bucket-style fishing hat
+    ell(ctx, -4, -33.2, 9.5, 2.2, '#7E8F57'); ctx.fillStyle = '#93A566'; ctx.beginPath(); ctx.moveTo(-10, -33.5); ctx.quadraticCurveTo(-10, -41, -4, -41); ctx.quadraticCurveTo(2, -41, 2, -33.5); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#5E6E3E'; ctx.fillRect(-10, -35.6, 12, 1.8);
     // rod
     ctx.strokeStyle = '#5A3A26'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(1, -16); ctx.quadraticCurveTo(22, -40, 46, -48); ctx.stroke();
     // canoe hull

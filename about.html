@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <script>try{if(sessionStorage.getItem("wave")&&!matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("wave-in")}catch(e){}</script>
+  <script>(function(){var o=["index.html","about.html","research.html","portfolio.html"],h=location.pathname.split("/").pop()||"index.html";addEventListener("pagereveal",function(e){try{var f=sessionStorage.getItem("lastPage");sessionStorage.setItem("lastPage",h);if(!e.viewTransition)return;if(matchMedia("(prefers-reduced-motion: reduce)").matches){e.viewTransition.skipTransition();return}document.documentElement.setAttribute("data-swipe",o.indexOf(h)<o.indexOf(f)?"back":"fwd");e.viewTransition.finished.finally(function(){document.documentElement.removeAttribute("data-swipe")})}catch(x){}})})()</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>About | Brooke Murphy</title>
@@ -32,19 +32,21 @@
       <div class="bio">
         <span class="eyebrow">About me</span>
         <h1>I follow water.</h1>
-        <p class="lede">I'm an environmental scientist in Los Osos, California, finishing an M.S. in Environmental Science and Management at Cal Poly.</p>
-        <p>I study how much water California has, how clean it is, and how a changing climate shifts the numbers. I do that with GIS, satellite data and a lot of time in the field, from creek beds and recharge ponds to soil cores and reservoir surveys.</p>
-        <div class="links"><a class="btn btn-primary" href="#do">What I do</a><a class="btn" href="#story">How I got here</a><a class="btn" href="files/Brooke_Murphy_CV.pdf">Download CV</a></div>
+        <p class="lede">I'm an environmental scientist on California's Central Coast, finishing an M.S. at Cal Poly.</p>
+        <p>I study how much water California has, how clean it is, and how that's changing.</p>
       </div>
     </section>
+    <a class="about-swoop" href="#do" aria-label="Scroll to What I do">
+      <svg viewBox="0 0 1000 230" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><path class="swoop-line" d="M640 14 C 668 70, 610 118, 500 122 C 390 126, 300 96, 230 108 C 185 114, 150 120, 70 205"/><path class="swoop-head" d="M103 196 L70 205 M70 205 L78 176"/></svg>
+    </a>
 
     <section class="section reveal" id="do" aria-labelledby="do-h">
       <div class="section-head"><h2 id="do-h">What I do</h2></div>
       <div class="pillars">
-        <div class="pillar"><h3>Spatial analysis</h3><p>GIS, remote sensing and survey-grade GPS to map, measure and model landscapes, from field data collection to finished maps and StoryMaps.</p></div>
-        <div class="pillar"><h3>Quantitative hydrology</h3><p>Evapotranspiration, groundwater and reservoir data analyzed in R and Python, with careful QA/QC so the numbers hold up.</p></div>
-        <div class="pillar"><h3>Environmental management</h3><p>Water quality sampling, invasive species prevention, habitat restoration and prescribed fire, done alongside agencies and the public.</p></div>
-        <div class="pillar"><h3>Science communication</h3><p>Teaching, outreach events and interactive maps that make technical findings clear to the communities who depend on them.</p></div>
+        <div class="pillar"><h3>Spatial analysis</h3><p>GIS, remote sensing and survey-grade GPS, from field data to finished maps.</p></div>
+        <div class="pillar"><h3>Quantitative hydrology</h3><p>Evapotranspiration, groundwater and reservoir data, analyzed in R and Python.</p></div>
+        <div class="pillar"><h3>Environmental management</h3><p>Water quality sampling, invasive species prevention, restoration and prescribed fire.</p></div>
+        <div class="pillar"><h3>Science communication</h3><p>Teaching, outreach and interactive maps that make the science clear.</p></div>
       </div>
     </section>
 
