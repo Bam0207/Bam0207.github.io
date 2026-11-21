@@ -1478,3 +1478,30 @@ main > .section + .section { margin-top: 120px !important; }
 .ml-pipe .ml-out { background: #E3F3F1; border-color: #9BC9C4; }
 .ml-pipe b { color: #2E7484; }
 @media (max-width: 860px) { .ml-stage { grid-template-columns: minmax(0, 1fr); } }
+
+/* ===== v37: About tweaks + research layout ===== */
+.chapter.has-photo.small-photo { grid-template-columns: 100px minmax(0, 1fr) minmax(0, 280px); }
+.chapter.small-photo .chapter-photo img { height: 210px; }
+.keep-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 22px; margin-top: 12px; }
+.keep-alt { color: #2E7484; font-weight: 600; }
+.chapter-end { padding-bottom: 40px; }
+/* research: centered titles, text spread across the page */
+.research .research-hero { margin: 0 auto; text-align: center; justify-items: center; max-width: 980px; }
+.research .research-hero .lede { margin: 0 auto; }
+.research .eto-launch { justify-items: center; text-align: center; }
+.research .eto-context { margin: 0 auto 18px; max-width: 820px; }
+.research .q-head { justify-items: center; text-align: center; }
+.research .q-head h2 { margin: 0 auto; max-width: 1000px; }
+.research .q-lede, .research .mwin-intro { margin-left: auto; margin-right: auto; text-align: center; max-width: 860px; }
+.research .q-sub { text-align: center; }
+.research .ml-explain { margin: 0 auto; max-width: 980px; }
+.research .viewer-section { padding: 44px clamp(22px, 4vw, 52px) 48px !important; }
+.research .viewer-head { text-align: center; display: grid; gap: 10px; justify-items: center; margin-bottom: 18px; }
+.research .viewer-head p { max-width: 760px; }
+.research .month-viewer { align-items: start; }
+.research .viewer-stage { position: relative; }
+.research .viewer-month { position: absolute; top: 8px; right: 8px; left: auto; font-size: clamp(26px, 3vw, 40px); }
+.research .q-section .two-col { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 860px) { .research .q-section .two-col { grid-template-columns: minmax(0, 1fr); } }
+.research .contact { margin-bottom: 80px; }
+.research .q-section .pillar { align-content: start; gap: 8px; }
