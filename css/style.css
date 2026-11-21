@@ -1214,3 +1214,9 @@ kbd { display: inline-block; min-width: 1.7em; padding: 1px 6px; margin: 0 1px; 
 .retro-email:focus:not(:focus-visible) { outline: none; }
 .retro::after { bottom: -46px; opacity: 0.6; }
 .retro > * { position: relative; z-index: 1; }
+
+/* ---------- v28 ---------- */
+.go-fish-trout { width: clamp(54px, 6vw, 84px); height: auto; color: rgba(230,246,248,0.9); flex: none; }
+.go-fish-trout.flip { transform: scaleX(-1); }
+.deep-intro { top: 0 !important; inset: 0; align-items: center !important; padding-top: 20px !important; background: rgba(8,30,36,0.4) !important; }
+@media (pointer: fine) { .deep-reel { display: none !important; } }

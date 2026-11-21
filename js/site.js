@@ -1235,7 +1235,9 @@
   const CRAWDAD_FACT = 'Most crawdads in California’s rivers and ponds are introduced. The signal crayfish, brought here in 1912, now threatens the Shasta crayfish, California’s last native crayfish.';
   const KEYS = Object.keys(SPECIES);
   const caught = new Set();
-  const SURF = 160, MAXD = 12;
+  const SURF = 160, MAXD = 12, BOAT_S = 1.45;
+  let umb = 0, hasKey = false;
+  const litter = [];
   let W = 0, H = 0, WH = 0, FLOOR = 0, dpr = 1, cam = 0, time = 0, last = 0, running = false, playing = false, raining = false;
   let lure = { x: 0, y: 0, tx: null, ty: null }, boatX = 0, keys = {}, hooked = null, reeling = false, modalOpen = false;
   let fish = [], grass = [], rocks = [], coins = [], bubbles = [], ripples = [], crab = null, chest = { x: 0, open: false, shake: 0 };
@@ -1252,6 +1254,7 @@
     if (!fish.length) populate();
     grass = []; for (let x = 10; x < W; x += rnd(24, 64)) if (Math.abs(x - chest.x) > 90) grass.push({ x, h: rnd(70, 190), ph: rnd(0, 6), c: Math.random() < 0.5 ? '#3E7F55' : '#2F6B48' });
     rocks = []; for (let i = 0; i < Math.max(6, W / 160); i++) { const x = rnd(0, W); if (Math.abs(x - chest.x) > 110) rocks.push({ x, r: rnd(14, 38), c: Math.random() < 0.5 ? '#41545A' : '#36474D' }); }
+    litter.length = 0; [['can', 0.12, '#C8423A'], ['bottle', 0.33], ['can', 0.47, '#3E78B3'], ['bag', 0.58], ['can', 0.92, '#E0A030']].forEach(([t, fx, c]) => { const x = fx * W; if (Math.abs(x - chest.x) > 120) litter.push({ t, x, c, r: rnd(-0.4, 0.4) }); });
     coins = []; for (let i = 0; i < 26; i++) coins.push({ x: chest.x + rnd(-110, 110), y: FLOOR + rnd(-4, 14), r: rnd(4, 7), ph: rnd(0, 6) });
   }
   function spawn(f) { const sp = SPECIES[f.k]; f.x = Math.random() < 0.5 ? -0.08 : 1.08; f.dir = f.x < 0 ? 1 : -1; f.fy = rnd(sp.zone[0], sp.zone[1]); }
@@ -1287,17 +1290,42 @@
     }
     c.restore();
   }
-  function drawCrab(c, x, y, dir, s) {
+  function drawKey(c, x, y, s) {
+    c.save(); c.translate(x, y); c.scale(s, s); c.rotate(-0.5);
+    c.strokeStyle = '#B8861F'; c.fillStyle = '#F5C842'; c.lineWidth = 1.2;
+    c.beginPath(); c.arc(0, 0, 4, 0, Math.PI * 2); c.fill(); c.stroke();
+    c.fillStyle = '#7A1E12'; c.beginPath(); c.arc(0, 0, 1.6, 0, Math.PI * 2); c.fill();
+    c.fillStyle = '#F5C842'; c.fillRect(3.5, -1.2, 12, 2.4); c.strokeRect(3.5, -1.2, 12, 2.4);
+    c.fillRect(11, 1, 2, 3); c.fillRect(14, 1, 2, 2.4);
+    if (!reduce) { const tw = Math.max(0, Math.sin(time * 3)); c.fillStyle = 'rgba(255,248,200,' + tw + ')'; c.fillRect(9, -5, 1.4, 4); c.fillRect(7.7, -3.7, 4, 1.4); }
+    c.restore();
+  }
+  function drawCrab(c, x, y, dir, s, key) {
     s = s || 1; c.save(); c.translate(x, y); c.scale(dir * s, s);
-    ell(c, 0, 0, 14, 5, '#A04A2E'); ell(c, 14, -2, 6, 4, '#A04A2E'); ell(c, -14, 0, 5, 4, '#8E3F27');
-    c.strokeStyle = '#8E3F27'; c.lineWidth = 1.5; for (let i = -2; i <= 2; i++) { c.beginPath(); c.moveTo(i * 4, 3); c.lineTo(i * 4 + 2, 9 + Math.sin(time * 8 + i) * 1.5); c.stroke(); }
-    c.beginPath(); c.moveTo(18, -4); c.quadraticCurveTo(30, -14, 36, -6); c.stroke(); ell(c, 36, -6, 5, 3, '#A04A2E'); c.restore();
+    ell(c, 0, 0, 14, 5, '#E0321F'); ell(c, 14, -2, 6, 4, '#E0321F'); ell(c, -14, 0, 5, 4, '#C42816');
+    ell(c, 2, -2, 9, 1.6, 'rgba(255,180,160,0.6)');
+    c.strokeStyle = '#C42816'; c.lineWidth = 1.5; for (let i = -2; i <= 2; i++) { c.beginPath(); c.moveTo(i * 4, 3); c.lineTo(i * 4 + 2, 9 + Math.sin(time * 8 + i) * 1.5); c.stroke(); }
+    c.beginPath(); c.moveTo(18, -4); c.quadraticCurveTo(30, -14, 36, -6); c.stroke();
+    if (key) drawKey(c, 38, -9, 1);
+    ell(c, 36, -6, 5, 3, '#E0321F'); ell(c, 20, -5, 1.4, 1.4, '#1A1A1A');
+    c.restore();
   }
   function drawBoat(x) {
     // a simple canoe with a faceless little paddler
     const y = SURF, bob = reduce ? 0 : Math.sin(time * 1.4) * 1.5, OL = 'rgba(30,40,40,0.55)';
-    ctx.save(); ctx.translate(x, y + bob); ctx.rotate(reduce ? 0 : Math.sin(time * 1.1) * 0.02);
+    ctx.save(); ctx.translate(x, y + bob); ctx.rotate(reduce ? 0 : Math.sin(time * 1.1) * 0.02); ctx.scale(BOAT_S, BOAT_S);
     ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    // a small umbrella when it rains (opens over a moment)
+    umb += ((raining ? 1 : 0) - umb) * 0.08;
+    if (umb > 0.02) {
+      const ux = -10, top = -60, sp = 22 * umb;
+      ctx.strokeStyle = '#4A3A30'; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(-7, -18); ctx.lineTo(ux, top + 2); ctx.stroke();
+      ctx.fillStyle = '#F28BA8'; ctx.beginPath(); ctx.moveTo(ux - sp, top + 8 * umb);
+      ctx.quadraticCurveTo(ux, top - 14 * umb, ux + sp, top + 8 * umb);
+      const n = 4; for (let i = n; i > 0; i--) { const x1 = ux - sp + (2 * sp) * (i - 1) / n, x0 = ux - sp + (2 * sp) * i / n; ctx.quadraticCurveTo((x0 + x1) / 2, top + 4 * umb, x1, top + 8 * umb); }
+      ctx.closePath(); ctx.fill(); ctx.strokeStyle = 'rgba(120,40,60,0.5)'; ctx.lineWidth = 1; ctx.stroke();
+      ctx.fillStyle = '#4A3A30'; ctx.beginPath(); ctx.arc(ux, top - 6 * umb, 1.4, 0, Math.PI * 2); ctx.fill();
+    }
     // paddler: hair, head, life vest (no face)
     ell(ctx, -4, -16, 7, 9, '#F2A23A');
     ctx.fillStyle = '#5A3A26'; ctx.beginPath(); ctx.ellipse(-4, -30, 6.5, 7, 0, 0, Math.PI * 2); ctx.fill();
@@ -1312,8 +1340,20 @@
     ctx.strokeStyle = '#E9B48A'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-54, -10); ctx.quadraticCurveTo(0, -3, 54, -10); ctx.stroke();
     ctx.restore();
     ctx.strokeStyle = 'rgba(230,248,250,0.6)'; ctx.lineWidth = 1.5;
-    for (const s of [-1, 1]) { ctx.beginPath(); ctx.moveTo(x + s * 60, SURF + 1); ctx.quadraticCurveTo(x + s * 70, SURF - 1, x + s * 82, SURF + 1); ctx.stroke(); }
-    return { tipX: x + 46, tipY: y + bob - 48 };
+    for (const s of [-1, 1]) { ctx.beginPath(); ctx.moveTo(x + s * 60 * BOAT_S, SURF + 1); ctx.quadraticCurveTo(x + s * 70 * BOAT_S, SURF - 1, x + s * 82 * BOAT_S, SURF + 1); ctx.stroke(); }
+    return { tipX: x + 46 * BOAT_S, tipY: y + bob - 48 * BOAT_S };
+  }
+  function drawLitter(L) {
+    ctx.save(); ctx.translate(L.x, FLOOR + 2); ctx.rotate(L.r);
+    if (L.t === 'can') {
+      ctx.fillStyle = L.c; ctx.fillRect(-9, -6, 18, 12); ctx.fillStyle = '#C9CED0'; ctx.fillRect(-11, -6, 2, 12); ctx.fillRect(9, -6, 2, 12);
+      ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.fillRect(-6, -4, 10, 2);
+    } else if (L.t === 'bottle') {
+      ctx.fillStyle = 'rgba(150,210,190,0.55)'; ctx.beginPath(); ctx.roundRect(-14, -6, 22, 12, 4); ctx.fill(); ctx.fillRect(8, -3, 8, 6); ctx.fillStyle = '#3E7F6B'; ctx.fillRect(16, -3.5, 3, 7);
+    } else { // a wavy plastic bag
+      ctx.fillStyle = 'rgba(235,240,240,0.45)'; ctx.beginPath(); ctx.moveTo(-12, 4); ctx.quadraticCurveTo(-10, -14 + Math.sin(time) * 2, 0, -12); ctx.quadraticCurveTo(10, -14, 12, 4); ctx.closePath(); ctx.fill();
+    }
+    ctx.restore();
   }
   function drawChest() {
     const cx = chest.x + (chest.shake > 0 ? Math.sin(time * 70) * 5 * Math.min(1, chest.shake * 2) : 0), cy = FLOOR - 4;
@@ -1357,14 +1397,15 @@
     const g = c.createLinearGradient(0, 0, 0, art.height); g.addColorStop(0, '#2E7484'); g.addColorStop(1, '#1B4F5B'); c.fillStyle = g; c.fillRect(0, 0, art.width, art.height);
     for (let i = 0; i < 14; i++) { c.strokeStyle = 'rgba(210,240,244,0.35)'; c.beginPath(); c.arc(rnd(20, 500), rnd(20, 240), rnd(3, 8), 0, 7); c.stroke(); }
     const isCrab = k === 'crawdad', first = !isCrab && !caught.has(k);
-    if (isCrab) drawCrab(c, 250, 140, 1, 5); else drawFish(c, k, 270, 130, 1, 0, 0, 380 / SPECIES[k].size);
+    if (isCrab) drawCrab(c, 230, 150, 1, 5, !hasKey); else drawFish(c, k, 270, 130, 1, 0, 0, 380 / SPECIES[k].size);
     if (!isCrab) { caught.add(k); paintTray(k); countEl.textContent = caught.size + '/' + KEYS.length; }
     $('#catch-h').textContent = isCrab ? 'You caught a crawdad!' : 'You caught a ' + SPECIES[k].name + '!';
     $('.catch-tag').textContent = isCrab ? 'Bonus catch' : SPECIES[k].tag + ' to California';
     $('.catch-tag').className = 'catch-tag ' + (isCrab || SPECIES[k].tag === 'Introduced' ? 'intro' : 'native');
+    const gotKey = isCrab && !hasKey; if (isCrab) hasKey = true;
     $('.catch-fact').textContent = isCrab ? CRAWDAD_FACT : SPECIES[k].fact;
     const left = KEYS.length - caught.size;
-    $('.catch-progress').textContent = isCrab ? 'Crawdads don’t count toward the six, but nice catch.' : !first ? 'You’ve caught this one before. Released back into the pond.' : left ? left + ' more species to go. Released back into the pond.' : 'That’s all six! The treasure chest on the bottom is unlocked.';
+    $('.catch-progress').textContent = isCrab ? (gotKey ? 'It was holding a golden key! The treasure chest on the bottom is unlocked.' : 'Crawdads don’t count toward the six, but nice catch.') : !first ? 'You’ve caught this one before. Released back into the pond.' : left ? left + ' more species to go. Released back into the pond.' : 'That’s all six! The treasure chest on the bottom is unlocked.';
     openModal(catchBox, '#catch-h'); catchBox.dataset.t = Date.now();
   }
 
@@ -1378,7 +1419,7 @@
       if (dx || dy) { lure.tx = null; const m = Math.hypot(dx, dy); lure.x += dx / m * sp; lure.y += dy / m * sp; }
       else if (lure.tx != null) { const ddx = lure.tx - lure.x, ddy = lure.ty - lure.y, m = Math.hypot(ddx, ddy); if (m > 2) { lure.x += ddx / m * Math.min(m, sp); lure.y += ddy / m * Math.min(m, sp); } }
     }
-    if (reeling) { lure.y -= 340 * dt; if (lure.y <= SURF + 30) { const k = hooked.k; reeling = false; reelBtn.hidden = true; if (hooked.crab) { crab.held = false; crab.x = rnd(0.1, 0.6); crab.cool = 6; } else { spawn(hooked); hooked.cool = 5; } hooked = null; lure.y = SURF + 160; showCatch(k); } }
+    if (reeling) { const secTop = sec.getBoundingClientRect().top + window.scrollY; window.scrollTo(0, secTop + Math.max(0, Math.min(WH - H, lure.y - H * 0.55))); lure.y -= 340 * dt; if (lure.y <= SURF + 30) { const k = hooked.k; reeling = false; reelBtn.hidden = true; if (hooked.crab) { crab.held = false; crab.x = rnd(0.1, 0.6); crab.cool = 6; } else { spawn(hooked); hooked.cool = 5; } hooked = null; lure.y = SURF + 160; showCatch(k); } }
     lure.x = Math.max(24, Math.min(W - 24, lure.x)); lure.y = Math.max(SURF + 30, Math.min(FLOOR - 16, lure.y));
     boatX += (Math.max(80, Math.min(W - 80, lure.x - 40)) - boatX) * Math.min(1, dt * 1.2);
     // the page scroll drives the camera; the lure rides along and can move within the view
@@ -1407,9 +1448,9 @@
       ctx.restore();
     }
     // rain
-    if (raining && !reduce) for (let i = 0; i < 3; i++) if (Math.random() < dt * 22) { const x = rnd(0, W); ripples.push({ x, r: 2, a: 0.7 }); for (let b = 0; b < 3; b++) bubbles.push({ x: x + rnd(-4, 4), y: SURF + rnd(8, 60), v: rnd(10, 30), r: rnd(1, 2.2), life: 1.2 }); }
-    if (raining && cam < SURF) { ctx.strokeStyle = 'rgba(220,240,245,0.6)'; ctx.lineWidth = 1.2; for (let i = 0; i < 40; i++) { const x = (i * 97 + time * 300) % W, y = ((i * 53 + time * 500) % SURF); ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - 3, y + 10); ctx.stroke(); } }
-    ripples = ripples.filter((p) => (p.r += dt * 26, p.a -= dt * 0.7, p.a > 0));
+    if (raining && !reduce) for (let i = 0; i < 2; i++) if (Math.random() < dt * 9) { const x = rnd(0, W); ripples.push({ x, r: 1, a: 0.55 }); if (Math.random() < 0.4) bubbles.push({ x, y: SURF + rnd(6, 30), v: rnd(8, 18), r: rnd(0.8, 1.4), life: 0.9 }); }
+    if (raining && cam < SURF) { ctx.strokeStyle = 'rgba(225,242,247,0.55)'; ctx.lineWidth = 1.1; for (let i = 0; i < 46; i++) { const x = (i * 97.3) % W, y = ((i * 53 + time * 150) % SURF); ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y + 8); ctx.stroke(); } }
+    ripples = ripples.filter((p) => (p.r += dt * 10, p.a -= dt * 0.9, p.a > 0));
     ripples.forEach((p) => { ctx.strokeStyle = 'rgba(220,245,248,' + p.a + ')'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.ellipse(p.x, SURF, p.r * 1.8, p.r * 0.5, 0, 0, Math.PI * 2); ctx.stroke(); });
     if (!reduce && Math.random() < dt * 6) bubbles.push({ x: rnd(0, W), y: cam + H + 10, v: rnd(20, 45), r: rnd(1.2, 3.2), life: 99 });
     bubbles = bubbles.filter((b) => (b.y -= b.v * dt, b.life -= dt, b.y > SURF + 4 && b.life > 0 && b.y > cam - 20));
@@ -1420,8 +1461,9 @@
       grass.forEach((gr) => { ctx.strokeStyle = gr.c; ctx.lineWidth = 5; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(gr.x, FLOOR + 10); ctx.quadraticCurveTo(gr.x + Math.sin(time * 0.9 + gr.ph) * 18, FLOOR - gr.h * 0.5, gr.x + Math.sin(time * 0.9 + gr.ph + 0.8) * 26, FLOOR - gr.h); ctx.stroke(); });
       ctx.fillStyle = '#B49B6E'; ctx.beginPath(); ctx.moveTo(0, FLOOR + 4); for (let x = 0; x <= W; x += 20) ctx.lineTo(x, FLOOR + Math.sin(x / 90) * 6); ctx.lineTo(W, WH); ctx.lineTo(0, WH); ctx.closePath(); ctx.fill();
       rocks.forEach((rk) => ell(ctx, rk.x, FLOOR + 6, rk.r, rk.r * 0.6, rk.c));
+      litter.forEach(drawLitter);
       drawChest();
-      if (!crab.held) { crab.x += crab.dir * dt * 0.02; if (crab.x > 0.62 || crab.x < 0.05) crab.dir *= -1; drawCrab(ctx, crab.x * W, FLOOR - 4, crab.dir); }
+      if (!crab.held) { crab.x += crab.dir * dt * 0.02; if (crab.x > 0.62 || crab.x < 0.05) crab.dir *= -1; drawCrab(ctx, crab.x * W, FLOOR - 4, crab.dir, 1, !hasKey); }
       crab.cool -= dt;
     }
     chest.shake = Math.max(0, chest.shake - dt);
@@ -1437,10 +1479,10 @@
       if (y < cam - 60 || y > cam + H + 60) return;
       drawFish(ctx, f.k, x, y, f.dir, f.ph, 0);
       if (playing && !hooked && !modalOpen && f.cool <= 0 && Math.hypot(x + f.dir * s2.size * 0.3 - lure.x, y - lure.y) < Math.max(24, s2.size * 0.5)) {
-        hooked = f; reelBtn.hidden = false; say('Fish on! Press <strong>Reel it in</strong> or <kbd>Space</kbd>.', 3000);
+        hooked = f; reelBtn.hidden = false; say('Fish on! Press <kbd>Space</kbd> to reel it in.', 3000);
       }
     });
-    if (playing && !hooked && !modalOpen && crab.cool <= 0 && !crab.held && Math.hypot(crab.x * W - lure.x, FLOOR - 6 - lure.y) < 26) { crab.held = true; hooked = { crab: true, k: 'crawdad' }; reelBtn.hidden = false; say('Something pinched your lure! <strong>Reel it in</strong>.', 3000); }
+    if (playing && !hooked && !modalOpen && crab.cool <= 0 && !crab.held && Math.hypot(crab.x * W - lure.x, FLOOR - 6 - lure.y) < 26) { crab.held = true; hooked = { crab: true, k: 'crawdad' }; reelBtn.hidden = false; say('Something pinched your lure! Press <kbd>Space</kbd> to reel it in.', 3000); }
 
     // line, lure and the hooked catch
     const tip = drawBoat(boatX);
@@ -1452,7 +1494,7 @@
     ell(ctx, lure.x, lure.y - 14, 5, 6, '#E2543A'); ell(ctx, lure.x, lure.y - 18, 5, 3, '#F4F1E6');
     ctx.strokeStyle = '#D9DDD8'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(lure.x, lure.y - 8); ctx.lineTo(lure.x, lure.y + 3); ctx.arc(lure.x - 5, lure.y + 3, 5, 0, Math.PI); ctx.stroke();
     // a gentle pointer to the chest once it's unlocked
-    if (caught.size === KEYS.length && !chest.open && cam + H < FLOOR - 100) { ctx.fillStyle = 'rgba(255,226,120,' + (0.6 + Math.sin(time * 4) * 0.3) + ')'; ctx.font = '600 16px "DM Sans", sans-serif'; ctx.textAlign = 'center'; ctx.fillText('Treasure unlocked: swim to the bottom ↓', W / 2, cam + H - 30); }
+    if ((caught.size === KEYS.length || hasKey) && !chest.open && cam + H < FLOOR - 100) { ctx.fillStyle = 'rgba(255,226,120,' + (0.6 + Math.sin(time * 4) * 0.3) + ')'; ctx.font = '600 16px "DM Sans", sans-serif'; ctx.textAlign = 'center'; ctx.fillText('Treasure unlocked: swim to the bottom ↓', W / 2, cam + H - 30); }
 
     if (running) requestAnimationFrame(frame);
   }
@@ -1473,7 +1515,7 @@
   function worldPt(e) { const r = cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top + cam }; }
   function tryChest() {
     if (chest.open) { openModal(treasure, '.retro-email'); return; }
-    if (caught.size < KEYS.length) { chest.shake = 0.7; say('Locked! <strong>Catch all the fish</strong> to open it. (' + caught.size + '/' + KEYS.length + ')', 3200); return; }
+    if (caught.size < KEYS.length && !hasKey) { chest.shake = 0.7; say('Locked! <strong>Catch all the fish</strong> to open it. (' + caught.size + '/' + KEYS.length + ')', 3200); return; }
     chest.open = true; setTimeout(() => openModal(treasure, '.retro-email'), 700);
   }
   let dragging = false;
