@@ -74,14 +74,14 @@
     { org: 'Valley Water', role: 'Groundwater Management Intern · 2026', lat: 37.25, lng: -121.86, kind: 'water', img: 'images/recharge-pond.jpg', pos: 'center 35%', link: 'about.html#story-valleywater', more: 'What I did there' },
     { org: 'Valley Water', role: 'Anderson Dam retrofit site visit · 2026', lat: 37.17, lng: -121.63, kind: 'water', img: 'images/anderson-dam.jpg', link: 'about.html#story-valleywater', more: 'What I did there' },
     { org: 'Cal Poly SLO', role: 'M.S. research, GIS Developer and teaching · 2025–now', lat: 35.30, lng: -120.66, kind: 'research', img: 'images/cover-eto.svg', link: 'research.html', more: 'Explore my research' },
-    { org: 'Cal Poly SLO', role: 'Salinas Valley pilot and irrigation calculator · 2026', lat: 36.45, lng: -121.35, kind: 'research', img: 'images/cover-calculator.svg', link: 'portfolio.html#irrigation-calculator', more: 'See the project' },
-    { org: 'Cal Poly SLO', role: 'Applied GIS: Bartleson Ranch mapping · 2025', lat: 35.11, lng: -120.57, kind: 'research', img: 'images/bartleson.jpg', pos: 'center 40%', link: 'portfolio.html#bartleson-ranch', more: 'See the project' },
-    { org: 'Santa Barbara County Parks', role: 'Program Coordinator, Cachuma Lake · 2024–25', lat: 34.58, lng: -119.98, kind: 'water', link: 'about.html#story-cachuma', more: 'What I did there' },
+    { org: 'Cal Poly SLO', role: 'Salinas Valley Water Footprint study · 2026', lat: 36.45, lng: -121.35, kind: 'research', img: 'images/cover-calculator.svg', link: 'portfolio.html#irrigation-calculator', more: 'See the project' },
+    { org: 'Cal Poly SLO', role: 'Bartleson Ranch Consulting Project · 2025', lat: 35.11, lng: -120.57, kind: 'research', img: 'images/bartleson.jpg', pos: 'center 40%', link: 'portfolio.html#bartleson-ranch', more: 'See the project' },
+    { org: 'Santa Barbara County Parks', role: 'Aquatic Invasive Species Mitigation Program Coordinator, Cachuma Lake · 2024–25', lat: 34.58, lng: -119.98, kind: 'water', img: 'images/cachuma.jpg', pos: 'center 30%', link: 'about.html#story-cachuma', more: 'What I did there' },
     { org: 'Santa Clara County Parks', role: 'Natural Resources Management Intern · 2022', lat: 37.34, lng: -121.70, kind: 'land', img: 'images/scc-burn.jpg', pos: '35% center', link: 'about.html#story-sccparks', more: 'What I did there' },
-    { org: 'Vesper Meadow Education Program', role: 'Wetland Restoration Volunteer · 2020', lat: 42.29, lng: -122.37, kind: 'water', link: 'about.html#story-oregon', more: 'What I did there' },
-    { org: 'Westmont College', role: 'Teaching Assistant and Tutor, Old Testament · 2023', lat: 34.449, lng: -119.661, kind: 'research', link: 'about.html#story-westmont', more: 'More about my Westmont years' },
-    { org: 'Mesa Harmony Garden', role: 'Volunteer, Santa Barbara Mesa', lat: 34.404, lng: -119.722, kind: 'land', link: 'about.html#story-westmont', more: 'More about my Westmont years' },
-    { org: 'Bureau of Land Management', role: 'Biological Monitoring Volunteer, Cascade-Siskiyou National Monument · 2020', lat: 42.08, lng: -122.47, kind: 'land', img: 'images/blm-oregon.jpg', pos: 'center 30%', link: 'about.html#story-oregon', more: 'What I did there' }
+    { org: 'Vesper Meadow Education Program', role: 'Wetland Restoration Volunteer · 2020', lat: 42.29, lng: -122.37, kind: 'water', img: 'images/vesper-meadow.jpg', pos: 'center 45%', link: 'about.html#story-oregon', more: 'What I did there' },
+    { org: 'Westmont College', role: 'Teaching Assistant and Tutor, Old Testament · 2023', lat: 34.449, lng: -119.661, kind: 'research', img: 'images/westmont.jpg', pos: 'center 55%', link: 'about.html#story-westmont', more: 'More about my Westmont years' },
+    { org: 'Mesa Harmony Garden', role: 'Permaculture volunteer, Santa Barbara Mesa', lat: 34.404, lng: -119.722, kind: 'land', img: 'images/mesa-harmony.jpg', pos: 'center 60%', link: 'about.html#permaculture', more: 'About my permaculture training' },
+    { org: 'Bureau of Land Management', role: 'Biological Monitoring Volunteer, Cascade-Siskiyou National Monument · 2020', lat: 42.08, lng: -122.47, kind: 'land', img: 'images/blm-monument.jpg', pos: 'center 55%', link: 'about.html#story-oregon', more: 'What I did there' }
   ];
   const colors = { water: '#4FB3C8', research: '#FFFFFF', land: '#F2A23A' };
   const map = L.map(el, { scrollWheelZoom: false }).setView([37.0, -120.6], 6);
@@ -207,6 +207,7 @@
     for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
     total = cum[cum.length - 1];
     heads = [...main.querySelectorAll('h1, h2')].map((h) => { const r = h.getBoundingClientRect(); return r.top + window.scrollY + r.height / 2; });
+    heads = heads.sort((a, b) => a - b).filter((y, i, a) => i === 0 || y - a[i - 1] > 40); // side-by-side headings share one bubble
     pebbles = [];
     for (let i = 0; i < total / 14; i++) pebbles.push({ s: Math.random() * total, u: (Math.random() * 2 - 1) * 0.8, r: 1 + Math.random() * 2.2 });
     if (!parts.length) for (let i = 0; i < 90; i++) parts.push(newPart(true));

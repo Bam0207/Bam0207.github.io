@@ -1365,3 +1365,4 @@ main > .section + .section { margin-top: 120px !important; }
 #do .pillar { align-content: start; }
 .pm-pop-sym { display: inline-block; line-height: 46px; text-align: center; }
 .pm-eq { font-size: clamp(24px, 3vw, 44px); width: max-content; min-width: 0; margin: 0 auto; }
+.field-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } @media (max-width: 760px) { .field-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } } @media (max-width: 480px) { .field-grid { grid-template-columns: minmax(0, 1fr); } }
