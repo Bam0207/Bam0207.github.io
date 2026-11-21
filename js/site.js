@@ -1226,7 +1226,7 @@
   const cv = sec.querySelector('.deep-canvas'), ctx = cv.getContext('2d');
   const $ = (s) => sec.querySelector(s);
   const depthEl = $('.deep-depth strong'), countEl = $('.deep-count'), tray = $('.deep-tray-list');
-  const reelBtn = $('.deep-reel'), bubble = $('.deep-bubble'), rainBtn = $('.deep-rain');
+  const reelBtn = { hidden: true }, _rb = null, bubble = $('.deep-bubble'), rainBtn = $('.deep-rain');
   const intro = $('.deep-intro'), catchBox = $('.deep-catch'), treasure = $('.deep-treasure');
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const SPECIES = {
@@ -1247,7 +1247,7 @@
   const KEYS = Object.keys(SPECIES);
   const caught = new Set();
   const SURF = 160, MAXD = 12, BOAT_S = 1.45;
-  let umb = 0, hasKey = false;
+  let umb = 0, hasKey = false, follow = false;
   const litter = [];
   let W = 0, H = 0, WH = 0, FLOOR = 0, dpr = 1, cam = 0, time = 0, last = 0, running = false, playing = false, raining = false;
   let lure = { x: 0, y: 0, tx: null, ty: null }, boatX = 0, keys = {}, hooked = null, reeling = false, modalOpen = false;
@@ -1431,17 +1431,22 @@
       if (dx || dy) { lure.tx = null; const m = Math.hypot(dx, dy); lure.x += dx / m * sp; lure.y += dy / m * sp; }
       else if (lure.tx != null) { const ddx = lure.tx - lure.x, ddy = lure.ty - lure.y, m = Math.hypot(ddx, ddy); if (m > 2) { lure.x += ddx / m * Math.min(m, sp); lure.y += ddy / m * Math.min(m, sp); } }
     }
-    if (reeling) { const secTop = sec.getBoundingClientRect().top + window.scrollY; window.scrollTo(0, secTop + Math.max(0, Math.min(WH - H, lure.y - H * 0.55))); lure.y -= 340 * dt; if (lure.y <= SURF + 30) { const k = hooked.k; reeling = false; reelBtn.hidden = true; if (hooked.crab) { crab.held = false; crab.x = rnd(0.1, 0.6); crab.cool = 6; } else { spawn(hooked); hooked.cool = 5; } hooked = null; lure.y = SURF + 160; showCatch(k); } }
+    if (reeling) { follow = true; lure.y -= 340 * dt; if (lure.y <= SURF + 30) { const k = hooked.k; reeling = false; reelBtn.hidden = true; if (hooked.crab) { crab.held = false; crab.x = rnd(0.1, 0.6); crab.cool = 6; } else { spawn(hooked); hooked.cool = 5; } hooked = null; lure.y = SURF + 160; showCatch(k); } }
     lure.x = Math.max(24, Math.min(W - 24, lure.x)); lure.y = Math.max(SURF + 30, Math.min(FLOOR - 16, lure.y));
     boatX += (Math.max(80, Math.min(W - 80, lure.x - 40)) - boatX) * Math.min(1, dt * 1.2);
     // the page scroll drives the camera; the lure rides along and can move within the view
     cam = Math.max(0, Math.min(WH - H, -sec.getBoundingClientRect().top));
-    const lo = Math.max(SURF + 30, cam + 110), hi = Math.min(FLOOR - 16, cam + H - 90);
-    if (playing && !modalOpen && !reeling) {
-      if (keys.d && lure.y >= hi - 1 && cam < WH - H) window.scrollBy(0, sp);
-      if (keys.u && lure.y <= lo + 1 && cam > 0) window.scrollBy(0, -sp);
+    if (follow && running) {
+      // keys, Space and reeling steer the camera: keep the lure near the middle of the screen
+      const want = Math.max(0, Math.min(WH - H, lure.y - H * 0.5));
+      const next = reeling ? want : cam + (want - cam) * Math.min(1, dt * 6);
+      if (Math.abs(next - cam) > 0.5) { const secTop = sec.getBoundingClientRect().top + window.scrollY; window.scrollTo({ top: secTop + next, behavior: 'instant' }); cam = next; }
     }
-    if (!reeling) lure.y = Math.max(lo, Math.min(hi, lure.y));
+    if (!follow && !reeling) {
+      // the visitor is scrolling: carry the lure along inside the view
+      const lo = Math.max(SURF + 30, cam + 110), hi = Math.min(FLOOR - 16, cam + H - 90);
+      lure.y = Math.max(lo, Math.min(hi, lure.y));
+    }
     depthEl.textContent = Math.max(0, (lure.y - SURF) / (FLOOR - SURF) * MAXD).toFixed(1) + ' m';
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, -cam * dpr);
@@ -1516,11 +1521,10 @@
   $('.deep-start').addEventListener('click', start);
   $('.deep-howto').addEventListener('click', () => { intro.hidden = false; playing = false; intro.querySelector('.deep-start').focus(); });
   function reel() { if (hooked && !reeling) { reeling = true; reelBtn.hidden = true; } }
-  reelBtn.addEventListener('click', () => { reel(); cv.focus({ preventScroll: true }); });
   const map = { ArrowLeft: 'l', ArrowRight: 'r', ArrowUp: 'u', ArrowDown: 'd', a: 'l', d: 'r', w: 'u', s: 'd', A: 'l', D: 'r', W: 'u', S: 'd' };
   cv.addEventListener('keydown', (e) => {
-    if (map[e.key]) { e.preventDefault(); if (!playing) start(); keys[map[e.key]] = true; }
-    else if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); if (hooked) reel(); else if (Math.hypot(lure.x - chest.x, lure.y - (FLOOR - 40)) < 90) tryChest(); }
+    if (map[e.key]) { e.preventDefault(); if (!playing) start(); keys[map[e.key]] = true; follow = true; }
+    else if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); follow = true; if (hooked) reel(); else if (Math.hypot(lure.x - chest.x, lure.y - (FLOOR - 40)) < 90) tryChest(); }
   });
   cv.addEventListener('keyup', (e) => { if (map[e.key]) keys[map[e.key]] = false; });
   cv.addEventListener('blur', () => { keys = {}; });
@@ -1532,6 +1536,7 @@
   }
   let dragging = false;
   cv.addEventListener('pointerdown', (e) => {
+    if (hooked && !reeling) { reel(); return; }
     const p = worldPt(e);
     if (Math.abs(p.x - chest.x) < 75 && p.y > FLOOR - 100 && p.y < FLOOR + 20) { tryChest(); return; }
     if (!playing) start();
@@ -1542,6 +1547,8 @@
   $('.catch-close').addEventListener('click', () => { if (Date.now() - (+catchBox.dataset.t || 0) < 700) return; closeModal(catchBox); });
   $('.retro-close').addEventListener('click', () => closeModal(treasure));
   sec.addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (!catchBox.hidden && Date.now() - (+catchBox.dataset.t || 0) > 700) closeModal(catchBox); if (!treasure.hidden) closeModal(treasure); } });
+  window.addEventListener('wheel', () => { if (!reeling) follow = false; }, { passive: true });
+  window.addEventListener('touchmove', () => { if (!reeling) follow = false; }, { passive: true });
   rainBtn.addEventListener('click', () => { raining = !raining; rainBtn.setAttribute('aria-pressed', raining); rainBtn.textContent = raining ? 'Stop the rain' : 'Make it rain'; });
   window.addEventListener('resize', size);
   new IntersectionObserver((es) => es.forEach((e) => {
@@ -1549,7 +1556,7 @@
     else if (!e.isIntersecting) running = false;
   })).observe(sec);
   size(); buildTray(); countEl.textContent = '0/' + KEYS.length;
-  window.__fish = { caught, KEYS, showCatch, tryChest, chest, lure }; // handy for testing
+  window.__fish = { caught, KEYS, showCatch, tryChest, chest, lure, _reelTest: () => { hooked = fish[0]; reel(); } }; // handy for testing
 })();
 
 // 16. Contact: copy the email address.
