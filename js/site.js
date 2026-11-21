@@ -408,7 +408,8 @@
     cv.style.width = window.innerWidth + 'px'; cv.style.height = window.innerHeight + 'px';
     const Wp = document.documentElement.clientWidth, deep = document.getElementById('deep'), footEl = document.querySelector('.site-footer');
     // The pond ends at the footer (the underwater section below it draws its own water).
-    const Hp = deep && footEl ? footEl.getBoundingClientRect().bottom + window.scrollY : document.documentElement.scrollHeight;
+    const goFish = document.querySelector('.go-fish'), endEl = goFish || footEl;
+    const Hp = deep && endEl ? endEl.getBoundingClientRect().bottom + window.scrollY : document.documentElement.scrollHeight;
     const vx = Math.max(40, main.getBoundingClientRect().left + parseFloat(getComputedStyle(main).paddingLeft) - 28 - 44 + window.scrollX); // the creek's valley
 
     // --- The pond: an upside-down V opening downhill from the creek and filling the page bottom
@@ -1206,209 +1207,283 @@
   window.addEventListener('pageshow', (e) => { if (e.persisted) document.querySelectorAll('.wave-veil').forEach((v) => v.remove()); });
 })();
 
-// 15. Home page: dive below the pond. An underwater cross-section with a canoe you
-//     can steer, a fishing line that lowers as you scroll, and native (and not so
-//     native) California fish to catch.
+// 15. Home page: a fishing game below the pond. Move the lure with the arrow keys
+//     (or drag), hook a fish, reel it in, and catch all six species to open the chest.
 (function () {
   const sec = document.getElementById('deep');
   if (!sec) return;
   const cv = sec.querySelector('.deep-canvas'), ctx = cv.getContext('2d');
-  const depthEl = sec.querySelector('.deep-depth strong'), scoreEl = sec.querySelector('.deep-score strong');
-  const cardEl = sec.querySelector('.deep-card'), help = sec.querySelector('.deep-help'), rainBtn = sec.querySelector('.deep-rain');
+  const $ = (s) => sec.querySelector(s);
+  const depthEl = $('.deep-depth strong'), countEl = $('.deep-count'), tray = $('.deep-tray-list');
+  const reelBtn = $('.deep-reel'), bubble = $('.deep-bubble'), rainBtn = $('.deep-rain');
+  const intro = $('.deep-intro'), catchBox = $('.deep-catch'), treasure = $('.deep-treasure');
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const MAX_DEPTH = 12; // meters, for the gauge
   const SPECIES = {
-    roach: { name: 'California roach', fact: 'A small native minnow that can survive the warm, low-oxygen pools left behind when streams dry up in summer.', size: 20, zone: [0.1, 0.3], n: 5, speed: 34, school: true },
-    trout: { name: 'Rainbow trout', fact: 'Trout need cold, oxygen-rich water. California’s state fish, the golden trout, is a close cousin.', size: 46, zone: [0.25, 0.45], n: 2, speed: 40 },
-    sacperch: { name: 'Sacramento perch', fact: 'The only sunfish native west of the Rocky Mountains, and now rare in its original range.', size: 36, zone: [0.38, 0.58], n: 2, speed: 22 },
-    tule: { name: 'Tule perch', fact: 'A native surfperch that lives in fresh water and gives birth to live young instead of laying eggs.', size: 32, zone: [0.5, 0.7], n: 2, speed: 26 },
-    bass: { name: 'Largemouth bass', fact: 'Brought to California in the late 1800s, it’s now a top predator in many reservoirs.', size: 54, zone: [0.6, 0.8], n: 2, speed: 30 },
-    catfish: { name: 'Channel catfish', fact: 'Introduced from the eastern U.S. It finds food in murky water with its whisker-like barbels.', size: 60, zone: [0.82, 0.93], n: 2, speed: 18 }
+    roach: { name: 'California roach', tag: 'Native', size: 20, zone: [0.12, 0.3], n: 3, speed: 34, school: 4,
+      fact: 'This little native minnow turned out to be several fish in one: a 2019 genetic study split the “California roach” into four species and four subspecies.' },
+    trout: { name: 'rainbow trout', tag: 'Native', size: 46, zone: [0.22, 0.42], n: 2, speed: 42,
+      fact: 'California’s state freshwater fish since 1947, the golden trout, is usually considered a subspecies of the rainbow trout.' },
+    sacperch: { name: 'Sacramento perch', tag: 'Native', size: 36, zone: [0.38, 0.56], n: 2, speed: 22,
+      fact: 'It’s the only member of the sunfish family native west of the Rocky Mountains. Today it survives only in introduced populations outside its original range.' },
+    tule: { name: 'tule perch', tag: 'Native', size: 30, zone: [0.5, 0.68], n: 2, speed: 26,
+      fact: 'The only freshwater member of the surfperch family. Like its ocean relatives, it gives birth to live young instead of laying eggs.' },
+    bass: { name: 'largemouth bass', tag: 'Introduced', size: 54, zone: [0.6, 0.78], n: 2, speed: 30,
+      fact: 'Not native to California. The first ones were brought from Illinois to Lake Cuyamaca in San Diego County in 1891, and now they’re found throughout the state.' },
+    catfish: { name: 'channel catfish', tag: 'Introduced', size: 60, zone: [0.8, 0.9], n: 2, speed: 18,
+      fact: 'Introduced from the eastern U.S. Its whisker-like barbels are covered in taste buds, which help it find food in dark, muddy water.' }
   };
+  const CRAWDAD_FACT = 'Most crawdads in California’s rivers and ponds are introduced. The signal crayfish, brought here in 1912, now threatens the Shasta crayfish, California’s last native crayfish.';
   const KEYS = Object.keys(SPECIES);
   const caught = new Set();
-  let W = 0, VH = 0, SH = 0, dpr = 1, cam = 0, time = 0, last = 0, running = false, raining = false, moved = false;
-  let boatX = 0, boatTarget = 0, hookX = 0, hookVX = 0, chestOpen = false;
-  let fish = [], grass = [], rocks = [], bubbles = [], drops = [], ripples = [], crawdad = null, hooked = null, cardTimer = 0;
+  const SURF = 120, MAXD = 12;
+  let W = 0, H = 0, WH = 0, FLOOR = 0, dpr = 1, cam = 0, time = 0, last = 0, running = false, playing = false, raining = false;
+  let lure = { x: 0, y: 0, tx: null, ty: null }, boatX = 0, keys = {}, hooked = null, reeling = false, modalOpen = false;
+  let fish = [], grass = [], rocks = [], coins = [], bubbles = [], ripples = [], crab = null, chest = { x: 0, open: false, shake: 0 };
   const rnd = (a, b) => a + Math.random() * (b - a);
 
+  // ---------- setup
   function size() {
     dpr = Math.min(2, window.devicePixelRatio || 1);
-    W = sec.clientWidth; VH = window.innerHeight; SH = sec.offsetHeight;
-    cv.width = W * dpr; cv.height = VH * dpr; cv.style.width = W + 'px'; cv.style.height = VH + 'px';
-    if (!boatX) boatX = boatTarget = hookX = W * 0.5;
+    W = sec.clientWidth; H = sec.clientHeight; WH = Math.max(2000, H * 2.6); FLOOR = WH - 90;
+    cv.width = W * dpr; cv.height = H * dpr; cv.style.width = W + 'px'; cv.style.height = H + 'px';
+    if (!lure.x) { lure.x = boatX = W * 0.5; lure.y = SURF + 160; }
+    lure.x = Math.min(lure.x, W - 30);
+    chest.x = W * 0.78;
     if (!fish.length) populate();
-    grass = []; for (let x = 10; x < W; x += rnd(22, 60)) grass.push({ x, h: rnd(60, 170), ph: rnd(0, 6), c: Math.random() < 0.5 ? '#3E7F55' : '#2F6B48' });
-    rocks = []; for (let i = 0; i < Math.max(6, W / 160); i++) rocks.push({ x: rnd(0, W), r: rnd(14, 38), c: Math.random() < 0.5 ? '#41545A' : '#36474D' });
+    grass = []; for (let x = 10; x < W; x += rnd(24, 64)) if (Math.abs(x - chest.x) > 90) grass.push({ x, h: rnd(70, 190), ph: rnd(0, 6), c: Math.random() < 0.5 ? '#3E7F55' : '#2F6B48' });
+    rocks = []; for (let i = 0; i < Math.max(6, W / 160); i++) { const x = rnd(0, W); if (Math.abs(x - chest.x) > 110) rocks.push({ x, r: rnd(14, 38), c: Math.random() < 0.5 ? '#41545A' : '#36474D' }); }
+    coins = []; for (let i = 0; i < 26; i++) coins.push({ x: chest.x + rnd(-110, 110), y: FLOOR + rnd(-4, 14), r: rnd(4, 7), ph: rnd(0, 6) });
   }
+  function spawn(f) { const sp = SPECIES[f.k]; f.x = Math.random() < 0.5 ? -0.08 : 1.08; f.dir = f.x < 0 ? 1 : -1; f.fy = rnd(sp.zone[0], sp.zone[1]); }
   function populate() {
     fish = [];
     KEYS.forEach((k) => {
       const sp = SPECIES[k];
       for (let i = 0; i < sp.n; i++) {
-        const dir = Math.random() < 0.5 ? -1 : 1, baseY = rnd(sp.zone[0], sp.zone[1]);
-        const count = sp.school ? 4 : 1;
-        for (let j = 0; j < count; j++) fish.push({ k, x: rnd(0, 1), fy: baseY + (sp.school ? j * 0.008 : 0), off: sp.school ? j * 26 : 0, dir, sp: sp.speed * rnd(0.8, 1.2), ph: rnd(0, 6), cool: 0, flee: 0 });
+        const dir = Math.random() < 0.5 ? -1 : 1, fy = rnd(sp.zone[0], sp.zone[1]), x = rnd(0, 1), count = sp.school || 1;
+        for (let j = 0; j < count; j++) fish.push({ k, x, fy: fy + j * 0.006, off: j * 26, dir, sp: sp.speed * rnd(0.8, 1.2), ph: rnd(0, 6), cool: 0 });
       }
     });
-    crawdad = { x: rnd(0.1, 0.9), dir: 1, cool: 0 };
+    crab = { x: rnd(0.1, 0.6), dir: 1, cool: 0 };
   }
 
-  // ---- drawing helpers
-  function ell(x, y, rx, ry, c, rot) { ctx.fillStyle = c; ctx.beginPath(); ctx.ellipse(x, y, Math.max(0.5, rx), Math.max(0.5, ry), rot || 0, 0, Math.PI * 2); ctx.fill(); }
-  function drawFish(f, x, y, wig) {
-    const sp = SPECIES[f.k], L = sp.size, d = f.dir;
-    ctx.save(); ctx.translate(x, y); ctx.scale(d, 1); ctx.rotate(Math.sin(time * 6 + f.ph) * 0.05 + wig);
-    const tail = (c, w) => { ctx.fillStyle = c; ctx.beginPath(); ctx.moveTo(-L * 0.42, 0); ctx.lineTo(-L * 0.62, -w + Math.sin(time * 9 + f.ph) * 2); ctx.lineTo(-L * 0.58, 0); ctx.lineTo(-L * 0.62, w + Math.sin(time * 9 + f.ph) * 2); ctx.closePath(); ctx.fill(); };
-    const eye = (ex) => { ell(ex, -L * 0.04, L * 0.035 + 1, L * 0.035 + 1, '#F4F1E6'); ell(ex + 0.6, -L * 0.04, L * 0.02 + 0.6, L * 0.02 + 0.6, '#14211F'); };
-    switch (f.k) {
-      case 'roach': tail('#8FA3A6', L * 0.2); ell(0, 0, L * 0.45, L * 0.16, '#B9C7C6'); ell(0, -L * 0.06, L * 0.4, L * 0.07, '#6E8486'); eye(L * 0.3); break;
-      case 'trout': tail('#7F8C55', L * 0.2); ell(0, 0, L * 0.46, L * 0.15, '#C9CDA6'); ell(0, -L * 0.05, L * 0.44, L * 0.09, '#7F8C55'); ctx.fillStyle = 'rgba(226,120,140,0.75)'; ctx.fillRect(-L * 0.36, -L * 0.015, L * 0.7, L * 0.045);
-        ctx.fillStyle = '#2B3324'; for (let i = 0; i < 9; i++) { ctx.beginPath(); ctx.arc(-L * 0.35 + i * L * 0.08, -L * 0.08 + (i % 2) * L * 0.04, 1.2, 0, 7); ctx.fill(); } eye(L * 0.32); break;
-      case 'sacperch': tail('#8A7B4E', L * 0.24); ell(0, 0, L * 0.42, L * 0.26, '#C2AE73'); ctx.fillStyle = 'rgba(60,52,30,0.55)'; for (let i = 0; i < 6; i++) ctx.fillRect(-L * 0.28 + i * L * 0.1, -L * 0.22, L * 0.04, L * 0.4); ell(-L * 0.02, -L * 0.24, L * 0.26, L * 0.06, '#8A7B4E'); eye(L * 0.28); break;
-      case 'tule': tail('#7B7290', L * 0.2); ell(0, 0, L * 0.42, L * 0.22, '#A69CB5'); ctx.fillStyle = 'rgba(232,206,120,0.6)'; for (let i = 0; i < 4; i++) ctx.fillRect(-L * 0.2 + i * L * 0.12, -L * 0.14, L * 0.04, L * 0.28); eye(L * 0.28); break;
-      case 'bass': tail('#4F7342', L * 0.22); ell(0, 0, L * 0.46, L * 0.19, '#A9C08A'); ell(0, -L * 0.07, L * 0.44, L * 0.11, '#4F7342'); ctx.fillStyle = 'rgba(40,58,32,0.7)'; ctx.fillRect(-L * 0.38, -L * 0.02, L * 0.72, L * 0.05);
-        ctx.strokeStyle = '#2E3F26'; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(L * 0.46, L * 0.03); ctx.lineTo(L * 0.3, L * 0.05); ctx.stroke(); eye(L * 0.32); break;
-      case 'catfish': tail('#56676E', L * 0.18); ell(0, 0, L * 0.47, L * 0.14, '#8B9CA2'); ell(0, -L * 0.04, L * 0.45, L * 0.08, '#56676E');
-        ctx.strokeStyle = '#3D4A4F'; ctx.lineWidth = 1.2; [[-4, 1], [-1, 1], [2, -1]].forEach(([dy, s2]) => { ctx.beginPath(); ctx.moveTo(L * 0.44, dy); ctx.quadraticCurveTo(L * 0.6, dy + s2 * 6, L * 0.66, dy + s2 * 10 + Math.sin(time * 3) * 2); ctx.stroke(); });
-        ctx.fillStyle = '#2C373B'; for (let i = 0; i < 6; i++) { ctx.beginPath(); ctx.arc(-L * 0.25 + i * L * 0.09, L * 0.02, 1, 0, 7); ctx.fill(); } eye(L * 0.34); break;
+  // ---------- drawing
+  function ell(c, x, y, rx, ry, col, rot) { c.fillStyle = col; c.beginPath(); c.ellipse(x, y, Math.max(0.5, rx), Math.max(0.5, ry), rot || 0, 0, Math.PI * 2); c.fill(); }
+  function drawFish(c, k, x, y, dir, ph, wig, scale, mono) {
+    const sp = SPECIES[k], L = sp.size * (scale || 1), d = dir;
+    const col = (h) => (mono ? mono : h);
+    c.save(); c.translate(x, y); c.scale(d, 1); c.rotate(Math.sin(time * 6 + ph) * 0.05 + (wig || 0));
+    const tail = (h, w) => { c.fillStyle = col(h); c.beginPath(); c.moveTo(-L * 0.42, 0); c.lineTo(-L * 0.62, -w + Math.sin(time * 9 + ph) * L * 0.04); c.lineTo(-L * 0.58, 0); c.lineTo(-L * 0.62, w + Math.sin(time * 9 + ph) * L * 0.04); c.closePath(); c.fill(); };
+    const eye = (ex) => { if (mono) return; ell(c, ex, -L * 0.04, L * 0.035 + 1, L * 0.035 + 1, '#F4F1E6'); ell(c, ex + 0.6, -L * 0.04, L * 0.02 + 0.6, L * 0.02 + 0.6, '#14211F'); };
+    switch (k) {
+      case 'roach': tail('#8FA3A6', L * 0.2); ell(c, 0, 0, L * 0.45, L * 0.16, col('#B9C7C6')); ell(c, 0, -L * 0.06, L * 0.4, L * 0.07, col('#6E8486')); eye(L * 0.3); break;
+      case 'trout': tail('#7F8C55', L * 0.2); ell(c, 0, 0, L * 0.46, L * 0.15, col('#C9CDA6')); ell(c, 0, -L * 0.05, L * 0.44, L * 0.09, col('#7F8C55'));
+        if (!mono) { c.fillStyle = 'rgba(226,120,140,0.75)'; c.fillRect(-L * 0.36, -L * 0.015, L * 0.7, L * 0.045); c.fillStyle = '#2B3324'; for (let i = 0; i < 9; i++) { c.beginPath(); c.arc(-L * 0.35 + i * L * 0.08, -L * 0.08 + (i % 2) * L * 0.04, L * 0.026, 0, 7); c.fill(); } } eye(L * 0.32); break;
+      case 'sacperch': tail('#8A7B4E', L * 0.24); ell(c, 0, 0, L * 0.42, L * 0.26, col('#C2AE73')); if (!mono) { c.fillStyle = 'rgba(60,52,30,0.55)'; for (let i = 0; i < 6; i++) c.fillRect(-L * 0.28 + i * L * 0.1, -L * 0.22, L * 0.04, L * 0.4); } ell(c, -L * 0.02, -L * 0.24, L * 0.26, L * 0.06, col('#8A7B4E')); eye(L * 0.28); break;
+      case 'tule': tail('#7B7290', L * 0.2); ell(c, 0, 0, L * 0.42, L * 0.22, col('#A69CB5')); if (!mono) { c.fillStyle = 'rgba(232,206,120,0.6)'; for (let i = 0; i < 4; i++) c.fillRect(-L * 0.2 + i * L * 0.12, -L * 0.14, L * 0.04, L * 0.28); } eye(L * 0.28); break;
+      case 'bass': tail('#4F7342', L * 0.22); ell(c, 0, 0, L * 0.46, L * 0.19, col('#A9C08A')); ell(c, 0, -L * 0.07, L * 0.44, L * 0.11, col('#4F7342')); if (!mono) { c.fillStyle = 'rgba(40,58,32,0.7)'; c.fillRect(-L * 0.38, -L * 0.02, L * 0.72, L * 0.05); } eye(L * 0.32); break;
+      case 'catfish': tail('#56676E', L * 0.18); ell(c, 0, 0, L * 0.47, L * 0.14, col('#8B9CA2')); ell(c, 0, -L * 0.04, L * 0.45, L * 0.08, col('#56676E'));
+        c.strokeStyle = col('#3D4A4F'); c.lineWidth = Math.max(1, L * 0.02); [[-L * 0.06, 1], [-L * 0.02, 1], [L * 0.03, -1]].forEach(([dy, s2]) => { c.beginPath(); c.moveTo(L * 0.44, dy); c.quadraticCurveTo(L * 0.6, dy + s2 * L * 0.1, L * 0.66, dy + s2 * L * 0.17 + Math.sin(time * 3) * 2); c.stroke(); }); eye(L * 0.34); break;
     }
+    c.restore();
+  }
+  function drawCrab(c, x, y, dir, s) {
+    s = s || 1; c.save(); c.translate(x, y); c.scale(dir * s, s);
+    ell(c, 0, 0, 14, 5, '#A04A2E'); ell(c, 14, -2, 6, 4, '#A04A2E'); ell(c, -14, 0, 5, 4, '#8E3F27');
+    c.strokeStyle = '#8E3F27'; c.lineWidth = 1.5; for (let i = -2; i <= 2; i++) { c.beginPath(); c.moveTo(i * 4, 3); c.lineTo(i * 4 + 2, 9 + Math.sin(time * 8 + i) * 1.5); c.stroke(); }
+    c.beginPath(); c.moveTo(18, -4); c.quadraticCurveTo(30, -14, 36, -6); c.stroke(); ell(c, 36, -6, 5, 3, '#A04A2E'); c.restore();
+  }
+  function drawBoat(x) {
+    const y = SURF, bob = Math.sin(time * 1.4) * 2;
+    ctx.save(); ctx.translate(x, y + bob); ctx.rotate(Math.sin(time * 1.1) * 0.02);
+    // hull
+    ctx.fillStyle = '#8A5A34'; ctx.beginPath(); ctx.moveTo(-110, -18); ctx.lineTo(110, -18); ctx.quadraticCurveTo(96, 22, 60, 26); ctx.lineTo(-64, 26); ctx.quadraticCurveTo(-100, 22, -110, -18); ctx.fill();
+    ctx.fillStyle = '#A8703F'; ctx.fillRect(-108, -22, 216, 7);
+    ctx.strokeStyle = 'rgba(70,40,20,0.5)'; ctx.lineWidth = 2; for (const yy of [-4, 10]) { ctx.beginPath(); ctx.moveTo(-100, yy); ctx.lineTo(100, yy); ctx.stroke(); }
+    ctx.fillStyle = '#F2EBDD'; ctx.font = '600 11px "DM Sans", sans-serif'; ctx.textAlign = 'center'; ctx.fillText('WATERSHED', 0, 8);
+    // angler: orange hard hat, teal jacket
+    ell(ctx, -20, -50, 15, 22, '#2E7484'); ell(ctx, -20, -82, 11, 11, '#E7B48F'); ell(ctx, -20, -90, 13, 7, '#E9763A'); ctx.fillStyle = '#E9763A'; ctx.fillRect(-35, -90, 30, 4);
+    ctx.fillStyle = '#5B3F2A'; ctx.beginPath(); ctx.moveTo(-30, -82); ctx.quadraticCurveTo(-36, -64, -30, -56); ctx.lineTo(-27, -78); ctx.fill();
+    // rod
+    ctx.strokeStyle = '#3A2A1E'; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(-8, -54); ctx.quadraticCurveTo(40, -110, 96, -120); ctx.stroke();
     ctx.restore();
+    return { tipX: x + 96, tipY: y + bob - 120 };
   }
-  function drawCanoe(x, y) {
-    // seen from underneath: a dark hull at the surface, with a paddle dipping in
-    ctx.fillStyle = 'rgba(20,32,30,0.85)';
-    ctx.beginPath(); ctx.moveTo(x - 70, y - 2); ctx.quadraticCurveTo(x, y + 26, x + 70, y - 2); ctx.closePath(); ctx.fill();
-    const pa = Math.sin(time * 2.2) * 0.35;
-    ctx.save(); ctx.translate(x + 30, y + 2); ctx.rotate(0.5 + pa); ctx.fillStyle = 'rgba(20,32,30,0.7)'; ctx.fillRect(-2, 0, 4, 40); ell(0, 46, 6, 12, 'rgba(20,32,30,0.7)'); ctx.restore();
-  }
-  function card(html, ms) {
-    cardEl.innerHTML = html; cardEl.hidden = false; cardEl.classList.remove('out');
-    clearTimeout(cardTimer); cardTimer = setTimeout(() => { cardEl.classList.add('out'); setTimeout(() => { cardEl.hidden = true; }, 400); }, ms || 6500);
+  function drawChest() {
+    const cx = chest.x + (chest.shake > 0 ? Math.sin(time * 70) * 5 * Math.min(1, chest.shake * 2) : 0), cy = FLOOR - 4;
+    // gold pile
+    coins.forEach((co) => { ell(ctx, co.x, co.y, co.r, co.r * 0.55, '#D9A83A'); ell(ctx, co.x - co.r * 0.2, co.y - co.r * 0.15, co.r * 0.5, co.r * 0.22, '#F6D77A'); });
+    if (!reduce) { const s = (Math.sin(time * 3) + 1) / 2; ctx.fillStyle = 'rgba(255,240,170,' + (0.4 + s * 0.5) + ')'; [[-70, -20], [60, -10], [10, 14]].forEach(([dx, dy], i) => { const tw = Math.max(0, Math.sin(time * 2.5 + i * 2)); ctx.save(); ctx.translate(chest.x + dx, cy + dy); ctx.rotate(Math.PI / 4); ctx.fillRect(-1, -6 * tw, 2, 12 * tw); ctx.fillRect(-6 * tw, -1, 12 * tw, 2); ctx.restore(); }); }
+    // box
+    ctx.fillStyle = '#6B4A2B'; ctx.fillRect(cx - 60, cy - 50, 120, 54); ctx.fillStyle = '#5A3D23'; for (const xx of [-30, 0, 30]) ctx.fillRect(cx + xx - 1, cy - 50, 2, 54);
+    ctx.fillStyle = '#C9A040'; ctx.fillRect(cx - 62, cy - 30, 124, 7); ctx.fillRect(cx - 62, cy - 50, 7, 54); ctx.fillRect(cx + 55, cy - 50, 7, 54);
+    // lid
+    ctx.save(); ctx.translate(cx - 60, cy - 50); ctx.rotate(chest.open ? -1.1 : 0);
+    ctx.fillStyle = '#7A5532'; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(120, 0); ctx.quadraticCurveTo(120, -36, 60, -40); ctx.quadraticCurveTo(0, -36, 0, 0); ctx.fill();
+    ctx.fillStyle = '#C9A040'; ctx.fillRect(-2, -6, 124, 6); ctx.restore();
+    if (chest.open) { const g = ctx.createRadialGradient(cx, cy - 56, 4, cx, cy - 56, 90); g.addColorStop(0, 'rgba(255,226,120,0.9)'); g.addColorStop(1, 'rgba(255,226,120,0)'); ctx.fillStyle = g; ctx.fillRect(cx - 100, cy - 150, 200, 160); }
+    else { ctx.fillStyle = '#E5C35A'; ctx.fillRect(cx - 9, cy - 40, 18, 20); ctx.fillStyle = '#3B2A17'; ctx.beginPath(); ctx.arc(cx, cy - 32, 3, 0, 7); ctx.fill(); ctx.fillRect(cx - 1.5, cy - 32, 3, 7); }
   }
 
+  // ---------- UI
+  function buildTray() {
+    tray.innerHTML = '';
+    KEYS.forEach((k) => {
+      const li = document.createElement('li'); li.dataset.k = k; li.title = SPECIES[k].name;
+      const c = document.createElement('canvas'); c.width = 120; c.height = 56; li.appendChild(c);
+      const sr = document.createElement('span'); sr.className = 'sr-only'; sr.textContent = SPECIES[k].name + ': not caught yet'; li.appendChild(sr);
+      tray.appendChild(li); paintTray(k);
+    });
+  }
+  function paintTray(k) {
+    const li = tray.querySelector('[data-k="' + k + '"]'); if (!li) return;
+    const c = li.querySelector('canvas').getContext('2d'), got = caught.has(k), sc = 70 / SPECIES[k].size;
+    c.clearRect(0, 0, 120, 56); c.save(); c.scale(2, 2); drawFish(c, k, 30, 14, 1, 0, 0, sc * 0.5, got ? null : 'rgba(255,255,255,0.22)'); c.restore();
+    li.classList.toggle('got', got); li.querySelector('.sr-only').textContent = SPECIES[k].name + (got ? ': caught' : ': not caught yet');
+  }
+  let bubbleT = 0;
+  function say(html, ms) { bubble.innerHTML = html; bubble.hidden = false; clearTimeout(bubbleT); bubbleT = setTimeout(() => { bubble.hidden = true; }, ms || 3200); }
+  function openModal(el, focusSel) { modalOpen = true; el.hidden = false; const f = el.querySelector(focusSel); if (f) f.focus(); }
+  function closeModal(el) { el.hidden = true; modalOpen = false; cv.focus({ preventScroll: true }); }
+  function showCatch(k) {
+    const art = $('.catch-art'), c = art.getContext('2d');
+    c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, art.width, art.height);
+    const g = c.createLinearGradient(0, 0, 0, art.height); g.addColorStop(0, '#2E7484'); g.addColorStop(1, '#1B4F5B'); c.fillStyle = g; c.fillRect(0, 0, art.width, art.height);
+    for (let i = 0; i < 14; i++) { c.strokeStyle = 'rgba(210,240,244,0.35)'; c.beginPath(); c.arc(rnd(20, 500), rnd(20, 240), rnd(3, 8), 0, 7); c.stroke(); }
+    const isCrab = k === 'crawdad', first = !isCrab && !caught.has(k);
+    if (isCrab) drawCrab(c, 250, 140, 1, 5); else drawFish(c, k, 270, 130, 1, 0, 0, 380 / SPECIES[k].size);
+    if (!isCrab) { caught.add(k); paintTray(k); countEl.textContent = caught.size + '/' + KEYS.length; }
+    $('#catch-h').textContent = isCrab ? 'You caught a crawdad!' : 'You caught a ' + SPECIES[k].name + '!';
+    $('.catch-tag').textContent = isCrab ? 'Bonus catch' : SPECIES[k].tag + ' to California';
+    $('.catch-tag').className = 'catch-tag ' + (isCrab || SPECIES[k].tag === 'Introduced' ? 'intro' : 'native');
+    $('.catch-fact').textContent = isCrab ? CRAWDAD_FACT : SPECIES[k].fact;
+    const left = KEYS.length - caught.size;
+    $('.catch-progress').textContent = isCrab ? 'Crawdads don’t count toward the six, but nice catch.' : !first ? 'You’ve caught this one before. Released back into the pond.' : left ? left + ' more species to go. Released back into the pond.' : 'That’s all six! The treasure chest on the bottom is unlocked.';
+    openModal(catchBox, '.catch-close');
+  }
+
+  // ---------- game loop
   function frame(now) {
-    const dt = last ? Math.min(0.05, (now - last) / 1000) : 0.016; last = now;
-    if (!reduce) time += dt;
-    const r = sec.getBoundingClientRect();
-    cam = Math.max(0, Math.min(SH - VH, -r.top));
-    const depthFrac = cam / Math.max(1, SH - VH);
-    depthEl.textContent = (depthFrac * MAX_DEPTH).toFixed(1) + ' m';
-
-    // steer
-    boatX += (boatTarget - boatX) * Math.min(1, dt * 2.2);
-    const hookTargetY = cam + 110 + depthFrac * (VH - 200); // reaches the floor at the bottom
-    hookVX += ((boatX - hookX) * 3 - hookVX * 2.2) * dt; hookX += hookVX * dt;
-    const hookY = hookTargetY;
+    const dt = last ? Math.min(0.05, (now - last) / 1000) : 0.016; last = now; time += dt;
+    // lure movement
+    const sp = (hooked ? 150 : 280) * dt;
+    if (playing && !modalOpen && !reeling) {
+      let dx = (keys.r ? 1 : 0) - (keys.l ? 1 : 0), dy = (keys.d ? 1 : 0) - (keys.u ? 1 : 0);
+      if (dx || dy) { lure.tx = null; const m = Math.hypot(dx, dy); lure.x += dx / m * sp; lure.y += dy / m * sp; }
+      else if (lure.tx != null) { const ddx = lure.tx - lure.x, ddy = lure.ty - lure.y, m = Math.hypot(ddx, ddy); if (m > 2) { lure.x += ddx / m * Math.min(m, sp); lure.y += ddy / m * Math.min(m, sp); } }
+    }
+    if (reeling) { lure.y -= 340 * dt; if (lure.y <= SURF + 30) { const k = hooked.k; reeling = false; reelBtn.hidden = true; if (hooked.crab) { crab.held = false; crab.x = rnd(0.1, 0.6); crab.cool = 6; } else { spawn(hooked); hooked.cool = 5; } hooked = null; lure.y = SURF + 160; showCatch(k); } }
+    lure.x = Math.max(24, Math.min(W - 24, lure.x)); lure.y = Math.max(SURF + 30, Math.min(FLOOR - 16, lure.y));
+    boatX += (Math.max(130, Math.min(W - 130, lure.x - 60)) - boatX) * Math.min(1, dt * 1.2);
+    const targetCam = Math.max(0, Math.min(WH - H, lure.y - H * 0.5));
+    cam += (targetCam - cam) * Math.min(1, dt * 4);
+    depthEl.textContent = Math.max(0, (lure.y - SURF) / (FLOOR - SURF) * MAXD).toFixed(1) + ' m';
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, -cam * dpr);
-    // water column
-    const g = ctx.createLinearGradient(0, 0, 0, SH);
-    g.addColorStop(0, '#2E7484'); g.addColorStop(0.35, '#22606E'); g.addColorStop(0.75, '#153F4A'); g.addColorStop(1, '#0C2A32');
-    ctx.fillStyle = g; ctx.fillRect(0, cam, W, VH);
-    // light rays from the surface
-    if (cam < VH * 1.2) {
+    // above the surface: the pond seen from above, continuing the section above
+    if (cam < SURF) { const g0 = ctx.createLinearGradient(0, 0, 0, SURF); g0.addColorStop(0, '#2E7484'); g0.addColorStop(1, '#3A8494'); ctx.fillStyle = g0; ctx.fillRect(0, 0, W, SURF); }
+    const g = ctx.createLinearGradient(0, SURF, 0, WH);
+    g.addColorStop(0, '#2B6E7E'); g.addColorStop(0.35, '#22606E'); g.addColorStop(0.75, '#153F4A'); g.addColorStop(1, '#0C2A32');
+    ctx.fillStyle = g; ctx.fillRect(0, Math.max(SURF, cam), W, H + 2);
+    if (cam < H * 1.3) {
       ctx.save(); ctx.globalCompositeOperation = 'lighter';
       for (let i = 0; i < 6; i++) {
-        const x0 = (i + 0.5) * W / 6 + Math.sin(time * 0.3 + i) * 30;
-        const gr = ctx.createLinearGradient(0, 0, 0, VH * 1.1); gr.addColorStop(0, 'rgba(180,230,235,0.12)'); gr.addColorStop(1, 'rgba(180,230,235,0)');
-        ctx.fillStyle = gr; ctx.beginPath(); ctx.moveTo(x0 - 30, 0); ctx.lineTo(x0 + 30, 0); ctx.lineTo(x0 + 140, VH * 1.1); ctx.lineTo(x0 + 40, VH * 1.1); ctx.closePath(); ctx.fill();
+        const x0 = (i + 0.5) * W / 6 + (reduce ? 0 : Math.sin(time * 0.3 + i) * 30);
+        const gr = ctx.createLinearGradient(0, SURF, 0, SURF + H * 1.1); gr.addColorStop(0, 'rgba(180,230,235,0.12)'); gr.addColorStop(1, 'rgba(180,230,235,0)');
+        ctx.fillStyle = gr; ctx.beginPath(); ctx.moveTo(x0 - 30, SURF); ctx.lineTo(x0 + 30, SURF); ctx.lineTo(x0 + 140, SURF + H * 1.1); ctx.lineTo(x0 + 40, SURF + H * 1.1); ctx.closePath(); ctx.fill();
       }
       ctx.restore();
-      // the underside of the surface
-      ctx.strokeStyle = 'rgba(200,238,240,0.5)'; ctx.lineWidth = 2; ctx.beginPath();
-      for (let x = 0; x <= W; x += 10) ctx.lineTo(x, 6 + Math.sin(x / 40 + time * 1.6) * 2.5 + Math.sin(x / 13 - time * 2.4) * 1);
-      ctx.stroke();
     }
-    // rain: rings on the surface and little bubble trails
-    if (raining && !reduce) {
-      for (let i = 0; i < 3; i++) if (Math.random() < dt * 22) { const x = rnd(0, W); ripples.push({ x, r: 2, a: 0.6 }); for (let b = 0; b < 3; b++) bubbles.push({ x: x + rnd(-4, 4), y: rnd(10, 60), v: -rnd(10, 30), r: rnd(1, 2.2), life: 1.2 }); }
-    }
+    // rain
+    if (raining && !reduce) for (let i = 0; i < 3; i++) if (Math.random() < dt * 22) { const x = rnd(0, W); ripples.push({ x, r: 2, a: 0.7 }); for (let b = 0; b < 3; b++) bubbles.push({ x: x + rnd(-4, 4), y: SURF + rnd(8, 60), v: rnd(10, 30), r: rnd(1, 2.2), life: 1.2 }); }
+    if (raining && cam < SURF) { ctx.strokeStyle = 'rgba(220,240,245,0.6)'; ctx.lineWidth = 1.2; for (let i = 0; i < 40; i++) { const x = (i * 97 + time * 300) % W, y = ((i * 53 + time * 500) % SURF); ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - 3, y + 10); ctx.stroke(); } }
     ripples = ripples.filter((p) => (p.r += dt * 26, p.a -= dt * 0.7, p.a > 0));
-    ripples.forEach((p) => { ctx.strokeStyle = 'rgba(220,245,248,' + p.a + ')'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.ellipse(p.x, 8, p.r * 1.8, p.r * 0.5, 0, 0, Math.PI * 2); ctx.stroke(); });
-    // drifting bubbles and specks
-    if (!reduce && Math.random() < dt * 6) bubbles.push({ x: rnd(0, W), y: cam + VH + 10, v: rnd(20, 45), r: rnd(1.2, 3.2), life: 99 });
-    bubbles = bubbles.filter((b) => (b.y -= b.v * dt, b.x += Math.sin(time * 2 + b.y / 30) * 0.3, b.life -= dt, b.y > 6 && b.life > 0 && b.y > cam - 20));
+    ripples.forEach((p) => { ctx.strokeStyle = 'rgba(220,245,248,' + p.a + ')'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.ellipse(p.x, SURF, p.r * 1.8, p.r * 0.5, 0, 0, Math.PI * 2); ctx.stroke(); });
+    if (!reduce && Math.random() < dt * 6) bubbles.push({ x: rnd(0, W), y: cam + H + 10, v: rnd(20, 45), r: rnd(1.2, 3.2), life: 99 });
+    bubbles = bubbles.filter((b) => (b.y -= b.v * dt, b.life -= dt, b.y > SURF + 4 && b.life > 0 && b.y > cam - 20));
     bubbles.forEach((b) => { ctx.strokeStyle = 'rgba(210,240,244,0.45)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2); ctx.stroke(); });
 
-    drawCanoe(boatX, 6);
-
-    // the bottom: sand, rocks, eelgrass, a crawdad and a chest
-    const floor = SH - 70;
-    if (cam + VH > floor - 200) {
-      grass.forEach((gr) => { ctx.strokeStyle = gr.c; ctx.lineWidth = 5; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(gr.x, floor + 10);
-        ctx.quadraticCurveTo(gr.x + Math.sin(time * 0.9 + gr.ph) * 18, floor - gr.h * 0.5, gr.x + Math.sin(time * 0.9 + gr.ph + 0.8) * 26, floor - gr.h); ctx.stroke(); });
-      ctx.fillStyle = '#B49B6E'; ctx.beginPath(); ctx.moveTo(0, floor + 4);
-      for (let x = 0; x <= W; x += 20) ctx.lineTo(x, floor + Math.sin(x / 90) * 6); ctx.lineTo(W, SH); ctx.lineTo(0, SH); ctx.closePath(); ctx.fill();
-      ctx.fillStyle = 'rgba(0,0,0,0.12)'; ctx.fillRect(0, floor + 18, W, SH - floor);
-      rocks.forEach((rk) => ell(rk.x, floor + 6, rk.r, rk.r * 0.6, rk.c));
-      // treasure chest
-      const cx = W * 0.8, cy = floor - 6;
-      ctx.fillStyle = '#6B4A2B'; ctx.fillRect(cx - 26, cy - 20, 52, 26); ctx.fillStyle = '#C9A040'; ctx.fillRect(cx - 26, cy - 9, 52, 4); ctx.fillRect(cx - 3, cy - 12, 6, 9);
-      ctx.save(); ctx.translate(cx - 26, cy - 20); ctx.rotate(chestOpen ? -0.9 : 0); ctx.fillStyle = '#7A5532'; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(52, 0); ctx.quadraticCurveTo(52, -16, 26, -18); ctx.quadraticCurveTo(0, -16, 0, 0); ctx.fill(); ctx.restore();
-      if (chestOpen) { ctx.fillStyle = 'rgba(255,220,120,' + (0.4 + Math.sin(time * 4) * 0.2) + ')'; ctx.beginPath(); ctx.arc(cx, cy - 22, 10, 0, 7); ctx.fill(); }
-      // crawdad
-      const c = crawdad; if (!reduce && !c.held) { c.x += c.dir * dt * 0.02; if (c.x > 0.95 || c.x < 0.05) c.dir *= -1; }
-      const kx = c.held ? hookX : c.x * W, ky = c.held ? hookY + 12 : floor - 4;
-      ctx.save(); ctx.translate(kx, ky); ctx.scale(c.dir, 1); ell(0, 0, 14, 5, '#A04A2E'); ell(14, -2, 6, 4, '#A04A2E'); ell(-14, 0, 5, 4, '#8E3F27');
-      ctx.strokeStyle = '#8E3F27'; ctx.lineWidth = 1.5; for (let i = -2; i <= 2; i++) { ctx.beginPath(); ctx.moveTo(i * 4, 3); ctx.lineTo(i * 4 + 2, 9 + Math.sin(time * 8 + i) * 1.5); ctx.stroke(); }
-      ctx.beginPath(); ctx.moveTo(18, -4); ctx.quadraticCurveTo(30, -14, 36, -6); ctx.stroke(); ctx.restore();
-      if (Math.hypot(hookX - kx, hookY - (floor - 4)) < 22 && !c.held && c.cool <= 0) { c.held = true; c.cool = 8; card('<strong>A crawdad!</strong><span>Crayfish scavenge along the bottom. Several kinds living in California waters are invasive.</span>'); setTimeout(() => { c.held = false; }, 1600); }
-      c.cool -= dt;
-      if (!chestOpen && Math.hypot(hookX - cx, hookY - (cy - 10)) < 34) { chestOpen = true; card('<strong>You found the bottom!</strong><span>Thanks for diving all the way down. Want to talk water, maps or fish? <a href="mailto:bmurph32@calpoly.edu">Say hi</a>.</span>', 12000); }
+    // floor
+    if (cam + H > FLOOR - 220) {
+      grass.forEach((gr) => { ctx.strokeStyle = gr.c; ctx.lineWidth = 5; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(gr.x, FLOOR + 10); ctx.quadraticCurveTo(gr.x + Math.sin(time * 0.9 + gr.ph) * 18, FLOOR - gr.h * 0.5, gr.x + Math.sin(time * 0.9 + gr.ph + 0.8) * 26, FLOOR - gr.h); ctx.stroke(); });
+      ctx.fillStyle = '#B49B6E'; ctx.beginPath(); ctx.moveTo(0, FLOOR + 4); for (let x = 0; x <= W; x += 20) ctx.lineTo(x, FLOOR + Math.sin(x / 90) * 6); ctx.lineTo(W, WH); ctx.lineTo(0, WH); ctx.closePath(); ctx.fill();
+      rocks.forEach((rk) => ell(ctx, rk.x, FLOOR + 6, rk.r, rk.r * 0.6, rk.c));
+      drawChest();
+      if (!crab.held) { crab.x += crab.dir * dt * 0.02; if (crab.x > 0.62 || crab.x < 0.05) crab.dir *= -1; drawCrab(ctx, crab.x * W, FLOOR - 4, crab.dir); }
+      crab.cool -= dt;
     }
+    chest.shake = Math.max(0, chest.shake - dt);
 
     // fish
     fish.forEach((f) => {
-      const sp = SPECIES[f.k];
       if (hooked === f) return;
-      if (!reduce) { f.x += f.dir * (f.sp + f.flee) * dt / W; f.flee = Math.max(0, f.flee - dt * 60); }
-      if (f.x > 1.08) { f.x = -0.08; } else if (f.x < -0.08) { f.x = 1.08; }
+      const s2 = SPECIES[f.k];
+      f.x += f.dir * f.sp * dt / W;
+      if (f.x > 1.1 || f.x < -0.1) spawn(f);
       f.cool -= dt;
-      const x = f.x * W - f.dir * f.off, y = f.fy * SH + Math.sin(time * 0.8 + f.ph) * 10;
-      if (y < cam - 60 || y > cam + VH + 60) return;
-      drawFish(f, x, y, 0);
-      if (!hooked && f.cool <= 0 && Math.hypot(x + f.dir * sp.size * 0.3 - hookX, y - hookY) < Math.max(18, sp.size * 0.45)) {
-        hooked = f; f.hookT = 0;
-        const first = !caught.has(f.k); caught.add(f.k);
-        scoreEl.textContent = caught.size + '/' + KEYS.length;
-        const all = caught.size === KEYS.length && first;
-        card('<strong>' + (first ? 'New catch: ' : 'Caught again: ') + sp.name + '</strong><span>' + sp.fact + '</span>' + (all ? '<em>You caught all six species!</em>' : ''), all ? 9000 : 6500);
+      const x = f.x * W - f.dir * f.off, y = SURF + f.fy * (FLOOR - SURF) + Math.sin(time * 0.8 + f.ph) * 10;
+      if (y < cam - 60 || y > cam + H + 60) return;
+      drawFish(ctx, f.k, x, y, f.dir, f.ph, 0);
+      if (playing && !hooked && !modalOpen && f.cool <= 0 && Math.hypot(x + f.dir * s2.size * 0.3 - lure.x, y - lure.y) < Math.max(24, s2.size * 0.5)) {
+        hooked = f; reelBtn.hidden = false; say('Fish on! Press <strong>Reel it in</strong> or <kbd>Space</kbd>.', 3000);
       }
     });
+    if (playing && !hooked && !modalOpen && crab.cool <= 0 && !crab.held && Math.hypot(crab.x * W - lure.x, FLOOR - 6 - lure.y) < 26) { crab.held = true; hooked = { crab: true, k: 'crawdad' }; reelBtn.hidden = false; say('Something pinched your lure! <strong>Reel it in</strong>.', 3000); }
+
+    // line, lure and the hooked catch
+    const tip = drawBoat(boatX);
+    ctx.strokeStyle = 'rgba(235,245,240,0.8)'; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(tip.tipX, tip.tipY); ctx.quadraticCurveTo(tip.tipX + (lure.x - tip.tipX) * 0.2, SURF + (lure.y - SURF) * 0.2, lure.x, lure.y - 10); ctx.stroke();
     if (hooked) {
-      hooked.hookT += dt;
-      ctx.save(); ctx.translate(hookX, hookY + 4); ctx.rotate(Math.PI / 2 * hooked.dir); drawFish(hooked, 0, -SPECIES[hooked.k].size * 0.3, Math.sin(time * 18) * 0.25); ctx.restore();
-      if (hooked.hookT > 1.6) { hooked.x = hookX / W; hooked.fy = hookY / SH; hooked.cool = 6; hooked.flee = 120; hooked = null; }
+      if (hooked.crab) drawCrab(ctx, lure.x, lure.y + 14, 1); else { ctx.save(); ctx.translate(lure.x, lure.y + 4); ctx.rotate(Math.PI / 2); drawFish(ctx, hooked.k, SPECIES[hooked.k].size * 0.3, 0, 1, hooked.ph, Math.sin(time * 18) * 0.25); ctx.restore(); }
     }
+    ell(ctx, lure.x, lure.y - 14, 5, 6, '#E2543A'); ell(ctx, lure.x, lure.y - 18, 5, 3, '#F4F1E6');
+    ctx.strokeStyle = '#D9DDD8'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(lure.x, lure.y - 8); ctx.lineTo(lure.x, lure.y + 3); ctx.arc(lure.x - 5, lure.y + 3, 5, 0, Math.PI); ctx.stroke();
+    // a gentle pointer to the chest once it's unlocked
+    if (caught.size === KEYS.length && !chest.open && cam + H < FLOOR - 100) { ctx.fillStyle = 'rgba(255,226,120,' + (0.6 + Math.sin(time * 4) * 0.3) + ')'; ctx.font = '600 16px "DM Sans", sans-serif'; ctx.textAlign = 'center'; ctx.fillText('Treasure unlocked: swim to the bottom ↓', W / 2, cam + H - 30); }
 
-    // fishing line and hook
-    ctx.strokeStyle = 'rgba(235,245,240,0.7)'; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(boatX + 50, 4); ctx.quadraticCurveTo((boatX + 50 + hookX) / 2 + hookVX * 0.15, (4 + hookY) / 2, hookX, hookY - 8); ctx.stroke();
-    ell(hookX, hookY - 12, 4, 5, '#E2543A'); ell(hookX, hookY - 15, 4, 2.5, '#F4F1E6');
-    ctx.strokeStyle = '#D9DDD8'; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(hookX, hookY - 8); ctx.lineTo(hookX, hookY + 2); ctx.arc(hookX - 4, hookY + 2, 4, 0, Math.PI); ctx.stroke();
-
-    if (running && !reduce) requestAnimationFrame(frame);
+    if (running) requestAnimationFrame(frame);
   }
 
-  function setTarget(clientX) {
-    const r = sec.getBoundingClientRect(); boatTarget = Math.max(60, Math.min(W - 60, clientX - r.left));
-    if (!moved) { moved = true; help.classList.add('out'); }
-  }
-  sec.addEventListener('pointermove', (e) => setTarget(e.clientX));
-  sec.addEventListener('pointerdown', (e) => setTarget(e.clientX));
-  window.addEventListener('keydown', (e) => {
-    if (!running || /input|select|textarea/i.test(document.activeElement.tagName)) return;
-    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); setTarget(sec.getBoundingClientRect().left + boatTarget + (e.key === 'ArrowLeft' ? -90 : 90)); }
+  // ---------- input
+  function start() { intro.hidden = true; playing = true; cv.focus({ preventScroll: true }); }
+  $('.deep-start').addEventListener('click', start);
+  $('.deep-howto').addEventListener('click', () => { intro.hidden = false; playing = false; intro.querySelector('.deep-start').focus(); });
+  function reel() { if (hooked && !reeling) { reeling = true; reelBtn.hidden = true; } }
+  reelBtn.addEventListener('click', () => { reel(); cv.focus({ preventScroll: true }); });
+  const map = { ArrowLeft: 'l', ArrowRight: 'r', ArrowUp: 'u', ArrowDown: 'd', a: 'l', d: 'r', w: 'u', s: 'd', A: 'l', D: 'r', W: 'u', S: 'd' };
+  cv.addEventListener('keydown', (e) => {
+    if (map[e.key]) { e.preventDefault(); if (!playing) start(); keys[map[e.key]] = true; }
+    else if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); if (hooked) reel(); else if (Math.hypot(lure.x - chest.x, lure.y - (FLOOR - 40)) < 90) tryChest(); }
   });
+  cv.addEventListener('keyup', (e) => { if (map[e.key]) keys[map[e.key]] = false; });
+  cv.addEventListener('blur', () => { keys = {}; });
+  function worldPt(e) { const r = cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top + cam }; }
+  function tryChest() {
+    if (chest.open) { openModal(treasure, '.retro-email'); return; }
+    if (caught.size < KEYS.length) { chest.shake = 0.7; say('Locked! <strong>Catch all the fish</strong> to open it. (' + caught.size + '/' + KEYS.length + ')', 3200); return; }
+    chest.open = true; setTimeout(() => openModal(treasure, '.retro-email'), 700);
+  }
+  let dragging = false;
+  cv.addEventListener('pointerdown', (e) => {
+    const p = worldPt(e);
+    if (Math.abs(p.x - chest.x) < 75 && p.y > FLOOR - 100 && p.y < FLOOR + 20) { tryChest(); return; }
+    if (!playing) start();
+    dragging = true; lure.tx = p.x; lure.ty = p.y; cv.setPointerCapture(e.pointerId);
+  });
+  cv.addEventListener('pointermove', (e) => { const p = worldPt(e); cv.style.cursor = (Math.abs(p.x - chest.x) < 75 && p.y > FLOOR - 100 && p.y < FLOOR + 20) ? 'pointer' : 'crosshair'; if (dragging) { lure.tx = p.x; lure.ty = p.y; } });
+  cv.addEventListener('pointerup', () => { dragging = false; });
+  $('.catch-close').addEventListener('click', () => closeModal(catchBox));
+  $('.retro-close').addEventListener('click', () => closeModal(treasure));
+  sec.addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (!catchBox.hidden) closeModal(catchBox); if (!treasure.hidden) closeModal(treasure); } });
   rainBtn.addEventListener('click', () => { raining = !raining; rainBtn.setAttribute('aria-pressed', raining); rainBtn.textContent = raining ? 'Stop the rain' : 'Make it rain'; });
-  window.addEventListener('resize', () => { size(); if (!running) frame(performance.now()); });
+  window.addEventListener('resize', size);
   new IntersectionObserver((es) => es.forEach((e) => {
     if (e.isIntersecting && !running) { running = true; last = 0; requestAnimationFrame(frame); }
     else if (!e.isIntersecting) running = false;
   })).observe(sec);
-  if (reduce) window.addEventListener('scroll', () => requestAnimationFrame(frame), { passive: true });
-  size(); frame(performance.now());
+  size(); buildTray(); countEl.textContent = '0/' + KEYS.length;
+  window.__fish = { caught, KEYS, showCatch, tryChest, chest, lure }; // handy for testing
 })();
 
 // 16. Contact: copy the email address.

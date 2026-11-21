@@ -10,13 +10,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600&display=swap">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <link rel="stylesheet" href="css/style.css?v=24">
+  <link rel="stylesheet" href="css/style.css?v=25">
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
   <header class="site-header">
     <div class="wrap">
-      <a class="brand" href="index.html" aria-label="Brooke Murphy, home">Brooke Murphy<span class="brand-sub">Home</span></a>
+      <a class="brand" href="index.html" aria-label="Brooke Murphy, home">Brooke Murphy</a>
       <nav class="nav" aria-label="Main">
         <a href="about.html">About me</a>
         <a href="research.html">Research</a>
@@ -100,19 +100,62 @@
       </nav>
     </div>
   </footer>
-  <section class="deep" id="deep" aria-label="Underwater: dive into the pond and try a small fishing game">
-    <div class="deep-sticky">
-      <canvas class="deep-canvas" aria-hidden="true"></canvas>
-      <div class="deep-hud">
-        <div class="deep-stat deep-depth">Depth <strong>0.0 m</strong></div>
-        <div class="deep-stat deep-score">Species caught <strong>0/6</strong></div>
-        <button type="button" class="deep-rain" aria-pressed="false">Make it rain</button>
+  <div class="go-fish">
+    <a class="go-fish-link" href="#deep"><span class="go-fish-title">Go fish</span><span class="go-fish-arrow" aria-hidden="true">&darr;</span><span class="sr-only">Jump to the fishing game</span></a>
+  </div>
+  <section class="deep" id="deep" aria-labelledby="deep-h">
+    <h2 id="deep-h" class="sr-only">Fishing game</h2>
+    <canvas class="deep-canvas" tabindex="0" aria-label="Fishing game. Use the arrow keys or W A S D to move your lure, and Space to reel in a fish."></canvas>
+    <div class="deep-hud">
+      <div class="deep-stat deep-depth">Depth <strong>0.0 m</strong></div>
+      <button type="button" class="deep-btn deep-rain" aria-pressed="false">Make it rain</button>
+      <button type="button" class="deep-btn deep-howto">How to play</button>
+    </div>
+    <div class="deep-tray" aria-label="Fish you've caught">
+      <span class="deep-tray-title">Caught <strong class="deep-count">0/6</strong></span>
+      <ul class="deep-tray-list"></ul>
+    </div>
+    <p class="deep-hint" aria-hidden="true"><kbd>&larr;</kbd><kbd>&uarr;</kbd><kbd>&darr;</kbd><kbd>&rarr;</kbd> move the lure &nbsp;·&nbsp; <kbd>Space</kbd> reel in</p>
+    <button type="button" class="deep-reel" hidden>Reel it in!</button>
+    <div class="deep-bubble" role="status" hidden></div>
+
+    <div class="deep-overlay deep-intro">
+      <div class="deep-panel">
+        <h3>How to fish</h3>
+        <ul class="deep-steps">
+          <li><span class="deep-keys"><kbd>&larr;</kbd><kbd>&uarr;</kbd><kbd>&darr;</kbd><kbd>&rarr;</kbd></span>Move your lure with the arrow keys (or W A S D). On a phone, drag.</li>
+          <li><span class="deep-keys deep-keys-fish" aria-hidden="true">&#x1F41F;</span>Touch a fish with the lure to hook it.</li>
+          <li><span class="deep-keys"><kbd>Space</kbd></span><span>Press <strong>Reel it in</strong> to pull it up.</span></li>
+          <li><span class="deep-keys deep-keys-fish" aria-hidden="true">&#x1F9F0;</span>Catch all six species to unlock the treasure chest on the bottom.</li>
+        </ul>
+        <button type="button" class="deep-start">Start fishing</button>
       </div>
-      <p class="deep-help">You've dived into the pond. Move your mouse (or use the arrow keys) to steer the canoe, and scroll to lower your line. Touch a fish with the hook to catch it.</p>
-      <div class="deep-card" role="status" hidden></div>
+    </div>
+
+    <div class="deep-overlay deep-catch" hidden role="dialog" aria-modal="true" aria-labelledby="catch-h">
+      <div class="deep-panel catch-panel">
+        <canvas class="catch-art" width="520" height="260" aria-hidden="true"></canvas>
+        <h3 id="catch-h">You caught a fish!</h3>
+        <span class="catch-tag"></span>
+        <p class="catch-fact"></p>
+        <p class="catch-progress"></p>
+        <button type="button" class="deep-start catch-close">Keep fishing</button>
+      </div>
+    </div>
+
+    <div class="deep-overlay deep-treasure" hidden role="dialog" aria-modal="true" aria-labelledby="treasure-h">
+      <div class="retro">
+        <div class="retro-marquee" aria-hidden="true"><span>&#9733; CONGRATULATIONS!!! &#9733; YOU CAUGHT ALL 6 FISH &#9733; CONGRATULATIONS!!! &#9733; YOU CAUGHT ALL 6 FISH &#9733;</span></div>
+        <h3 id="treasure-h" class="retro-title">~*~ You found the treasure ~*~</h3>
+        <a class="retro-email" href="mailto:brooke.murphy0207@gmail.com?subject=I%20found%20the%20treasure!">&#9993; EMAIL ME!!! &#9993;</a>
+        <p class="retro-small">brooke.murphy0207@gmail.com</p>
+        <p class="retro-counter">You are fisher #<span>000042</span> &nbsp;·&nbsp; Best viewed in Netscape Navigator 4.0</p>
+        <p class="retro-construction" aria-hidden="true">&#x1F6A7; This chest is always under construction &#x1F6A7;</p>
+        <button type="button" class="retro-close">Back to the pond</button>
+      </div>
     </div>
   </section>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="js/site.js?v=24" defer></script>
+  <script src="js/site.js?v=25" defer></script>
 </body>
 </html>
