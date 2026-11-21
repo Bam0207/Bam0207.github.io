@@ -1074,6 +1074,17 @@
   update();
 })();
 
+// 11a. Home page: the "In the field" photo carousel (scroll, swipe, or use the arrows).
+(function () {
+  const track = document.querySelector('.field-carousel'); if (!track) return;
+  const prev = document.querySelector('.fc-prev'), next = document.querySelector('.fc-next');
+  const step = () => { const c = track.querySelector('.fc-card'); return c ? c.getBoundingClientRect().width + parseFloat(getComputedStyle(track).columnGap || 24) : 300; };
+  const update = () => { prev.disabled = track.scrollLeft < 4; next.disabled = track.scrollLeft + track.clientWidth > track.scrollWidth - 4; };
+  prev.addEventListener('click', () => track.scrollBy({ left: -step(), behavior: 'smooth' }));
+  next.addEventListener('click', () => track.scrollBy({ left: step(), behavior: 'smooth' }));
+  track.addEventListener('scroll', update, { passive: true }); window.addEventListener('resize', update); update();
+})();
+
 // 11b. Research page: the "Try the ETo calculator" button grows into the calculator.
 (function () {
   const btn = document.querySelector('.eto-launch-btn'), lab = document.querySelector('.eto-lab'), wrap = document.querySelector('.eto-launch');
