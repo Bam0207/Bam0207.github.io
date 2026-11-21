@@ -71,17 +71,17 @@
   const el = document.getElementById('work-map');
   if (!el || typeof L === 'undefined') return;
   const places = [
-    { org: 'Valley Water', role: 'Groundwater Management Intern · 2026', lat: 37.25, lng: -121.86, kind: 'water', img: 'images/recharge-pond.jpg', pos: 'center 35%', link: 'about.html#exp-valleywater', more: 'What I did there' },
-    { org: 'Valley Water', role: 'Anderson Dam retrofit site visit · 2026', lat: 37.17, lng: -121.63, kind: 'water', img: 'images/anderson-dam.jpg', link: 'about.html#exp-valleywater', more: 'What I did there' },
+    { org: 'Valley Water', role: 'Groundwater Management Intern · 2026', lat: 37.25, lng: -121.86, kind: 'water', img: 'images/recharge-pond.jpg', pos: 'center 35%', link: 'about.html#story-valleywater', more: 'What I did there' },
+    { org: 'Valley Water', role: 'Anderson Dam retrofit site visit · 2026', lat: 37.17, lng: -121.63, kind: 'water', img: 'images/anderson-dam.jpg', link: 'about.html#story-valleywater', more: 'What I did there' },
     { org: 'Cal Poly SLO', role: 'M.S. research, GIS Developer and teaching · 2025–now', lat: 35.30, lng: -120.66, kind: 'research', img: 'images/cover-eto.svg', link: 'research.html', more: 'Explore my research' },
     { org: 'Cal Poly SLO', role: 'Salinas Valley pilot and irrigation calculator · 2026', lat: 36.45, lng: -121.35, kind: 'research', img: 'images/cover-calculator.svg', link: 'portfolio.html#irrigation-calculator', more: 'See the project' },
     { org: 'Cal Poly SLO', role: 'Applied GIS: Bartleson Ranch mapping · 2025', lat: 35.11, lng: -120.57, kind: 'research', img: 'images/bartleson.jpg', pos: 'center 40%', link: 'portfolio.html#bartleson-ranch', more: 'See the project' },
-    { org: 'Santa Barbara County Parks', role: 'Program Coordinator, Cachuma Lake · 2024–25', lat: 34.58, lng: -119.98, kind: 'water', link: 'about.html#exp-sbparks', more: 'What I did there' },
-    { org: 'Santa Clara County Parks', role: 'Natural Resources Management Intern · 2022', lat: 37.34, lng: -121.70, kind: 'land', img: 'images/scc-burn.jpg', pos: '35% center', link: 'about.html#exp-sccparks', more: 'What I did there' },
-    { org: 'Vesper Meadow Education Program', role: 'Wetland Restoration Volunteer · 2020', lat: 42.29, lng: -122.37, kind: 'water', link: 'about.html#exp-vesper', more: 'What I did there' },
-    { org: 'Westmont College', role: 'Teaching Assistant and Tutor, Old Testament · 2023', lat: 34.449, lng: -119.661, kind: 'research', link: 'about.html#exp-westmont', more: 'More about my teaching' },
+    { org: 'Santa Barbara County Parks', role: 'Program Coordinator, Cachuma Lake · 2024–25', lat: 34.58, lng: -119.98, kind: 'water', link: 'about.html#story-cachuma', more: 'What I did there' },
+    { org: 'Santa Clara County Parks', role: 'Natural Resources Management Intern · 2022', lat: 37.34, lng: -121.70, kind: 'land', img: 'images/scc-burn.jpg', pos: '35% center', link: 'about.html#story-sccparks', more: 'What I did there' },
+    { org: 'Vesper Meadow Education Program', role: 'Wetland Restoration Volunteer · 2020', lat: 42.29, lng: -122.37, kind: 'water', link: 'about.html#story-oregon', more: 'What I did there' },
+    { org: 'Westmont College', role: 'Teaching Assistant and Tutor, Old Testament · 2023', lat: 34.449, lng: -119.661, kind: 'research', link: 'about.html#story-westmont', more: 'More about my Westmont years' },
     { org: 'Mesa Harmony Garden', role: 'Volunteer, Santa Barbara Mesa', lat: 34.404, lng: -119.722, kind: 'land', link: 'about.html#story-westmont', more: 'More about my Westmont years' },
-    { org: 'Bureau of Land Management', role: 'Biological Monitoring Volunteer, Cascade-Siskiyou National Monument · 2020', lat: 42.08, lng: -122.47, kind: 'land', img: 'images/blm-oregon.jpg', pos: 'center 30%', link: 'about.html#exp-blm', more: 'What I did there' }
+    { org: 'Bureau of Land Management', role: 'Biological Monitoring Volunteer, Cascade-Siskiyou National Monument · 2020', lat: 42.08, lng: -122.47, kind: 'land', img: 'images/blm-oregon.jpg', pos: 'center 30%', link: 'about.html#story-oregon', more: 'What I did there' }
   ];
   const colors = { water: '#4FB3C8', research: '#FFFFFF', land: '#F2A23A' };
   const map = L.map(el, { scrollWheelZoom: false }).setView([37.0, -120.6], 6);
@@ -1227,31 +1227,32 @@
   const $ = (s) => sec.querySelector(s);
   const depthEl = $('.deep-depth strong'), countEl = $('.deep-count'), tray = $('.deep-tray-list');
   const reelBtn = { hidden: true }, _rb = null, bubble = $('.deep-bubble'), rainBtn = $('.deep-rain');
-  const intro = $('.deep-intro'), catchBox = $('.deep-catch'), treasure = $('.deep-treasure');
+  const intro = $('.deep-intro'), catchBox = $('.deep-catch'), treasure = $('.deep-treasure'), litterBox = $('.deep-litter');
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const SPECIES = {
-    roach: { name: 'California roach', tag: 'Native', size: 20, zone: [0.12, 0.3], n: 3, speed: 34, school: 4,
+    roach: { url: 'https://en.wikipedia.org/wiki/California_roach', name: 'California roach', tag: 'Native', size: 20, zone: [0.12, 0.3], n: 3, speed: 34, school: 4,
       fact: 'This little native minnow turned out to be several fish in one: a 2019 genetic study split the “California roach” into four species and four subspecies.' },
-    trout: { name: 'rainbow trout', tag: 'Native', size: 46, zone: [0.22, 0.42], n: 2, speed: 42,
+    trout: { url: 'https://wildlife.ca.gov/Conservation/Fishes/Rainbow-Trout', name: 'rainbow trout', tag: 'Native', size: 46, zone: [0.22, 0.42], n: 2, speed: 42,
       fact: 'California’s state freshwater fish since 1947, the golden trout, is usually considered a subspecies of the rainbow trout.' },
-    sacperch: { name: 'Sacramento perch', tag: 'Native', size: 36, zone: [0.38, 0.56], n: 2, speed: 22,
+    sacperch: { url: 'https://wildlife.ca.gov/Conservation/Fishes/Sacramento-Perch', name: 'Sacramento perch', tag: 'Native', size: 36, zone: [0.38, 0.56], n: 2, speed: 22,
       fact: 'It’s the only member of the sunfish family native west of the Rocky Mountains. Today it survives only in introduced populations outside its original range.' },
-    tule: { name: 'tule perch', tag: 'Native', size: 30, zone: [0.5, 0.68], n: 2, speed: 26,
+    tule: { url: 'https://fishbio.com/species/tule-perch', name: 'tule perch', tag: 'Native', size: 30, zone: [0.5, 0.68], n: 2, speed: 26,
       fact: 'The only freshwater member of the surfperch family. Like its ocean relatives, it gives birth to live young instead of laying eggs.' },
-    bass: { name: 'largemouth bass', tag: 'Introduced', size: 54, zone: [0.6, 0.78], n: 2, speed: 30,
+    bass: { url: 'https://wildlife.ca.gov/Fishing/Inland/Black-Bass', name: 'largemouth bass', tag: 'Introduced', size: 54, zone: [0.6, 0.78], n: 2, speed: 30,
       fact: 'Not native to California. The first ones were brought from Illinois to Lake Cuyamaca in San Diego County in 1891, and now they’re found throughout the state.' },
-    catfish: { name: 'channel catfish', tag: 'Introduced', size: 60, zone: [0.8, 0.9], n: 2, speed: 18,
+    catfish: { url: 'https://en.wikipedia.org/wiki/Channel_catfish', name: 'channel catfish', tag: 'Introduced', size: 60, zone: [0.8, 0.9], n: 2, speed: 18,
       fact: 'Introduced from the eastern U.S. Its whisker-like barbels are covered in taste buds, which help it find food in dark, muddy water.' }
   };
+  const CRAWDAD_URL = 'https://en.wikipedia.org/wiki/Signal_crayfish';
   const CRAWDAD_FACT = 'Most crawdads in California’s rivers and ponds are introduced. The signal crayfish, brought here in 1912, now threatens the Shasta crayfish, California’s last native crayfish.';
   const KEYS = Object.keys(SPECIES);
   const caught = new Set();
-  const SURF = 160, MAXD = 12, BOAT_S = 1.45;
+  const SURF = 160, MAXD = 12, BOAT_S = 1.45, FISH_S = 1.18;
   let umb = 0, hasKey = false, follow = false;
   const litter = [];
   let W = 0, H = 0, WH = 0, FLOOR = 0, dpr = 1, cam = 0, time = 0, last = 0, running = false, playing = false, raining = false;
   let lure = { x: 0, y: 0, tx: null, ty: null }, boatX = 0, keys = {}, hooked = null, reeling = false, modalOpen = false;
-  let fish = [], grass = [], rocks = [], coins = [], bubbles = [], ripples = [], crab = null, chest = { x: 0, open: false, shake: 0 };
+  let burst = [], fish = [], grass = [], rocks = [], coins = [], bubbles = [], ripples = [], crab = null, chest = { x: 0, open: false, shake: 0 };
   const rnd = (a, b) => a + Math.random() * (b - a);
 
   // ---------- setup
@@ -1275,7 +1276,7 @@
       const sp = SPECIES[k];
       for (let i = 0; i < sp.n; i++) {
         const dir = Math.random() < 0.5 ? -1 : 1, fy = rnd(sp.zone[0], sp.zone[1]), x = rnd(0, 1), count = sp.school || 1;
-        for (let j = 0; j < count; j++) fish.push({ k, x, fy: fy + j * 0.006, off: j * 26, dir, sp: sp.speed * rnd(0.8, 1.2), ph: rnd(0, 6), cool: 0 });
+        for (let j = 0; j < count; j++) fish.push({ k, x, fy: fy + j * 0.006, off: j * 26, dir, sp: sp.speed * rnd(0.8, 1.2), ph: rnd(0, 6), cool: 3 });
       }
     });
     crab = { x: rnd(0.1, 0.6), dir: 1, cool: 0 };
@@ -1284,7 +1285,7 @@
   // ---------- drawing
   function ell(c, x, y, rx, ry, col, rot) { c.fillStyle = col; c.beginPath(); c.ellipse(x, y, Math.max(0.5, rx), Math.max(0.5, ry), rot || 0, 0, Math.PI * 2); c.fill(); }
   function drawFish(c, k, x, y, dir, ph, wig, scale, mono) {
-    const sp = SPECIES[k], L = sp.size * (scale || 1), d = dir;
+    const sp = SPECIES[k], L = sp.size * (scale || FISH_S), d = dir;
     const col = (h) => (mono ? mono : h);
     c.save(); c.translate(x, y); c.scale(d, 1); c.rotate(Math.sin(time * 6 + ph) * 0.05 + (wig || 0));
     const tail = (h, w) => { c.fillStyle = col(h); c.beginPath(); c.moveTo(-L * 0.42, 0); c.lineTo(-L * 0.62, -w + Math.sin(time * 9 + ph) * L * 0.04); c.lineTo(-L * 0.58, 0); c.lineTo(-L * 0.62, w + Math.sin(time * 9 + ph) * L * 0.04); c.closePath(); c.fill(); };
@@ -1337,6 +1338,19 @@
       ctx.closePath(); ctx.fill(); ctx.strokeStyle = 'rgba(120,40,60,0.5)'; ctx.lineWidth = 1; ctx.stroke();
       ctx.fillStyle = '#4A3A30'; ctx.beginPath(); ctx.arc(ux, top - 6 * umb, 1.4, 0, Math.PI * 2); ctx.fill();
     }
+    // the dog: black with a white face, sitting at the bow behind her
+    ctx.save(); ctx.translate(-36, -9); ctx.scale(1.25, 1.25);
+    ell(ctx, 0, -6, 7.5, 7, '#1E1E22');                       // body
+    ell(ctx, 6, -9, 3, 5, '#1E1E22');                         // chest
+    ctx.strokeStyle = '#1E1E22'; ctx.lineWidth = 2.6; ctx.beginPath(); ctx.moveTo(-6, -6); ctx.quadraticCurveTo(-13, -10 + (reduce ? 0 : Math.sin(time * 7) * 3), -12, -16); ctx.stroke(); // wagging tail
+    ell(ctx, 7, -17, 5.6, 5, '#1E1E22');                      // head
+    ell(ctx, 9, -15.5, 3.6, 3.6, '#F6F4EE');                  // white face
+    ell(ctx, 7.5, -19.5, 1.6, 3, '#F6F4EE');                  // white blaze
+    ell(ctx, 12.6, -15.6, 2.4, 1.8, '#F6F4EE');               // muzzle
+    ell(ctx, 14.6, -16, 1, 0.9, '#111');                      // nose
+    ell(ctx, 3.4, -18, 2, 3.6, '#1E1E22', -0.4);              // ear
+    ell(ctx, 9.6, -18.4, 0.8, 0.8, '#111');                   // eye
+    ctx.restore();
     // paddler: hair, head, life vest (no face)
     ell(ctx, -4, -16, 7, 9, '#F2A23A');
     ctx.fillStyle = '#5A3A26'; ctx.beginPath(); ctx.ellipse(-4, -30, 6.5, 7, 0, 0, Math.PI * 2); ctx.fill();
@@ -1356,7 +1370,7 @@
     return { tipX: x + 46 * BOAT_S, tipY: y + bob - 48 * BOAT_S };
   }
   function drawLitter(L) {
-    ctx.save(); ctx.translate(L.x, FLOOR + 2); ctx.rotate(L.r);
+    ctx.save(); ctx.translate(L.x, FLOOR - 2); ctx.rotate(L.r); ctx.scale(L.t === 'can' ? 1.7 : 1.3, L.t === 'can' ? 1.7 : 1.3);
     if (L.t === 'can') {
       ctx.fillStyle = L.c; ctx.fillRect(-9, -6, 18, 12); ctx.fillStyle = '#C9CED0'; ctx.fillRect(-11, -6, 2, 12); ctx.fillRect(9, -6, 2, 12);
       ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.fillRect(-6, -4, 10, 2);
@@ -1416,6 +1430,7 @@
     $('.catch-tag').className = 'catch-tag ' + (isCrab || SPECIES[k].tag === 'Introduced' ? 'intro' : 'native');
     const gotKey = isCrab && !hasKey; if (isCrab) hasKey = true;
     $('.catch-fact').textContent = isCrab ? CRAWDAD_FACT : SPECIES[k].fact;
+    const more = $('.catch-more'); more.href = isCrab ? CRAWDAD_URL : SPECIES[k].url; more.textContent = 'Learn more about the ' + (isCrab ? 'signal crayfish' : SPECIES[k].name) + ' ↗';
     const left = KEYS.length - caught.size;
     $('.catch-progress').textContent = isCrab ? (gotKey ? 'It was holding a golden key! The treasure chest on the bottom is unlocked.' : 'Crawdads don’t count toward the six, but nice catch.') : !first ? 'You’ve caught this one before. Released back into the pond.' : left ? left + ' more species to go. Released back into the pond.' : 'That’s all six! The treasure chest on the bottom is unlocked.';
     openModal(catchBox, '#catch-h'); catchBox.dataset.t = Date.now();
@@ -1425,13 +1440,13 @@
   function frame(now) {
     const dt = last ? Math.min(0.05, (now - last) / 1000) : 0.016; last = now; time += dt;
     // lure movement
-    const sp = (hooked ? 150 : 280) * dt;
+    const sp = (hooked ? 260 : 460) * dt;
     if (playing && !modalOpen && !reeling) {
       let dx = (keys.r ? 1 : 0) - (keys.l ? 1 : 0), dy = (keys.d ? 1 : 0) - (keys.u ? 1 : 0);
       if (dx || dy) { lure.tx = null; const m = Math.hypot(dx, dy); lure.x += dx / m * sp; lure.y += dy / m * sp; }
       else if (lure.tx != null) { const ddx = lure.tx - lure.x, ddy = lure.ty - lure.y, m = Math.hypot(ddx, ddy); if (m > 2) { lure.x += ddx / m * Math.min(m, sp); lure.y += ddy / m * Math.min(m, sp); } }
     }
-    if (reeling) { follow = true; lure.y -= 340 * dt; if (lure.y <= SURF + 30) { const k = hooked.k; reeling = false; reelBtn.hidden = true; if (hooked.crab) { crab.held = false; crab.x = rnd(0.1, 0.6); crab.cool = 6; } else { spawn(hooked); hooked.cool = 5; } hooked = null; lure.y = SURF + 160; showCatch(k); } }
+    if (reeling) { follow = true; lure.y -= 680 * dt; if (lure.y <= SURF + 30) { const k = hooked.k; reeling = false; reelBtn.hidden = true; if (hooked.crab) { crab.held = false; crab.x = rnd(0.1, 0.6); crab.cool = 6; } else { spawn(hooked); hooked.cool = 5; } hooked = null; lure.y = SURF + 160; showCatch(k); } }
     lure.x = Math.max(24, Math.min(W - 24, lure.x)); lure.y = Math.max(SURF + 30, Math.min(FLOOR - 16, lure.y));
     boatX += (Math.max(80, Math.min(W - 80, lure.x - 40)) - boatX) * Math.min(1, dt * 1.2);
     // the page scroll drives the camera; the lure rides along and can move within the view
@@ -1484,6 +1499,15 @@
       crab.cool -= dt;
     }
     chest.shake = Math.max(0, chest.shake - dt);
+    burst = burst.filter((b) => (b.life -= dt, b.life > 0));
+    burst.forEach((b) => {
+      b.vy += 520 * dt; b.x += b.vx * dt; b.y += b.vy * dt; b.spin += dt * 9;
+      if (b.y > FLOOR - 4) { b.y = FLOOR - 4; b.vy *= -0.35; b.vx *= 0.6; }
+      ctx.save(); ctx.globalAlpha = Math.min(1, b.life * 1.5); ctx.translate(b.x, b.y);
+      if (b.gem) { ctx.rotate(Math.PI / 4); ctx.fillStyle = b.c; ctx.fillRect(-b.r, -b.r, b.r * 2, b.r * 2); ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.fillRect(-b.r * 0.6, -b.r * 0.6, b.r * 0.6, b.r * 0.6); }
+      else { const w = Math.abs(Math.cos(b.spin)) * b.r + 1; ell(ctx, 0, 0, w, b.r, '#C9962E'); ell(ctx, 0, 0, w * 0.7, b.r * 0.7, b.c); }
+      ctx.restore();
+    });
 
     // fish
     fish.forEach((f) => {
@@ -1495,7 +1519,7 @@
       const x = f.x * W - f.dir * f.off, y = SURF + f.fy * (FLOOR - SURF) + Math.sin(time * 0.8 + f.ph) * 10;
       if (y < cam - 60 || y > cam + H + 60) return;
       drawFish(ctx, f.k, x, y, f.dir, f.ph, 0);
-      if (playing && !hooked && !modalOpen && f.cool <= 0 && Math.hypot(x + f.dir * s2.size * 0.3 - lure.x, y - lure.y) < Math.max(24, s2.size * 0.5)) {
+      if (playing && !hooked && !modalOpen && f.cool <= 0 && Math.hypot(x + f.dir * s2.size * FISH_S * 0.3 - lure.x, y - lure.y) < Math.max(26, s2.size * FISH_S * 0.5)) {
         hooked = f; reelBtn.hidden = false; say('Fish on! Press <kbd>Space</kbd> to reel it in.', 3000);
       }
     });
@@ -1510,6 +1534,7 @@
     }
     ell(ctx, lure.x, lure.y - 14, 5, 6, '#E2543A'); ell(ctx, lure.x, lure.y - 18, 5, 3, '#F4F1E6');
     ctx.strokeStyle = '#D9DDD8'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(lure.x, lure.y - 8); ctx.lineTo(lure.x, lure.y + 3); ctx.arc(lure.x - 5, lure.y + 3, 5, 0, Math.PI); ctx.stroke();
+    if (playing && !hooked && lure.y > FLOOR - 60 && litter.some((L) => Math.abs(lure.x - L.x) < 34) && bubble.hidden) say('Litter! Press <kbd>Space</kbd> or click it to learn more.', 2200);
     // a gentle pointer to the chest once it's unlocked
     if ((caught.size === KEYS.length || hasKey) && !chest.open && cam + H < FLOOR - 100) { ctx.fillStyle = 'rgba(255,226,120,' + (0.6 + Math.sin(time * 4) * 0.3) + ')'; ctx.font = '600 16px "DM Sans", sans-serif'; ctx.textAlign = 'center'; ctx.fillText('Treasure unlocked: swim to the bottom ↓', W / 2, cam + H - 30); }
 
@@ -1517,36 +1542,44 @@
   }
 
   // ---------- input
-  function start() { intro.hidden = true; playing = true; cv.focus({ preventScroll: true }); }
+  function start() { intro.hidden = true; if (!playing) { hooked = null; reeling = false; fish.forEach((f) => { f.cool = Math.max(f.cool, 2.5); }); crab.cool = Math.max(crab.cool, 2.5); } playing = true; cv.focus({ preventScroll: true }); }
   $('.deep-start').addEventListener('click', start);
   $('.deep-howto').addEventListener('click', () => { intro.hidden = false; playing = false; intro.querySelector('.deep-start').focus(); });
   function reel() { if (hooked && !reeling) { reeling = true; reelBtn.hidden = true; } }
   const map = { ArrowLeft: 'l', ArrowRight: 'r', ArrowUp: 'u', ArrowDown: 'd', a: 'l', d: 'r', w: 'u', s: 'd', A: 'l', D: 'r', W: 'u', S: 'd' };
   cv.addEventListener('keydown', (e) => {
     if (map[e.key]) { e.preventDefault(); if (!playing) start(); keys[map[e.key]] = true; follow = true; }
-    else if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); follow = true; if (hooked) reel(); else if (Math.hypot(lure.x - chest.x, lure.y - (FLOOR - 40)) < 90) tryChest(); }
+    else if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); follow = true; if (hooked) reel(); else if (Math.hypot(lure.x - chest.x, lure.y - (FLOOR - 40)) < 90) tryChest(); else if (lure.y > FLOOR - 60 && litter.some((L) => Math.abs(lure.x - L.x) < 34)) openModal(litterBox, '#litter-h'); }
   });
   cv.addEventListener('keyup', (e) => { if (map[e.key]) keys[map[e.key]] = false; });
   cv.addEventListener('blur', () => { keys = {}; });
   function worldPt(e) { const r = cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top + cam }; }
+  function popTreasure() {
+    const cx = chest.x, cy = FLOOR - 60, cols = ['#F6D77A', '#E8B640', '#FFF1B0'], gems = ['#7FD6E8', '#F28BA8', '#9BE3B5'];
+    for (let i = 0; i < (reduce ? 14 : 60); i++) { const gem = Math.random() < 0.18; burst.push({ x: cx + rnd(-30, 30), y: cy, vx: rnd(-170, 170), vy: rnd(-420, -180), r: gem ? rnd(4, 6) : rnd(5, 8), c: gem ? gems[i % 3] : cols[i % 3], gem, spin: rnd(0, 6), life: rnd(1.6, 2.6) }); }
+    say('The chest is open!', 2200);
+  }
   function tryChest() {
     if (chest.open) { openModal(treasure, '.retro-email'); return; }
     if (caught.size < KEYS.length && !hasKey) { chest.shake = 0.7; say('Locked! <strong>Catch all the fish</strong> to open it. (' + caught.size + '/' + KEYS.length + ')', 3200); return; }
-    chest.open = true; setTimeout(() => openModal(treasure, '.retro-email'), 700);
+    chest.open = true; popTreasure(); setTimeout(() => openModal(treasure, '.retro-email'), 1500);
   }
+  function hitLitter(p) { return litter.some((L) => Math.abs(p.x - L.x) < 30 && p.y > FLOOR - 34 && p.y < FLOOR + 16); }
   let dragging = false;
   cv.addEventListener('pointerdown', (e) => {
     if (hooked && !reeling) { reel(); return; }
     const p = worldPt(e);
     if (Math.abs(p.x - chest.x) < 75 && p.y > FLOOR - 100 && p.y < FLOOR + 20) { tryChest(); return; }
+    if (hitLitter(p)) { openModal(litterBox, '#litter-h'); return; }
     if (!playing) start();
     dragging = true; lure.tx = p.x; lure.ty = p.y; cv.setPointerCapture(e.pointerId);
   });
-  cv.addEventListener('pointermove', (e) => { const p = worldPt(e); cv.style.cursor = (Math.abs(p.x - chest.x) < 75 && p.y > FLOOR - 100 && p.y < FLOOR + 20) ? 'pointer' : 'crosshair'; if (dragging) { lure.tx = p.x; lure.ty = p.y; } });
+  cv.addEventListener('pointermove', (e) => { const p = worldPt(e); cv.style.cursor = ((Math.abs(p.x - chest.x) < 75 && p.y > FLOOR - 100 && p.y < FLOOR + 20) || hitLitter(p)) ? 'pointer' : 'crosshair'; if (dragging) { lure.tx = p.x; lure.ty = p.y; } });
   cv.addEventListener('pointerup', () => { dragging = false; });
   $('.catch-close').addEventListener('click', () => { if (Date.now() - (+catchBox.dataset.t || 0) < 700) return; closeModal(catchBox); });
   $('.retro-close').addEventListener('click', () => closeModal(treasure));
-  sec.addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (!catchBox.hidden && Date.now() - (+catchBox.dataset.t || 0) > 700) closeModal(catchBox); if (!treasure.hidden) closeModal(treasure); } });
+  $('.litter-close').addEventListener('click', () => closeModal(litterBox));
+  sec.addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (!catchBox.hidden && Date.now() - (+catchBox.dataset.t || 0) > 700) closeModal(catchBox); if (!treasure.hidden) closeModal(treasure); if (!litterBox.hidden) closeModal(litterBox); } });
   window.addEventListener('wheel', () => { if (!reeling) follow = false; }, { passive: true });
   window.addEventListener('touchmove', () => { if (!reeling) follow = false; }, { passive: true });
   rainBtn.addEventListener('click', () => { raining = !raining; rainBtn.setAttribute('aria-pressed', raining); rainBtn.textContent = raining ? 'Stop the rain' : 'Make it rain'; });
@@ -1556,7 +1589,16 @@
     else if (!e.isIntersecting) running = false;
   })).observe(sec);
   size(); buildTray(); countEl.textContent = '0/' + KEYS.length;
-  window.__fish = { caught, KEYS, showCatch, tryChest, chest, lure, _reelTest: () => { hooked = fish[0]; reel(); } }; // handy for testing
+  // a real visitor counter: counts each browser once, stored by a free counter service
+  (function counter() {
+    const out = $('.retro-counter span'), line = $('.retro-counter'); if (!out) return;
+    let seen = false; try { seen = localStorage.getItem('bm-fisher') != null; } catch (e) {}
+    const show = (n) => { out.textContent = String(n).padStart(6, '0'); try { localStorage.setItem('bm-fisher', n); } catch (e) {} };
+    const url = 'https://api.counterapi.dev/v1/bam0207-github-io/fishers' + (seen ? '' : '/up');
+    fetch(url).then((r) => r.ok ? r.json() : Promise.reject()).then((d) => { if (typeof d.count === 'number') show(seen ? (+localStorage.getItem('bm-fisher') || d.count) : d.count); else throw 0; })
+      .catch(() => { let n = null; try { n = localStorage.getItem('bm-fisher'); } catch (e) {} if (n) out.textContent = String(n).padStart(6, '0'); else line.textContent = 'Thanks for fishing!'; });
+  })();
+  window.__fish = { caught, KEYS, showCatch, tryChest, chest, lure, litter, get hooked() { return hooked; }, _reelTest: () => { hooked = fish[0]; reel(); } }; // handy for testing
 })();
 
 // 16. Contact: copy the email address.

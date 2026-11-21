@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600&family=Fredoka:wght@500;600;700&display=swap">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <link rel="stylesheet" href="css/style.css?v=30">
+  <link rel="stylesheet" href="css/style.css?v=31">
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -136,6 +136,7 @@
         <h3 id="catch-h" tabindex="-1">You caught a fish!</h3>
         <span class="catch-tag"></span>
         <p class="catch-fact"></p>
+        <a class="catch-more" href="#" target="_blank" rel="noopener">Learn more about this fish</a>
         <p class="catch-progress"></p>
         <button type="button" class="deep-start catch-close">Keep fishing</button>
       </div>
@@ -143,17 +144,31 @@
 
     <div class="deep-overlay deep-treasure" hidden role="dialog" aria-modal="true" aria-labelledby="treasure-h">
       <div class="retro">
-        <div class="retro-marquee" aria-hidden="true"><span>&#x1F41A; &#10022; you caught all six &#10022; &#x1F420; &#10022; you caught all six &#10022; &#x1F41A; &#10022; you caught all six &#10022; &#x1F420; &#10022;</span></div>
+        <div class="retro-marquee" aria-hidden="true"><span>&#x1F41A; &#10022; you found the treasure &#10022; &#x1F420; &#10022; you found the treasure &#10022; &#x1F41A; &#10022; you found the treasure &#10022; &#x1F420; &#10022;</span></div>
         <h3 id="treasure-h" class="retro-title">~ You found the treasure ~</h3>
-        <a class="retro-email" href="mailto:brooke.murphy0207@gmail.com?subject=I%20found%20the%20treasure!">&#10022; Email me! &#10022;</a>
+        <a class="retro-email" href="mailto:brooke.murphy0207@gmail.com?subject=I%20found%20the%20treasure!"><span class="retro-spark" aria-hidden="true">&#10022;</span> Email me! <span class="retro-spark" aria-hidden="true">&#10022;</span></a>
         <p class="retro-small">brooke.murphy0207@gmail.com</p>
-        <p class="retro-counter">You are fisher #<span>000042</span></p>
+        <p class="retro-counter">You are fisher #<span>······</span></p>
         <button type="button" class="retro-close">Swim back up</button>
+      </div>
+    </div>
+    <div class="deep-overlay deep-litter" hidden role="dialog" aria-modal="true" aria-labelledby="litter-h">
+      <div class="deep-panel litter-panel">
+        <h3 id="litter-h" tabindex="-1">Trash in California's waters</h3>
+        <ul class="litter-stats">
+          <li><strong>7 trillion</strong> microplastic particles wash into San Francisco Bay with stormwater each year. Nearly half look like tire-wear particles from roads.</li>
+          <li><strong>Up to 80%</strong> of the trash in California's waterways starts out on land and travels through storm drains, creeks and rivers.</li>
+          <li><strong>About 75%</strong> of everything volunteers have collected over 40 years of California Coastal Cleanup Day is plastic.</li>
+          <li><strong>398,654 pounds</strong> of trash and recyclables were picked up by 46,201 volunteers on Coastal Cleanup Day in 2024.</li>
+          <li><strong>December 2030</strong> is the State Water Board's deadline for cities to keep trash out of state waters, mostly by installing full-capture devices in storm drains.</li>
+        </ul>
+        <p class="litter-src">Sources: <a href="https://sfei.org/microplastics-science" target="_blank" rel="noopener">SFEI</a> · <a href="https://www.coastal.ca.gov/publiced/ccd/10-9-24FinalResults.pdf" target="_blank" rel="noopener">California Coastal Commission</a> · <a href="https://www.waterboards.ca.gov/water_issues/programs/trash_control/" target="_blank" rel="noopener">State Water Board</a></p>
+        <button type="button" class="deep-start litter-close">Back to fishing</button>
       </div>
     </div>
     </div>
   </section>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="js/site.js?v=30" defer></script>
+  <script src="js/site.js?v=31" defer></script>
 </body>
 </html>

@@ -5,11 +5,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>About | Brooke Murphy</title>
-  <meta name="description" content="Background, professional experience and education of Brooke Murphy, environmental scientist.">
+  <meta name="description" content="Background, skills and education of Brooke Murphy, environmental scientist.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600&display=swap">
-  <link rel="stylesheet" href="css/style.css?v=30">
+  <link rel="stylesheet" href="css/style.css?v=31">
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -28,20 +28,61 @@
 
   <main id="main" class="wrap">
     <section class="about-intro">
-      <div class="photo"><img src="images/headshot.jpg" alt="Portrait of Brooke Murphy"></div>
+      <div class="photo"><img src="images/scc-burn.jpg" alt="Brooke smiling in wildland fire gear at a prescribed burn in Santa Clara County Parks"></div>
       <div class="bio">
         <span class="eyebrow">About me</span>
         <h1>I follow water.</h1>
         <p class="lede">I'm an environmental scientist in Los Osos, California, finishing an M.S. in Environmental Science and Management at Cal Poly.</p>
         <p>I study how much water California has, how clean it is, and how a changing climate shifts the numbers. I do that with GIS, satellite data and a lot of time in the field, from creek beds and recharge ponds to soil cores and reservoir surveys.</p>
-        <div class="links"><a class="btn btn-primary" href="#story">How I got here</a><a class="btn" href="#experience">Experience</a><a class="btn" href="files/Brooke_Murphy_CV.pdf">Download CV</a></div>
+        <div class="links"><a class="btn btn-primary" href="#do">What I do</a><a class="btn" href="#story">How I got here</a><a class="btn" href="files/Brooke_Murphy_CV.pdf">Download CV</a></div>
+      </div>
+    </section>
+
+    <section class="section reveal" id="do" aria-labelledby="do-h">
+      <div class="section-head"><h2 id="do-h">What I do</h2></div>
+      <div class="pillars">
+        <div class="pillar"><h3>Spatial analysis</h3><p>GIS, remote sensing and survey-grade GPS to map, measure and model landscapes, from field data collection to finished maps and StoryMaps.</p></div>
+        <div class="pillar"><h3>Quantitative hydrology</h3><p>Evapotranspiration, groundwater and reservoir data analyzed in R and Python, with careful QA/QC so the numbers hold up.</p></div>
+        <div class="pillar"><h3>Environmental management</h3><p>Water quality sampling, invasive species prevention, habitat restoration and prescribed fire, done alongside agencies and the public.</p></div>
+        <div class="pillar"><h3>Science communication</h3><p>Teaching, outreach events and interactive maps that make technical findings clear to the communities who depend on them.</p></div>
+      </div>
+    </section>
+
+    <section class="section reveal two-col" id="education" aria-label="Education and tools">
+      <div class="skill-group">
+        <h2>Education</h2>
+        <p><strong>M.S., Environmental Science and Management</strong><br><span class="muted">Cal Poly, San Luis Obispo · expected December 2026</span></p>
+        <p><strong>B.A., Environmental Studies and B.A., Religious Studies</strong><br><span class="muted">Westmont College · 2023, magna cum laude, Honors Program</span></p>
+        <h3>Honors and funding</h3>
+        <ul class="honors">
+          <li>Agricultural Research Institute NextGen Fellowship</li>
+          <li>Harold G. Hull Graduate Assistantship</li>
+          <li>Wildung Family Scholarship</li>
+          <li>Augustinian Scholarship</li>
+        </ul>
+        <h3>Professional memberships</h3>
+        <p class="muted"><a href="https://womeningeospatial.org/">Women+ in Geospatial</a> · member since May 2025</p>
+      </div>
+      <div class="skill-group">
+        <h2>Tools</h2>
+        <h3>GIS and remote sensing</h3>
+        <ul class="tags"><li>ArcGIS Pro</li><li>ArcGIS Online</li><li>StoryMaps</li><li>Field Maps</li><li>QGIS</li><li>Google Earth Engine</li><li>ModelBuilder</li></ul>
+        <h3>Code and data</h3>
+        <ul class="tags"><li>R</li><li>Python</li><li>SQL</li><li>JavaScript</li><li>HTML and CSS</li><li>Markdown and MkDocs</li><li>Git and GitHub</li></ul>
+        <h3>Field and lab</h3>
+        <ul class="tags"><li>Water and soil sampling</li><li>PFAS soil-core logging</li><li>Plankton tow sampling</li><li>RTK GNSS survey</li><li>Data QA/QC</li></ul>
+        <h3>Labs I work with</h3>
+        <ul class="lab-links">
+          <li><a href="https://quantsus.calpoly.edu/about-us">Quantitative Sustainability Lab<span>Dr. Yiwen Chiu, Cal Poly</span></a></li>
+          <li><a href="https://kashingtondc.github.io/">GROW Geospatial Lab<span>Dr. Aakash Ahamed, Cal Poly</span></a></li>
+        </ul>
       </div>
     </section>
 
     <section class="section reveal" id="story" aria-labelledby="story-h">
       <div class="section-head"><h2 id="story-h">How I got here</h2></div>
       <ol class="story">
-        <li class="chapter has-photo">
+        <li id="story-oregon" class="chapter has-photo">
           <div class="chapter-when">2020</div>
           <div class="chapter-body">
             <h3>Learning to read a landscape</h3>
@@ -56,22 +97,22 @@
             <p>At Westmont College I double-majored in Environmental Studies and Religious Studies and earned a Permaculture Design Certification. I started assessing properties for clients and redesigned one recovering from the Thomas Fire to protect it from future fire and erosion. It was my first taste of spatial reasoning.</p>
           </div>
         </li>
-        <li class="chapter has-photo">
+        <li id="story-sccparks" class="chapter has-photo">
           <div class="chapter-when">2022</div>
           <div class="chapter-body">
             <h3>My first GIS project</h3>
             <p>As a natural resources management intern with Santa Clara County Parks, I led a conservation study of California milkweed on public lands, mapped populations with ArcGIS Field Maps, and helped CAL FIRE with prescribed burns.</p>
           </div>
-          <figure class="chapter-photo"><img data-zoom src="images/scc-burn.jpg" alt="Brooke at a prescribed burn in Santa Clara County Parks"><figcaption>Prescribed burn, Santa Clara County Parks</figcaption></figure>
+          <figure class="chapter-photo"><img data-zoom src="images/milkweed-sites.jpg" alt="Map of California milkweed study sites in Santa Clara County Parks"><figcaption>Milkweed study sites, Santa Clara County Parks</figcaption></figure>
         </li>
-        <li class="chapter">
+        <li id="story-cachuma" class="chapter">
           <div class="chapter-when">2024–2025</div>
           <div class="chapter-body">
             <h3>On the water</h3>
-            <p>At Cachuma Lake I coordinated the aquatic invasive species mitigation program for Santa Barbara County Parks: plankton tows, substrate sampling, boat inspections and decontamination, plus education events for the public.</p>
+            <p>At Cachuma Lake I coordinated the aquatic invasive species mitigation program for Santa Barbara County Parks: plankton tow sampling, substrate sampling, boat inspections and decontamination, plus education events for the public.</p>
           </div>
         </li>
-        <li class="chapter has-photo">
+        <li id="story-calpoly" class="chapter has-photo">
           <div class="chapter-when">2025</div>
           <div class="chapter-body">
             <h3>Back to school, deeper into GIS</h3>
@@ -79,7 +120,7 @@
           </div>
           <figure class="chapter-photo"><img data-zoom src="images/bartleson.jpg" alt="Mapping water utilities with an RTK GNSS receiver at Bartleson Ranch"><figcaption>RTK utility mapping, Bartleson Ranch</figcaption></figure>
         </li>
-        <li class="chapter has-photo">
+        <li id="story-valleywater" class="chapter has-photo">
           <div class="chapter-when">2026</div>
           <div class="chapter-body">
             <h3>Groundwater, up close</h3>
@@ -87,67 +128,17 @@
           </div>
           <figure class="chapter-photo"><img data-zoom src="images/recharge-pond.jpg" alt="Brooke collecting a surface water sample at a recharge pond"><figcaption>Recharge-pond sampling, Valley Water</figcaption></figure>
         </li>
-        <li class="chapter now">
+        <li id="story-now" class="chapter now has-photo">
           <div class="chapter-when">Now</div>
           <div class="chapter-body">
             <h3>Research and teaching</h3>
             <p>I'm finishing my thesis on whether a satellite-based machine learning model can stand in for weather stations when estimating evapotranspiration across California. I'm also a GIS Developer building Cal Poly's open-source intro GIS course site, and an instructional student assistant in introductory environmental science.</p>
           </div>
+          <figure class="chapter-photo oakwood-photo"><img data-zoom src="images/oakwood.jpg" alt="Brooke at Oakwood" onerror="this.closest('li').classList.remove('has-photo');this.parentNode.remove()"><figcaption>Oakwood, 2026</figcaption></figure>
         </li>
       </ol>
     </section>
 
-    <section class="section reveal" aria-labelledby="do-h">
-      <div class="section-head"><h2 id="do-h">What I do</h2></div>
-      <div class="pillars">
-        <div class="pillar"><h3>Water quantity</h3><p>Groundwater data, evapotranspiration and crop water demand, and reservoir storage.</p></div>
-        <div class="pillar"><h3>Water quality</h3><p>Surface water, domestic well and PFAS soil sampling, plus aquatic invasive species monitoring.</p></div>
-        <div class="pillar"><h3>Spatial analysis</h3><p>GIS, remote sensing and R to turn field and satellite data into maps, models and decisions.</p></div>
-      </div>
-    </section>
-
-    <section class="section reveal" id="experience" aria-labelledby="xp-h">
-      <div class="section-head"><h2 id="xp-h">Experience</h2></div>
-      <h3 class="xp-group">Professional</h3>
-      <ol class="timeline">
-        <li id="exp-calpoly-gis"><span class="when">Oct 2026 – present</span><div><h3>GIS Developer</h3><span class="org">Cal Poly, San Luis Obispo</span><p>Restructuring and building out an open-source introductory GIS course site in Markdown with MkDocs Material, Git and GitHub Pages.</p></div></li>
-        <li id="exp-sbparks"><span class="when">Apr 2024 – Jan 2025</span><div><h3>Program Coordinator</h3><span class="org">Santa Barbara County Parks, Cachuma Lake</span><p>Ran plankton tows, substrate sampling, vessel inspection and decontamination for the Aquatic Invasive Species Mitigation Program, and coordinated with agencies, volunteers and the public.</p></div></li>
-      </ol>
-      <h3 class="xp-group">Research and internships</h3>
-      <ol class="timeline">
-        <li id="exp-research"><span class="when">2025 – present</span><div><h3>Graduate Researcher</h3><span class="org">Cal Poly, San Luis Obispo · ARI NextGen Fellow</span><p>Comparing remote sensing-based and station-based reference evapotranspiration for agricultural water-use planning.</p></div></li>
-        <li id="exp-valleywater"><span class="when">Jun – Aug 2026</span><div><h3>Groundwater Management Intern</h3><span class="org">Valley Water, Santa Clara County</span><p>Groundwater data QA/QC, historical well records, database updates and StoryMaps; PFAS soil-core logging, recharge-pond sampling, lab coordination and domestic well testing.</p></div></li>
-        <li id="exp-sccparks"><span class="when">Jun – Aug 2022</span><div><h3>Natural Resources Management Intern</h3><span class="org">Santa Clara County Parks</span><p>Directed a restoration study for California milkweed on public lands and supported CAL FIRE prescribed burns.</p></div></li>
-        <li id="exp-blm"><span class="when">Aug – Dec 2020</span><div><h3>Biological Monitoring Volunteer</h3><span class="org">Bureau of Land Management, Cascade-Siskiyou National Monument</span><p>Studied soil horizons, conifer forest health and biodiversity in clear-cut areas.</p></div></li>
-        <li id="exp-vesper"><span class="when">Aug – Dec 2020</span><div><h3>Wetland Restoration Volunteer</h3><span class="org">Vesper Meadow Education Program, Oregon</span><p>Installed basket willow amendments at a wetland restoration project.</p></div></li>
-      </ol>
-      <h3 class="xp-group">Teaching</h3>
-      <ol class="timeline">
-        <li><span class="when">Fall 2026</span><div><h3>Instructional Student Assistant</h3><span class="org">Introductory Environmental Science, Cal Poly</span></div></li>
-        <li id="exp-westmont"><span class="when">Spring 2023</span><div><h3>Teaching Assistant and Tutor</h3><span class="org">Old Testament, Westmont College</span></div></li>
-      </ol>
-    </section>
-
-    <section class="section reveal two-col" aria-label="Education and skills">
-      <div class="skill-group">
-        <h2>Education</h2>
-        <p><strong>M.S., Environmental Science and Management</strong><br><span class="muted">Cal Poly, San Luis Obispo · expected December 2026</span></p>
-        <p><strong>B.A., Environmental Studies and B.A., Religious Studies</strong><br><span class="muted">Westmont College · 2023, magna cum laude, Honors Program</span></p>
-        <h3>Honors and funding</h3>
-        <p class="muted">Agricultural Research Institute NextGen Fellowship · Harold G. Hull Graduate Assistantship · Wildung Family Scholarship · Augustinian Scholarship</p>
-        <h3>Professional memberships</h3>
-        <p class="muted"><a href="https://womeningeospatial.org/">Women+ in Geospatial</a> · member since May 2025</p>
-      </div>
-      <div class="skill-group">
-        <h2>Tools</h2>
-        <h3>GIS and remote sensing</h3>
-        <ul class="tags"><li>ArcGIS Pro</li><li>ArcGIS Online</li><li>StoryMaps</li><li>Field Maps</li><li>QGIS</li><li>Google Earth Engine</li><li>ModelBuilder</li></ul>
-        <h3>Code and data</h3>
-        <ul class="tags"><li>R</li><li>Python</li><li>SQL</li><li>JavaScript (basic)</li><li>Git and GitHub</li></ul>
-        <h3>Field and lab</h3>
-        <ul class="tags"><li>Water and soil sampling</li><li>PFAS soil-core logging</li><li>Plankton tows</li><li>RTK GNSS survey</li><li>Groundwater QA/QC</li></ul>
-      </div>
-    </section>
   </main>
 
   <div class="pond-space" aria-hidden="true"></div>
@@ -161,6 +152,6 @@
       </nav>
     </div>
   </footer>
-  <script src="js/site.js?v=30" defer></script>
+  <script src="js/site.js?v=31" defer></script>
 </body>
 </html>
