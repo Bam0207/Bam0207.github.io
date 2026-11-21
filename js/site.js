@@ -173,11 +173,12 @@
   let reach = 0, active = false, time = 0, last = performance.now(), splashTimer = 0, crestY = 0, creekX = 0;
 
   function layout() {
-    active = window.innerWidth >= 1300;
+    // where the page content starts (the creek runs in the gutter to its left)
+    const br = main.getBoundingClientRect(), mr = { left: br.left + parseFloat(getComputedStyle(main).paddingLeft) - 28 };
+    active = window.innerWidth >= 900 && mr.left >= 100;
     cv.style.display = active ? 'block' : 'none';
     if (!active) return;
     dpr = Math.min(2, window.devicePixelRatio || 1);
-    const mr = main.getBoundingClientRect();
     cv.style.left = (mr.left - 44 - W / 2) + 'px';
     cv.width = W * dpr; cv.height = window.innerHeight * dpr;
     cv.style.width = W + 'px'; cv.style.height = window.innerHeight + 'px';
@@ -408,7 +409,7 @@
     const Wp = document.documentElement.clientWidth, deep = document.getElementById('deep'), footEl = document.querySelector('.site-footer');
     // The pond ends at the footer (the underwater section below it draws its own water).
     const Hp = deep && footEl ? footEl.getBoundingClientRect().bottom + window.scrollY : document.documentElement.scrollHeight;
-    const vx = Math.max(40, main.getBoundingClientRect().left - 44 + window.scrollX); // the creek's valley
+    const vx = Math.max(40, main.getBoundingClientRect().left + parseFloat(getComputedStyle(main).paddingLeft) - 28 - 44 + window.scrollX); // the creek's valley
 
     // --- The pond: an upside-down V opening downhill from the creek and filling the page bottom
     pond = null;
@@ -1009,6 +1010,7 @@
       nextBtn.textContent = i === steps.length - 1 ? 'Got it' : 'Next';
       coach.hidden = false;
       const lay = coach.parentElement.getBoundingClientRect(); coach.style.top = (label(st.key).getBoundingClientRect().top - lay.top) + 'px';
+      const side = document.querySelector('.eto-side'); if (side) coach.parentElement.style.setProperty('--side-w', side.offsetWidth + 'px');
       if (st.to !== undefined) {
         const before = model.eto;
         later(() => tween(st.key, st.to, 1500, () => {
@@ -1407,4 +1409,16 @@
   })).observe(sec);
   if (reduce) window.addEventListener('scroll', () => requestAnimationFrame(frame), { passive: true });
   size(); frame(performance.now());
+})();
+
+// 16. Contact: copy the email address.
+(function () {
+  const b = document.querySelector('.contact-copy');
+  if (!b) return;
+  b.addEventListener('click', async () => {
+    const email = b.dataset.email;
+    try { await navigator.clipboard.writeText(email); b.textContent = 'Copied!'; }
+    catch (e) { b.textContent = email; }
+    setTimeout(() => { b.textContent = 'Copy email address'; }, 2200);
+  });
 })();

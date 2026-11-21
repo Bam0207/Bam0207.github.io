@@ -966,3 +966,69 @@ html.wave-in::after { content: ""; animation: wave-drain 0.75s cubic-bezier(0.65
 @media (min-width: 761px) and (max-width: 1320px) { .deep { margin-right: -96px; } }
 @media (max-width: 760px) { .deep-card { top: auto; bottom: 90px; right: 16px; } .deep { height: 240vh; } }
 @media (min-width: 761px) { .deep-card { right: 120px; } }
+
+/* ---------- v24: solid right-edge nav banner, contact section ---------- */
+:root { --rail: 196px; }
+@media (min-width: 900px) {
+  body { padding-right: var(--rail) !important; }
+  .site-header { position: fixed !important; top: 0 !important; right: 0 !important; bottom: 0 !important; left: auto !important; transform: none !important; width: var(--rail) !important; border-radius: 0 !important; border: 0 !important; border-left: 1px solid rgba(31,78,88,0.18) !important; background: #DCEAE8 !important; backdrop-filter: none !important; box-shadow: none !important; z-index: 900; }
+  .site-header .wrap { height: 100%; width: 100%; max-width: none; margin: 0; padding: 34px 26px 30px !important; display: flex; flex-direction: column; flex-wrap: nowrap; align-items: stretch; justify-content: flex-start; gap: 0 !important; }
+  .site-header .brand { order: 0 !important; writing-mode: horizontal-tb !important; transform: none !important; display: grid; gap: 4px; font-family: "Instrument Serif", Georgia, serif; font-size: 32px !important; line-height: 1; color: #1F4E58 !important; text-decoration: none; padding: 0 0 22px !important; margin: 0 0 22px !important; border-bottom: 1px solid rgba(31,78,88,0.2); }
+  .site-header .brand::before, .site-header .brand::after { display: none !important; }
+  .brand-sub { font-family: "DM Sans", system-ui, sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+  .site-header .brand:hover .brand-sub { text-decoration: underline; }
+  .site-header .nav { order: 1 !important; flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: 4px !important; padding: 0 !important; border: 0 !important; font-size: 17px; flex: 1; }
+  .site-header .nav a { writing-mode: horizontal-tb !important; transform: none !important; display: block; padding: 10px 12px !important; margin: 0 -12px; border-radius: 10px; color: #2F4448 !important; letter-spacing: 0; }
+  .site-header .nav a::after { display: none !important; }
+  .site-header .nav a:not(.nav-cv):hover { background: rgba(255,255,255,0.6); color: #1F4E58 !important; }
+  .site-header .nav a[aria-current="page"] { background: #FFFFFF; color: #1F4E58 !important; font-weight: 600; box-shadow: inset 4px 0 0 var(--accent); }
+  .site-header .nav .nav-contact { margin-top: auto; }
+  .site-header .nav .nav-cv { margin: 10px 0 0 !important; text-align: center; background: #1F4E58; color: #FFFFFF !important; font-weight: 600; border-radius: 999px; padding: 13px 12px !important; font-size: 15px; }
+  .site-header .nav .nav-cv:hover { background: #163B43; }
+  .site-header .nav a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  /* the ETo tool and its margin pop-ups sit entirely left of the banner */
+  .eto-lab { --lab-w: min(1100px, calc(100vw - var(--rail) - 2 * (var(--coach-w) + 34px))) !important; }
+}
+@media (min-width: 900px) and (max-width: 1500px) { .eto-lab { --lab-w: calc(100vw - var(--rail) - 48px) !important; } }
+/* not enough margin: the pop-up sits over the farm scene, pointing right at its slider */
+@media (min-width: 900px) and (max-width: 1500px) { .coach { left: auto !important; right: calc(var(--side-w, 340px) + 16px) !important; width: 290px !important; transform: none !important; } .coach::after { left: auto !important; right: -8px !important; top: 26px !important; bottom: auto !important; } }
+@media (min-width: 761px) and (max-width: 1320px) { .deep { margin-right: 0; } }
+@media (max-width: 899px) {
+  body { padding-right: 0 !important; }
+  .site-header { position: sticky !important; top: 0 !important; right: auto !important; bottom: auto !important; transform: none !important; width: auto !important; border-radius: 0 !important; border: 0 !important; border-bottom: 1px solid rgba(31,78,88,0.15) !important; background: #DCEAE8 !important; z-index: 900; }
+  .site-header .wrap { flex-direction: row !important; flex-wrap: wrap !important; align-items: center !important; justify-content: space-between !important; gap: 8px 16px !important; padding: 12px 20px !important; height: auto; }
+  .site-header .brand { writing-mode: horizontal-tb !important; transform: none !important; font-size: 24px !important; color: #1F4E58 !important; order: 0 !important; }
+  .site-header .brand::before, .site-header .brand::after, .brand-sub { display: none !important; }
+  .site-header .nav { flex-direction: row !important; flex-wrap: wrap !important; gap: 6px 14px !important; padding: 0 !important; border: 0 !important; font-size: 15px; }
+  .site-header .nav a { writing-mode: horizontal-tb !important; transform: none !important; color: #2F4448 !important; display: inline-block !important; }
+  .site-header .nav a::after { display: none !important; }
+  .site-header .nav a[aria-current="page"] { color: #1F4E58 !important; font-weight: 600; text-decoration: underline; text-underline-offset: 5px; }
+  .site-header .nav .nav-cv { background: #1F4E58; color: #FFFFFF !important; padding: 6px 14px !important; border-radius: 999px; font-weight: 600; }
+}
+@media (max-width: 420px) { .site-header .nav a[href="portfolio.html"] { display: inline-block !important; } .site-header .nav .nav-contact { display: none !important; } }
+
+.contact { padding: 120px 0 100px; scroll-margin-top: 20px; }
+.contact-card { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(260px, 1fr); gap: clamp(28px, 5vw, 64px); align-items: center; background: #1F4E58; color: #FFFFFF; border-radius: 28px; padding: clamp(32px, 5vw, 64px); box-shadow: 0 30px 60px -36px rgba(31,78,88,0.8); position: relative; overflow: hidden; }
+.contact-card::before { content: ""; position: absolute; right: -120px; top: -120px; width: 380px; height: 380px; border-radius: 50%; background: radial-gradient(circle, rgba(79,179,200,0.35), rgba(79,179,200,0) 70%); pointer-events: none; }
+.contact-text { display: grid; gap: 18px; position: relative; }
+.contact-kicker { justify-self: start; font-size: 13px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #1F4E58; background: #BFE3E8; padding: 6px 12px; border-radius: 999px; }
+.contact h2 { font-size: clamp(44px, 5.4vw, 76px); line-height: 1; color: #FFFFFF; margin: 0; }
+.contact-text p { font-size: 19px; line-height: 1.6; color: #D7ECEF; max-width: 560px; }
+.contact-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
+.contact-btn, .contact-copy { font: inherit; font-size: 16px; font-weight: 600; text-decoration: none; padding: 14px 22px; border-radius: 999px; border: 1.5px solid rgba(255,255,255,0.55); color: #FFFFFF; background: transparent; cursor: pointer; display: inline-flex; gap: 8px; align-items: center; }
+.contact-btn.primary { background: #FFFFFF; color: #1F4E58; border-color: #FFFFFF; }
+.contact-btn:hover, .contact-copy:hover { background: rgba(255,255,255,0.12); }
+.contact-btn.primary:hover { background: #E6F3F4; }
+.contact-btn:focus-visible, .contact-copy:focus-visible, .contact-links a:focus-visible { outline: 3px solid #BFE3E8; outline-offset: 3px; }
+.contact-links { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; position: relative; }
+.contact-links a, .cl-static { display: grid; gap: 2px; padding: 14px 18px; border-radius: 14px; background: rgba(255,255,255,0.08); text-decoration: none; color: #FFFFFF; transition: background 0.2s; }
+.contact-links a:hover { background: rgba(255,255,255,0.16); }
+.cl-label { font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #9FD3DC; }
+.cl-value { font-size: 16px; overflow-wrap: anywhere; }
+@media (max-width: 860px) { .contact-card { grid-template-columns: minmax(0, 1fr); } }
+/* keep a left gutter for the creek now that the banner takes the right edge */
+@media (min-width: 900px) {
+  main.wrap, .site-footer .wrap { padding-left: max(28px, calc(124px - (100vw - var(--rail) - var(--max)) / 2)); }
+}
+@media (min-width: 900px) and (max-width: 1500px) { .eto-lab { --lab-w: 100% !important; margin-left: 0 !important; } }
+@media (max-width: 1400px) { .hero.sky .lede { white-space: normal; max-width: 460px; } }
