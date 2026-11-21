@@ -1389,3 +1389,18 @@ main > .section + .section { margin-top: 120px !important; }
 .fc-links a { font-size: 14px; font-weight: 600; color: #2E7484; text-decoration: none; width: fit-content; border-bottom: 1px solid rgba(46,116,132,0.35); }
 .fc-links a:hover, .fc-links a:focus-visible { color: #1F4E58; border-color: #1F4E58; }
 @media (max-width: 600px) { .field-carousel { grid-auto-columns: 82%; } .fc-nav { display: none; } }
+
+/* ===== v34: arrows between every About section + next-page button ===== */
+.swoop-line { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.swoop-head { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.about-swoop.drawn .swoop-line, .about-swoop.drawn .swoop-head { stroke-dashoffset: 0; }
+.about-swoop:not(:first-of-type) { margin: 40px auto 30px; }
+.about-swoop + .section { margin-top: 0 !important; }
+.next-page { display: grid; justify-items: center; margin: 10px 0 120px; }
+.next-btn { display: inline-flex; align-items: center; gap: 16px; padding: 18px 26px 18px 30px; border-radius: 999px; background: #1F4E58; color: #FFFFFF; text-decoration: none; box-shadow: 0 18px 36px -20px rgba(31,78,88,0.7); transition: transform .25s, background .25s, gap .25s; }
+.next-kicker { font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.75; }
+.next-title { font-family: "Instrument Serif", Georgia, serif; font-size: 34px; line-height: 1; }
+.next-btn svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.next-btn:hover, .next-btn:focus-visible { background: #2E7484; transform: translateY(-2px); gap: 22px; }
+.next-btn:focus-visible { outline: 3px solid #4FB3C8; outline-offset: 4px; }
+@media (max-width: 899px) { .next-page { margin-top: 60px; } }

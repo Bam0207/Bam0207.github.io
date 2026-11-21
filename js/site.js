@@ -1105,10 +1105,13 @@
   });
 })();
 
-// 11c. About page: the hand-drawn arrow draws itself, then swoops you down to "What I do".
+// 11c. About page: hand-drawn arrows draw themselves as they scroll into view
+//     and swoop you on to the next section.
 (function () {
-  const a = document.querySelector('.about-swoop'); if (!a) return;
-  setTimeout(() => a.classList.add('drawn'), 500);
+  const arrows = document.querySelectorAll('.about-swoop'); if (!arrows.length) return;
+  if (!('IntersectionObserver' in window)) { arrows.forEach((a) => a.classList.add('drawn')); return; }
+  const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { setTimeout(() => e.target.classList.add('drawn'), 200); io.unobserve(e.target); } }), { threshold: 0.6 });
+  arrows.forEach((a) => io.observe(a));
 })();
 
 // 12. Research page: hover (or focus) a highlighted term in the Penman–Monteith
