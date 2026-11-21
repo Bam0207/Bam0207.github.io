@@ -534,6 +534,17 @@
         ctx.save(); ctx.translate(x, y); ctx.rotate(t2 + Math.PI / 2 + Math.sin(time * 10 + m) * 0.1); ctx.drawImage(MINNOW, -6, -2.5, 12, 5); ctx.restore();
       }
     }
+    // a few smaller fish nosing around the lily pads in the shallows
+    P.pads.forEach((p, i) => {
+      for (let n = 0; n < 2; n++) {
+        const im = KOI[(i + n) % KOI.length]; if (!im.complete) continue;
+        const dir = n ? -1 : 1, th = time * (0.35 + 0.08 * ((i + n) % 3)) * dir + i * 2.1 + n * Math.PI;
+        const r = p.s * 0.9 + 14 + n * 10, x = p.x + Math.cos(th) * r * 1.4, y = p.y + Math.sin(th) * r * 0.7;
+        const ang = Math.atan2(Math.cos(th) * r * 0.7 * dir, -Math.sin(th) * r * 1.4 * dir) + Math.sin(time * 9 + i + n) * 0.08;
+        ctx.save(); ctx.translate(x, y); ctx.rotate(ang); ctx.globalAlpha = 0.9; ctx.drawImage(im, -11, -4.5, 22, 9); ctx.restore();
+      }
+    });
+    ctx.globalAlpha = 1;
     P.pads.forEach((p) => {
       if (!PAD.complete) return;
       const bob = Math.sin(time * 0.8 + p.r) * 0.06;
@@ -1306,7 +1317,7 @@
     ell(c, 2, -2, 9, 1.6, 'rgba(255,180,160,0.6)');
     c.strokeStyle = '#C42816'; c.lineWidth = 1.5; for (let i = -2; i <= 2; i++) { c.beginPath(); c.moveTo(i * 4, 3); c.lineTo(i * 4 + 2, 9 + Math.sin(time * 8 + i) * 1.5); c.stroke(); }
     c.beginPath(); c.moveTo(18, -4); c.quadraticCurveTo(30, -14, 36, -6); c.stroke();
-    if (key) drawKey(c, 38, -9, 1);
+    if (key) drawKey(c, 37, -10, 1.35);
     ell(c, 36, -6, 5, 3, '#E0321F'); ell(c, 20, -5, 1.4, 1.4, '#1A1A1A');
     c.restore();
   }
@@ -1338,6 +1349,7 @@
     ctx.beginPath(); ctx.moveTo(-58, -12); ctx.quadraticCurveTo(-30, -6, 0, -6); ctx.quadraticCurveTo(30, -6, 58, -12);
     ctx.quadraticCurveTo(46, 6, 0, 7); ctx.quadraticCurveTo(-46, 6, -58, -12); ctx.closePath(); ctx.fill(); ctx.stroke();
     ctx.strokeStyle = '#E9B48A'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-54, -10); ctx.quadraticCurveTo(0, -3, 54, -10); ctx.stroke();
+    ctx.fillStyle = '#FFF4E6'; ctx.font = 'italic 7px "Instrument Serif", Georgia, serif'; ctx.textAlign = 'center'; ctx.fillText('Boaty McBoatface', 0, 2);
     ctx.restore();
     ctx.strokeStyle = 'rgba(230,248,250,0.6)'; ctx.lineWidth = 1.5;
     for (const s of [-1, 1]) { ctx.beginPath(); ctx.moveTo(x + s * 60 * BOAT_S, SURF + 1); ctx.quadraticCurveTo(x + s * 70 * BOAT_S, SURF - 1, x + s * 82 * BOAT_S, SURF + 1); ctx.stroke(); }
@@ -1463,7 +1475,7 @@
       rocks.forEach((rk) => ell(ctx, rk.x, FLOOR + 6, rk.r, rk.r * 0.6, rk.c));
       litter.forEach(drawLitter);
       drawChest();
-      if (!crab.held) { crab.x += crab.dir * dt * 0.02; if (crab.x > 0.62 || crab.x < 0.05) crab.dir *= -1; drawCrab(ctx, crab.x * W, FLOOR - 4, crab.dir, 1, !hasKey); }
+      if (!crab.held) { crab.x += crab.dir * dt * 0.02; if (crab.x > 0.62 || crab.x < 0.05) crab.dir *= -1; drawCrab(ctx, crab.x * W, FLOOR - 6, crab.dir, 1.5, !hasKey); }
       crab.cool -= dt;
     }
     chest.shake = Math.max(0, chest.shake - dt);
