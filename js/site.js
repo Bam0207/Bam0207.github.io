@@ -175,7 +175,7 @@
   function layout() {
     // where the page content starts (the creek runs in the gutter to its left)
     const br = main.getBoundingClientRect(), mr = { left: br.left + parseFloat(getComputedStyle(main).paddingLeft) - 28 };
-    active = window.innerWidth >= 900 && mr.left >= 100;
+    active = window.innerWidth >= 900 && mr.left >= 80;
     cv.style.display = active ? 'block' : 'none';
     if (!active) return;
     dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -1235,7 +1235,7 @@
   const CRAWDAD_FACT = 'Most crawdads in California’s rivers and ponds are introduced. The signal crayfish, brought here in 1912, now threatens the Shasta crayfish, California’s last native crayfish.';
   const KEYS = Object.keys(SPECIES);
   const caught = new Set();
-  const SURF = 120, MAXD = 12;
+  const SURF = 160, MAXD = 12;
   let W = 0, H = 0, WH = 0, FLOOR = 0, dpr = 1, cam = 0, time = 0, last = 0, running = false, playing = false, raining = false;
   let lure = { x: 0, y: 0, tx: null, ty: null }, boatX = 0, keys = {}, hooked = null, reeling = false, modalOpen = false;
   let fish = [], grass = [], rocks = [], coins = [], bubbles = [], ripples = [], crab = null, chest = { x: 0, open: false, shake: 0 };
@@ -1244,7 +1244,7 @@
   // ---------- setup
   function size() {
     dpr = Math.min(2, window.devicePixelRatio || 1);
-    W = sec.clientWidth; H = sec.clientHeight; WH = Math.max(2000, H * 2.6); FLOOR = WH - 90;
+    W = sec.clientWidth; H = window.innerHeight; WH = sec.offsetHeight; FLOOR = WH - 90;
     cv.width = W * dpr; cv.height = H * dpr; cv.style.width = W + 'px'; cv.style.height = H + 'px';
     if (!lure.x) { lure.x = boatX = W * 0.5; lure.y = SURF + 160; }
     lure.x = Math.min(lure.x, W - 30);
@@ -1294,20 +1294,26 @@
     c.beginPath(); c.moveTo(18, -4); c.quadraticCurveTo(30, -14, 36, -6); c.stroke(); ell(c, 36, -6, 5, 3, '#A04A2E'); c.restore();
   }
   function drawBoat(x) {
-    const y = SURF, bob = Math.sin(time * 1.4) * 2;
-    ctx.save(); ctx.translate(x, y + bob); ctx.rotate(Math.sin(time * 1.1) * 0.02);
-    // hull
-    ctx.fillStyle = '#8A5A34'; ctx.beginPath(); ctx.moveTo(-110, -18); ctx.lineTo(110, -18); ctx.quadraticCurveTo(96, 22, 60, 26); ctx.lineTo(-64, 26); ctx.quadraticCurveTo(-100, 22, -110, -18); ctx.fill();
-    ctx.fillStyle = '#A8703F'; ctx.fillRect(-108, -22, 216, 7);
-    ctx.strokeStyle = 'rgba(70,40,20,0.5)'; ctx.lineWidth = 2; for (const yy of [-4, 10]) { ctx.beginPath(); ctx.moveTo(-100, yy); ctx.lineTo(100, yy); ctx.stroke(); }
-    ctx.fillStyle = '#F2EBDD'; ctx.font = '600 11px "DM Sans", sans-serif'; ctx.textAlign = 'center'; ctx.fillText('WATERSHED', 0, 8);
-    // angler: orange hard hat, teal jacket
-    ell(ctx, -20, -50, 15, 22, '#2E7484'); ell(ctx, -20, -82, 11, 11, '#E7B48F'); ell(ctx, -20, -90, 13, 7, '#E9763A'); ctx.fillStyle = '#E9763A'; ctx.fillRect(-35, -90, 30, 4);
-    ctx.fillStyle = '#5B3F2A'; ctx.beginPath(); ctx.moveTo(-30, -82); ctx.quadraticCurveTo(-36, -64, -30, -56); ctx.lineTo(-27, -78); ctx.fill();
+    // a simple canoe with a faceless little paddler
+    const y = SURF, bob = reduce ? 0 : Math.sin(time * 1.4) * 1.5, OL = 'rgba(30,40,40,0.55)';
+    ctx.save(); ctx.translate(x, y + bob); ctx.rotate(reduce ? 0 : Math.sin(time * 1.1) * 0.02);
+    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    // paddler: hair, head, life vest (no face)
+    ell(ctx, -4, -16, 7, 9, '#F2A23A');
+    ctx.fillStyle = '#5A3A26'; ctx.beginPath(); ctx.ellipse(-4, -30, 6.5, 7, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(-10, -31); ctx.quadraticCurveTo(-12, -21, -9, -19); ctx.lineTo(1, -19); ctx.quadraticCurveTo(4, -22, 2, -31); ctx.fill();
+    ell(ctx, -4, -29, 5, 5.5, '#F2CDB2'); ctx.fillStyle = '#5A3A26'; ctx.beginPath(); ctx.ellipse(-4, -33, 6, 3.6, 0, Math.PI, 0); ctx.fill();
     // rod
-    ctx.strokeStyle = '#3A2A1E'; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(-8, -54); ctx.quadraticCurveTo(40, -110, 96, -120); ctx.stroke();
+    ctx.strokeStyle = '#5A3A26'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(1, -16); ctx.quadraticCurveTo(22, -40, 46, -48); ctx.stroke();
+    // canoe hull
+    ctx.fillStyle = '#C8794A'; ctx.strokeStyle = OL; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(-58, -12); ctx.quadraticCurveTo(-30, -6, 0, -6); ctx.quadraticCurveTo(30, -6, 58, -12);
+    ctx.quadraticCurveTo(46, 6, 0, 7); ctx.quadraticCurveTo(-46, 6, -58, -12); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.strokeStyle = '#E9B48A'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-54, -10); ctx.quadraticCurveTo(0, -3, 54, -10); ctx.stroke();
     ctx.restore();
-    return { tipX: x + 96, tipY: y + bob - 120 };
+    ctx.strokeStyle = 'rgba(230,248,250,0.6)'; ctx.lineWidth = 1.5;
+    for (const s of [-1, 1]) { ctx.beginPath(); ctx.moveTo(x + s * 60, SURF + 1); ctx.quadraticCurveTo(x + s * 70, SURF - 1, x + s * 82, SURF + 1); ctx.stroke(); }
+    return { tipX: x + 46, tipY: y + bob - 48 };
   }
   function drawChest() {
     const cx = chest.x + (chest.shake > 0 ? Math.sin(time * 70) * 5 * Math.min(1, chest.shake * 2) : 0), cy = FLOOR - 4;
@@ -1359,7 +1365,7 @@
     $('.catch-fact').textContent = isCrab ? CRAWDAD_FACT : SPECIES[k].fact;
     const left = KEYS.length - caught.size;
     $('.catch-progress').textContent = isCrab ? 'Crawdads don’t count toward the six, but nice catch.' : !first ? 'You’ve caught this one before. Released back into the pond.' : left ? left + ' more species to go. Released back into the pond.' : 'That’s all six! The treasure chest on the bottom is unlocked.';
-    openModal(catchBox, '.catch-close');
+    openModal(catchBox, '#catch-h'); catchBox.dataset.t = Date.now();
   }
 
   // ---------- game loop
@@ -1374,9 +1380,15 @@
     }
     if (reeling) { lure.y -= 340 * dt; if (lure.y <= SURF + 30) { const k = hooked.k; reeling = false; reelBtn.hidden = true; if (hooked.crab) { crab.held = false; crab.x = rnd(0.1, 0.6); crab.cool = 6; } else { spawn(hooked); hooked.cool = 5; } hooked = null; lure.y = SURF + 160; showCatch(k); } }
     lure.x = Math.max(24, Math.min(W - 24, lure.x)); lure.y = Math.max(SURF + 30, Math.min(FLOOR - 16, lure.y));
-    boatX += (Math.max(130, Math.min(W - 130, lure.x - 60)) - boatX) * Math.min(1, dt * 1.2);
-    const targetCam = Math.max(0, Math.min(WH - H, lure.y - H * 0.5));
-    cam += (targetCam - cam) * Math.min(1, dt * 4);
+    boatX += (Math.max(80, Math.min(W - 80, lure.x - 40)) - boatX) * Math.min(1, dt * 1.2);
+    // the page scroll drives the camera; the lure rides along and can move within the view
+    cam = Math.max(0, Math.min(WH - H, -sec.getBoundingClientRect().top));
+    const lo = Math.max(SURF + 30, cam + 110), hi = Math.min(FLOOR - 16, cam + H - 90);
+    if (playing && !modalOpen && !reeling) {
+      if (keys.d && lure.y >= hi - 1 && cam < WH - H) window.scrollBy(0, sp);
+      if (keys.u && lure.y <= lo + 1 && cam > 0) window.scrollBy(0, -sp);
+    }
+    if (!reeling) lure.y = Math.max(lo, Math.min(hi, lure.y));
     depthEl.textContent = Math.max(0, (lure.y - SURF) / (FLOOR - SURF) * MAXD).toFixed(1) + ' m';
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, -cam * dpr);
@@ -1473,9 +1485,9 @@
   });
   cv.addEventListener('pointermove', (e) => { const p = worldPt(e); cv.style.cursor = (Math.abs(p.x - chest.x) < 75 && p.y > FLOOR - 100 && p.y < FLOOR + 20) ? 'pointer' : 'crosshair'; if (dragging) { lure.tx = p.x; lure.ty = p.y; } });
   cv.addEventListener('pointerup', () => { dragging = false; });
-  $('.catch-close').addEventListener('click', () => closeModal(catchBox));
+  $('.catch-close').addEventListener('click', () => { if (Date.now() - (+catchBox.dataset.t || 0) < 700) return; closeModal(catchBox); });
   $('.retro-close').addEventListener('click', () => closeModal(treasure));
-  sec.addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (!catchBox.hidden) closeModal(catchBox); if (!treasure.hidden) closeModal(treasure); } });
+  sec.addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (!catchBox.hidden && Date.now() - (+catchBox.dataset.t || 0) > 700) closeModal(catchBox); if (!treasure.hidden) closeModal(treasure); } });
   rainBtn.addEventListener('click', () => { raining = !raining; rainBtn.setAttribute('aria-pressed', raining); rainBtn.textContent = raining ? 'Stop the rain' : 'Make it rain'; });
   window.addEventListener('resize', size);
   new IntersectionObserver((es) => es.forEach((e) => {

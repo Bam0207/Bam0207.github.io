@@ -8,21 +8,21 @@
   <meta name="description" content="Brooke Murphy, environmental scientist focused on hydrological modeling with GIS: water quantity, water quality and climate across California.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600&family=Fredoka:wght@500;600;700&display=swap">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <link rel="stylesheet" href="css/style.css?v=25">
+  <link rel="stylesheet" href="css/style.css?v=27">
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
   <header class="site-header">
     <div class="wrap">
-      <a class="brand" href="index.html" aria-label="Brooke Murphy, home">Brooke Murphy</a>
+      <a class="brand" href="index.html" aria-label="Brooke Murphy, home"><span class="brand-mini" aria-hidden="true">BM</span><span class="brand-full">Brooke Murphy</span></a>
       <nav class="nav" aria-label="Main">
-        <a href="about.html">About me</a>
-        <a href="research.html">Research</a>
-        <a href="portfolio.html">GIS portfolio</a>
-        <a class="nav-contact" href="index.html#contact">Contact</a>
-        <a class="nav-cv" href="files/Brooke_Murphy_CV.pdf">Download CV</a>
+        <a href="about.html"><span class="nav-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></span><span class="nav-label">About me</span></a>
+        <a href="research.html"><span class="nav-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3s6 6.6 6 11a6 6 0 0 1-12 0c0-4.4 6-11 6-11z"/></svg></span><span class="nav-label">Research</span></a>
+        <a href="portfolio.html"><span class="nav-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg></span><span class="nav-label">GIS portfolio</span></a>
+        <a class="nav-contact" href="index.html#contact"><span class="nav-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></span><span class="nav-label">Contact</span></a>
+        <a class="nav-cv" href="files/Brooke_Murphy_CV.pdf"><span class="nav-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></svg></span><span class="nav-label">Download CV</span></a>
       </nav>
     </div>
   </header>
@@ -101,10 +101,11 @@
     </div>
   </footer>
   <div class="go-fish">
-    <a class="go-fish-link" href="#deep"><span class="go-fish-title">Go fish</span><span class="go-fish-arrow" aria-hidden="true">&darr;</span><span class="sr-only">Jump to the fishing game</span></a>
+    <a class="go-fish-link" href="#deep"><span class="go-fish-pill"><span class="go-fish-deco" aria-hidden="true"><i>&#10047;</i><i>&#10022;</i><i>&#10048;</i></span><span class="go-fish-title">Go fish</span><span class="go-fish-deco flip" aria-hidden="true"><i>&#10048;</i><i>&#10022;</i><i>&#10047;</i></span></span><span class="go-fish-sub">Scroll down to play</span><span class="go-fish-arrow" aria-hidden="true">&darr;</span><span class="sr-only">Jump to the fishing game</span></a>
   </div>
   <section class="deep" id="deep" aria-labelledby="deep-h">
     <h2 id="deep-h" class="sr-only">Fishing game</h2>
+    <div class="deep-sticky">
     <canvas class="deep-canvas" tabindex="0" aria-label="Fishing game. Use the arrow keys or W A S D to move your lure, and Space to reel in a fish."></canvas>
     <div class="deep-hud">
       <div class="deep-stat deep-depth">Depth <strong>0.0 m</strong></div>
@@ -135,7 +136,7 @@
     <div class="deep-overlay deep-catch" hidden role="dialog" aria-modal="true" aria-labelledby="catch-h">
       <div class="deep-panel catch-panel">
         <canvas class="catch-art" width="520" height="260" aria-hidden="true"></canvas>
-        <h3 id="catch-h">You caught a fish!</h3>
+        <h3 id="catch-h" tabindex="-1">You caught a fish!</h3>
         <span class="catch-tag"></span>
         <p class="catch-fact"></p>
         <p class="catch-progress"></p>
@@ -145,17 +146,17 @@
 
     <div class="deep-overlay deep-treasure" hidden role="dialog" aria-modal="true" aria-labelledby="treasure-h">
       <div class="retro">
-        <div class="retro-marquee" aria-hidden="true"><span>&#9733; CONGRATULATIONS!!! &#9733; YOU CAUGHT ALL 6 FISH &#9733; CONGRATULATIONS!!! &#9733; YOU CAUGHT ALL 6 FISH &#9733;</span></div>
-        <h3 id="treasure-h" class="retro-title">~*~ You found the treasure ~*~</h3>
-        <a class="retro-email" href="mailto:brooke.murphy0207@gmail.com?subject=I%20found%20the%20treasure!">&#9993; EMAIL ME!!! &#9993;</a>
+        <div class="retro-marquee" aria-hidden="true"><span>&#x1F41A; &#10022; you caught all six &#10022; &#x1F420; &#10022; you caught all six &#10022; &#x1F41A; &#10022; you caught all six &#10022; &#x1F420; &#10022;</span></div>
+        <h3 id="treasure-h" class="retro-title">~ You found the treasure ~</h3>
+        <a class="retro-email" href="mailto:brooke.murphy0207@gmail.com?subject=I%20found%20the%20treasure!">&#10022; Email me! &#10022;</a>
         <p class="retro-small">brooke.murphy0207@gmail.com</p>
-        <p class="retro-counter">You are fisher #<span>000042</span> &nbsp;·&nbsp; Best viewed in Netscape Navigator 4.0</p>
-        <p class="retro-construction" aria-hidden="true">&#x1F6A7; This chest is always under construction &#x1F6A7;</p>
-        <button type="button" class="retro-close">Back to the pond</button>
+        <p class="retro-counter">You are fisher #<span>000042</span></p>
+        <button type="button" class="retro-close">Swim back up</button>
       </div>
+    </div>
     </div>
   </section>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="js/site.js?v=25" defer></script>
+  <script src="js/site.js?v=27" defer></script>
 </body>
 </html>
