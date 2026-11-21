@@ -926,3 +926,19 @@ html.wave-in::after { content: ""; animation: wave-drain 0.75s cubic-bezier(0.65
 @media (prefers-reduced-motion: reduce) { .wave-veil, html.wave-in::after { display: none; } }
 @media (max-width: 760px) { .site-header .brand, .site-header .nav a { white-space: nowrap; } .site-header .brand { font-size: 18px; } }
 @media (max-width: 380px) { .site-header .brand { display: none; } }
+
+/* v22: the rail floats as a rounded banner so the creek and pond stay fully visible */
+@media (min-width: 761px) {
+  body { padding-right: 0; }
+  .site-header { top: 50%; bottom: auto; right: 18px; transform: translateY(-50%); width: 76px; border-radius: 40px; border: 1px solid rgba(31,78,88,0.14); box-shadow: 0 14px 34px -20px rgba(31,78,88,0.55); background: rgba(228,238,236,0.94); backdrop-filter: blur(6px); }
+  .site-header .wrap { padding: 26px 0 24px; gap: 28px; justify-content: flex-start; }
+  .site-header .brand { order: 0; font-size: 19px; }
+  .site-header .brand::after { display: block; content: ""; width: 26px; height: 1px; background: rgba(31,78,88,0.2); margin: 0; }
+  .site-header .nav { gap: 26px; }
+  .eto-lab { --lab-w: min(1180px, calc(100vw - 2 * (var(--coach-w) + 34px) - 60px)); }
+}
+@media (min-width: 761px) and (max-width: 1320px) { body { padding-right: 96px; } }
+@media (min-width: 761px) and (max-width: 1260px) { .eto-lab { --lab-w: calc(100vw - var(--rail) - 48px); } }
+.hero-simple .hero-links { margin-top: 8px; }
+.scroll-cue { font-size: 22px; width: 44px; height: 44px; justify-content: center; border-radius: 50%; border: 1px solid rgba(46,116,132,0.3); background: rgba(255,255,255,0.6); }
+@media (min-width: 761px) { .site-header .brand::after { display: none; } .site-header .brand { padding-bottom: 4px; border-left: 0; } .site-header .nav { padding-top: 22px; border-top: 1px solid rgba(31,78,88,0.18); } }

@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600&display=swap">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <link rel="stylesheet" href="css/style.css?v=21">
+  <link rel="stylesheet" href="css/style.css?v=22">
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -31,12 +31,12 @@
       <div class="hero-text">
         <h1 class="hello">Hi, I'm <em>Brooke</em>.</h1>
         <p class="lede">I'm an environmental scientist based in Los Osos, California.</p>
-        <p class="hero-sub">I use GIS, remote sensing and field data to understand water on California's farms and in its watersheds. Right now I'm finishing my M.S. at Cal Poly SLO.</p>
+        <div class="links hero-links"><a class="btn-hero" href="about.html">About me<span aria-hidden="true">&rarr;</span></a><a class="btn-hero" href="research.html">Research<span aria-hidden="true">&rarr;</span></a><a class="btn-hero" href="portfolio.html">GIS portfolio<span aria-hidden="true">&rarr;</span></a></div>
       </div>
       <figure class="hero-portrait">
         <div class="photo"><img src="images/headshot.jpg" alt="Portrait of Brooke Murphy"></div>
       </figure>
-      <a class="scroll-cue" href="#where">Where I've worked <span aria-hidden="true">&darr;</span></a>
+      <a class="scroll-cue" href="#where" aria-label="Scroll to the map of where I've worked"><span aria-hidden="true">&darr;</span></a>
     </section>
 
     <section class="section reveal map-wrap" aria-labelledby="where">
@@ -80,6 +80,6 @@
     </div>
   </footer>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="js/site.js?v=21" defer></script>
+  <script src="js/site.js?v=22" defer></script>
 </body>
 </html>
