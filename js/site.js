@@ -1183,112 +1183,182 @@
   window.addEventListener('scroll', () => { if (!pop.hidden && cur && document.activeElement !== cur) hide(); }, { passive: true });
 })();
 
-// 13. Research page: a three-step illustration of how a machine learning model
-//     learns from stations + satellites, then predicts everywhere.
+// 13. Research page: how a machine learning model turns satellite rasters plus a
+//     few weather stations into an ETo map. Four steps: the gap, the input
+//     layers, training on station pixels, then predicting every pixel.
 (function () {
   const root = document.getElementById('ml-demo');
   if (!root) return;
-  const svg = root.querySelector('.ml-svg'), tip = root.querySelector('.ml-tip'), cap = root.querySelector('.ml-caption');
-  const tabs = [...root.querySelectorAll('.ml-steps button')];
+  const svg = root.querySelector('.ml-svg'), tip = root.querySelector('.ml-tip'), panel = root.querySelector('.ml-panel');
+  const tabs = [...root.querySelectorAll('.ml-steps button')], nextBtn = root.querySelector('.ml-next');
   const NS = 'http://www.w3.org/2000/svg';
   const mk = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); (parent || svg).appendChild(e); return e; };
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const COLS = 20, ROWS = 13, CW = 25, X0 = 20, Y0 = 34;
+  const COLS = 16, ROWS = 11, CW = 24, X0 = 20, Y0 = 86, STACK = 22;
   const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
   const ramp = (a, b) => (t) => 'rgb(' + hex(a).map((v, i) => Math.round(v + (hex(b)[i] - v) * t)).join(',') + ')';
-  const lstC = ramp('#FCEBD3', '#D45A26'), etoC = ramp('#E3F3F1', '#1F4E58');
+  const dayC = ramp('#FCEBD3', '#D45A26'), nightC = ramp('#EEE8F6', '#5B4B8A'), etoC = ramp('#E3F3F1', '#1F4E58');
   const clamp = (v) => Math.max(0, Math.min(1, v));
-  const lst = (i, j) => clamp(0.12 + 0.72 * Math.pow(i / (COLS - 1), 0.85) + 0.12 * Math.sin(j * 0.6 + i * 0.35));
-  const eto = (i, j) => clamp(0.1 + 0.82 * lst(i, j) + 0.05 * Math.cos(i * 0.9 - j * 0.5));
-  const toC = (v) => Math.round(14 + v * 32), toMM = (v) => (1 + v * 7.5).toFixed(1);
-  const stations = [[1, 3], [2, 9], [4, 6], [6, 11], [8, 2], [9, 7], [11, 10], [13, 4], [15, 8], [17, 2], [18, 11]];
+  // made-up but smooth "landscape": hotter inland (east), cooler nights near the coast (south-west)
+  const day = (i, j) => clamp(0.12 + 0.72 * Math.pow(i / (COLS - 1), 0.9) + 0.1 * Math.sin(j * 0.7 + i * 0.3));
+  const night = (i, j) => clamp(0.25 + 0.45 * (j / (ROWS - 1)) + 0.18 * Math.cos(i * 0.45) - 0.1 * (i / COLS));
+  const eto = (i, j) => clamp(0.06 + 0.72 * day(i, j) + 0.2 * (1 - night(i, j)));
+  const dC = (i, j) => Math.round(18 + day(i, j) * 30), nC = (i, j) => Math.round(4 + night(i, j) * 14);
+  const mm = (v) => (1 + v * 7).toFixed(1);
+  const stations = [[1, 2], [3, 8], [5, 4], [7, 9], [8, 1], [10, 6], [12, 3], [13, 9], [15, 5]].map(([i, j], k) => ({ i, j, id: 'ABCDEFGHI'[k], meas: mm(clamp(eto(i, j) + [0.01, -0.02, 0.015, -0.01, 0.02, -0.015, 0.01, 0.02, -0.01][k])) }));
+  const isStation = (i, j) => stations.find((s) => s.i === i && s.j === j);
+  const cx = (i) => X0 + i * CW + CW / 2, cy = (j) => Y0 + j * CW + CW / 2;
 
-  // map
-  mk('text', { x: X0, y: 22, class: 'ml-title', 'font-size': 15, 'font-weight': 600, fill: '#1F4E58' }).textContent = '';
-  const mapTitle = svg.lastChild;
-  const cells = [];
-  for (let i = 0; i < COLS; i++) for (let j = 0; j < ROWS; j++) {
-    const r = mk('rect', { x: X0 + i * CW, y: Y0 + j * CW, width: CW - 1, height: CW - 1, rx: 3, fill: lstC(lst(i, j)) });
-    r.style.transition = 'fill 0.6s ease';
-    r.dataset.i = i; r.dataset.j = j; cells.push(r);
+  const title = mk('text', { x: X0, y: 22, 'font-size': 15, 'font-weight': 700, fill: '#1F4E58' });
+  const sub = mk('text', { x: X0, y: 40, 'font-size': 12, fill: '#5C6B6E' });
+  // raster layers: night (behind, for the stack), day, eto (front)
+  function layer(colorFn) {
+    const g = mk('g', { class: 'ml-layer' }), rects = [];
+    mk('rect', { x: X0 - 3, y: Y0 - 3, width: COLS * CW + 5, height: ROWS * CW + 5, rx: 6, fill: '#FFFFFF', stroke: '#C9D9DB' }, g);
+    for (let j = 0; j < ROWS; j++) for (let i = 0; i < COLS; i++) {
+      const r = mk('rect', { x: X0 + i * CW, y: Y0 + j * CW, width: CW - 1.5, height: CW - 1.5, rx: 3, fill: colorFn(i, j) }, g);
+      r.dataset.i = i; r.dataset.j = j; rects.push(r);
+    }
+    return { g, rects };
   }
-  const stG = mk('g', {});
-  stations.forEach(([i, j]) => {
-    const cx = X0 + i * CW + CW / 2, cy = Y0 + j * CW + CW / 2;
-    const g = mk('g', {}, stG);
-    mk('circle', { cx, cy, r: 13, fill: 'none', stroke: '#FFFFFF', 'stroke-width': 2, class: 'ml-ring' }, g);
-    mk('circle', { cx, cy, r: 7, fill: '#FFFFFF', stroke: '#1F4E58', 'stroke-width': 2.5 }, g);
+  const L = { night: layer((i, j) => nightC(night(i, j))), day: layer((i, j) => dayC(day(i, j))), eto: layer(() => '#EDF1F1') };
+  L.eto.rects.forEach((r) => { r.style.transition = 'fill 0.35s ease'; });
+  const qmark = mk('text', { x: X0 + COLS * CW / 2, y: Y0 + ROWS * CW / 2 + 22, 'text-anchor': 'middle', 'font-size': 64, 'font-family': 'Instrument Serif, Georgia, serif', fill: '#B9C9CB', 'pointer-events': 'none' }); qmark.textContent = '?';
+  const layerLbl = mk('g', { class: 'ml-stacklbl' });
+  const lblDay = mk('text', { x: X0 + COLS * CW + 4, y: Y0 + ROWS * CW + 16, 'text-anchor': 'end', 'font-size': 12, 'font-weight': 600, fill: '#B5491C' }, layerLbl); lblDay.textContent = 'Daytime ground temp';
+  const lblNight = mk('text', { x: X0 + STACK + COLS * CW + 4, y: Y0 - STACK - 8, 'text-anchor': 'end', 'font-size': 12, 'font-weight': 600, fill: '#5B4B8A' }, layerLbl); lblNight.textContent = 'Nighttime ground temp';
+  const outlines = mk('g', { 'pointer-events': 'none' });
+  stations.forEach((s) => { s.box = mk('rect', { x: X0 + s.i * CW - 1.5, y: Y0 + s.j * CW - 1.5, width: CW + 1.5, height: CW + 1.5, rx: 4, fill: 'none', stroke: '#1F4E58', 'stroke-width': 2.5 }, outlines); });
+  const scan = mk('rect', { x: X0, y: Y0, width: CW - 1.5, height: CW - 1.5, rx: 3, fill: 'none', stroke: '#F2C14E', 'stroke-width': 3, opacity: 0, 'pointer-events': 'none' });
+  // weather station pins: a mast with a cup anemometer, labeled with a letter
+  const pins = mk('g', {});
+  stations.forEach((s) => {
+    const g = mk('g', { class: 'ml-pin', transform: `translate(${cx(s.i)} ${cy(s.j)})`, tabindex: '-1' }, pins);
+    g.dataset.id = s.id;
+    mk('path', { d: 'M0 0 C -4 -6 -11 -11 -11 -19 A 11 11 0 1 1 11 -19 C 11 -11 4 -6 0 0 Z', fill: '#1F4E58', stroke: '#FFFFFF', 'stroke-width': 2 }, g);
+    const t = mk('text', { x: 0, y: -15, 'text-anchor': 'middle', 'font-size': 11, 'font-weight': 700, fill: '#FFFFFF' }, g); t.textContent = s.id;
+    mk('circle', { cx: 0, cy: 0, r: 2.5, fill: '#1F4E58' }, g);
   });
-  // scatter
-  const PX0 = 600, PX1 = 840, PY0 = 60, PY1 = 300;
-  mk('text', { x: PX0 - 40, y: 22, 'font-size': 15, 'font-weight': 600, fill: '#1F4E58' }).textContent = 'What the model learns';
-  mk('line', { x1: PX0, y1: PY1, x2: PX1, y2: PY1, stroke: '#9BB8BC', 'stroke-width': 1.5 });
-  mk('line', { x1: PX0, y1: PY0, x2: PX0, y2: PY1, stroke: '#9BB8BC', 'stroke-width': 1.5 });
-  mk('text', { x: (PX0 + PX1) / 2, y: PY1 + 30, 'text-anchor': 'middle', 'font-size': 13, fill: '#4C5956' }).textContent = 'Satellite ground temperature →';
-  const yl = mk('text', { x: PX0 - 16, y: (PY0 + PY1) / 2, 'text-anchor': 'middle', 'font-size': 13, fill: '#4C5956', transform: `rotate(-90 ${PX0 - 16} ${(PY0 + PY1) / 2})` }); yl.textContent = 'Station ETo →';
-  const empty = mk('text', { x: (PX0 + PX1) / 2, y: (PY0 + PY1) / 2, 'text-anchor': 'middle', 'font-size': 14, fill: '#9BB8BC' }); empty.textContent = 'No examples yet';
-  const fit = mk('path', { d: '', fill: 'none', stroke: '#2E7484', 'stroke-width': 3, 'stroke-linecap': 'round' });
-  const pts = stations.map(([i, j], k) => {
-    const p = mk('circle', { cx: PX0 + 10 + lst(i, j) * (PX1 - PX0 - 20), cy: PY1 - 10 - eto(i, j) * (PY1 - PY0 - 20), r: 6, fill: '#E2683A', stroke: '#FFFFFF', 'stroke-width': 2 });
-    p.style.transition = 'opacity 0.4s ease ' + (k * 0.12) + 's, transform 0.4s ease ' + (k * 0.12) + 's';
-    p.style.transformOrigin = p.getAttribute('cx') + 'px ' + p.getAttribute('cy') + 'px';
-    return p;
-  });
-  // fitted curve through the cloud
-  let d = '';
-  for (let x = 0; x <= 1.0001; x += 0.05) { const y = clamp(0.1 + 0.82 * x); d += (d ? 'L' : 'M') + (PX0 + 10 + x * (PX1 - PX0 - 20)).toFixed(1) + ' ' + (PY1 - 10 - y * (PY1 - PY0 - 20)).toFixed(1); }
-  fit.setAttribute('d', d);
-  const fitLen = 330; fit.style.strokeDasharray = fitLen; fit.style.transition = 'stroke-dashoffset 1.2s ease 1.2s';
-  const legend = mk('g', { transform: `translate(${X0} ${Y0 + ROWS * CW + 14})` });
-  const legRect = mk('rect', { x: 0, y: 0, width: 160, height: 10, rx: 3 }, legend);
+  // legend
+  const leg = mk('g', { transform: `translate(${X0} ${Y0 + ROWS * CW + 30})` });
   const defs = mk('defs', {});
-  const grad = mk('linearGradient', { id: 'ml-grad' }, defs);
+  const grad = mk('linearGradient', { id: 'ml-grad2' }, defs);
   const s0 = mk('stop', { offset: '0' }, grad), s1 = mk('stop', { offset: '1' }, grad);
-  legRect.setAttribute('fill', 'url(#ml-grad)');
-  const legLo = mk('text', { x: 168, y: 9, 'font-size': 12, fill: '#4C5956' }, legend);
+  const legBar = mk('rect', { x: 0, y: 0, width: 120, height: 10, rx: 3, fill: 'url(#ml-grad2)' }, leg);
+  const legTxt = mk('text', { x: 128, y: 9, 'font-size': 12, fill: '#4C5956' }, leg);
+  const legPin = mk('g', { transform: 'translate(290 12)' }, leg);
+  mk('path', { d: 'M0 0 C -3 -4 -7 -7 -7 -12 A 7 7 0 1 1 7 -12 C 7 -7 3 -4 0 0 Z', fill: '#1F4E58' }, legPin);
+  const lp = mk('text', { x: 12, y: -3, 'font-size': 12, fill: '#4C5956' }, legPin); lp.textContent = 'Weather station';
 
-  const CAPS = [
-    '<strong>Collect examples.</strong> Satellites measure ground temperature everywhere (orange). Weather stations (white dots) measure ETo in only a few places.',
-    '<strong>Learn the pattern.</strong> Wherever a station and a satellite pixel overlap, the model gets one example. From many examples, it learns how ground temperature, location and season relate to ETo.',
-    '<strong>Predict everywhere.</strong> Now the model uses satellite data alone to estimate ETo for every pixel, including all the places without a station. Hover a pixel to see its estimate.'
+  const N = COLS * ROWS, NS_ = stations.length;
+  const rowsHtml = stations.map((s) => `<tr data-id="${s.id}"><th><span class="ml-pinchip">${s.id}</span></th><td class="ml-d">${dC(s.i, s.j)}°</td><td class="ml-n">${nC(s.i, s.j)}°</td><td class="ml-e">${s.meas}</td></tr>`).join('');
+  const PANELS = [
+    () => `<h3>The gap</h3>
+      <p>We want to know <strong>ETo</strong> (how much water the weather pulls from a field) for <strong>every pixel</strong> of this farming region.</p>
+      <div class="ml-stats"><div><strong>${NS_}</strong><span>pixels measured by a weather station</span></div><div><strong>${N - NS_}</strong><span>pixels with no measurement</span></div></div>
+      <p class="ml-key"><span class="ml-pinchip">A</span><span>Each pin is a <strong>weather station</strong>. It measures ETo, but only for the one pixel it stands in.</span></p>`,
+    () => `<h3>Satellite layers</h3>
+      <p>A satellite photographs the whole region, so it has a value for <strong>every pixel</strong>. Each measurement becomes a raster layer, stacked on the same grid.</p>
+      <ul class="ml-layers"><li><i style="background:linear-gradient(90deg,#FCEBD3,#D45A26)"></i><div><strong>Daytime ground temperature</strong><span>hotter ground pulls more water</span></div></li>
+      <li><i style="background:linear-gradient(90deg,#EEE8F6,#5B4B8A)"></i><div><strong>Nighttime ground temperature</strong><span>a big day-night swing means dry air</span></div></li></ul>
+      <p class="ml-small">My real model also uses latitude and day of year, from MODIS satellite data. Satellites can't measure ETo directly, though. That's what the model is for.</p>`,
+    () => `<h3>Train the model</h3>
+      <p>At each station, we pair the satellite pixels with the ETo the station measured. Each pair is one <strong>training example</strong>.</p>
+      <table class="ml-table"><thead><tr><th>Station</th><th>Day</th><th>Night</th><th>ETo <small>mm/day</small></th></tr></thead><tbody>${rowsHtml}</tbody></table>
+      <div class="ml-train"><div class="ml-bar"><i></i></div><span class="ml-err">The model studies the examples…</span></div>
+      <p class="ml-small">My model is a random forest: hundreds of decision trees that each learn the pattern a little differently, then vote.</p>`,
+    () => `<h3>Predict every pixel</h3>
+      <p>The trained model now reads the satellite layers for <strong>each pixel</strong> and estimates its ETo, even where there's no station.</p>
+      <div class="ml-pipe"><div><span>Day</span><strong class="pd">–</strong></div><div><span>Night</span><strong class="pn">–</strong></div><b aria-hidden="true">→</b><div class="ml-model">ML<br>model</div><b aria-hidden="true">→</b><div class="ml-out"><span>ETo</span><strong class="pe">–</strong></div></div>
+      <p class="ml-small ml-check">Hover any pixel to see its inputs and estimate. At the stations, compare the estimate with what was actually measured.</p>`
   ];
-  let step = -1, timers = [];
-  function show(n) {
-    step = n;
-    tabs.forEach((t, k) => t.setAttribute('aria-selected', k === n ? 'true' : 'false'));
-    cap.innerHTML = CAPS[n];
-    mapTitle.textContent = n < 2 ? 'Satellite: ground temperature' : 'Model: estimated ETo';
-    const pred = n === 2;
-    cells.forEach((r) => {
-      const i = +r.dataset.i, j = +r.dataset.j;
-      r.style.transitionDelay = pred && !reduce ? (i * 0.04) + 's' : '0s';
-      r.setAttribute('fill', pred ? etoC(eto(i, j)) : lstC(lst(i, j)));
-    });
-    s0.setAttribute('stop-color', pred ? '#E3F3F1' : '#FCEBD3'); s1.setAttribute('stop-color', pred ? '#1F4E58' : '#D45A26');
-    legLo.textContent = pred ? 'Lower → higher ETo' : 'Cooler → hotter ground';
-    const learned = n >= 1;
-    empty.style.opacity = learned ? 0 : 1;
-    pts.forEach((p) => { p.style.opacity = learned ? 1 : 0; p.style.transform = learned ? 'scale(1)' : 'scale(0.2)'; });
-    fit.style.strokeDashoffset = learned ? 0 : fitLen;
-    fit.style.transitionDelay = n === 1 && !reduce ? '1.4s' : '0s';
-    stG.querySelectorAll('.ml-ring').forEach((c) => c.classList.toggle('pulse', n === 1));
+  const TITLES = [['ETo map: mostly unknown', 'Only the station pixels have a measurement'], ['Satellite rasters', 'Two input layers, one value per pixel'], ['Training data', 'Satellite pixels under each station'], ['Model output: ETo map', 'One estimate for every pixel']];
+  let step = -1, timers = [], scanTimer = null, auto = null, trained = false;
+  const clearT = () => { timers.forEach(clearTimeout); timers = []; if (scanTimer) { clearInterval(scanTimer); scanTimer = null; } };
+  function pipe(i, j) {
+    const q = (c) => panel.querySelector(c); if (!q('.pd')) return;
+    q('.pd').textContent = dC(i, j) + '°C'; q('.pn').textContent = nC(i, j) + '°C'; q('.pe').textContent = mm(eto(i, j)) + ' mm';
+    const st = isStation(i, j), chk = q('.ml-check');
+    if (st) chk.innerHTML = `<strong>Station ${st.id}:</strong> model estimate ${mm(eto(i, j))} mm/day, measured ${st.meas} mm/day.`;
   }
-  function stopAuto() { timers.forEach(clearTimeout); timers = []; }
+  function show(n) {
+    clearT(); step = n;
+    tabs.forEach((t, k) => t.setAttribute('aria-selected', k === n ? 'true' : 'false'));
+    nextBtn.innerHTML = n < 3 ? 'Next step <span aria-hidden="true">→</span>' : 'Start over <span aria-hidden="true">↺</span>';
+    title.textContent = TITLES[n][0]; sub.textContent = TITLES[n][1];
+    panel.innerHTML = PANELS[n](); panel.classList.remove('in'); void panel.offsetWidth; panel.classList.add('in');
+    // which layers show
+    const stack = n === 1;
+    L.night.g.style.opacity = stack ? 1 : 0;
+    L.night.g.style.transform = stack ? `translate(${STACK}px, ${-STACK}px)` : 'translate(0,0)';
+    L.day.g.style.opacity = (n === 1 || n === 2) ? 1 : 0;
+    L.eto.g.style.opacity = (n === 0 || n === 3) ? 1 : 0;
+    layerLbl.style.opacity = stack ? 1 : 0;
+    qmark.style.opacity = n === 0 ? 1 : 0;
+    outlines.style.opacity = n === 2 ? 1 : 0;
+    pins.style.opacity = n === 1 ? 0.25 : 1;
+    scan.setAttribute('opacity', 0);
+    const lg = [['#EDF1F1', '#EDF1F1', 'No data yet'], ['#FCEBD3', '#D45A26', 'Cooler → hotter (day)'], ['#FCEBD3', '#D45A26', 'Cooler → hotter (day)'], ['#E3F3F1', '#1F4E58', 'Lower → higher ETo']][n];
+    s0.setAttribute('stop-color', lg[0]); s1.setAttribute('stop-color', lg[1]); legTxt.textContent = lg[2];
+    // eto layer contents
+    L.eto.rects.forEach((r) => { r.style.transitionDelay = '0s'; const i = +r.dataset.i, j = +r.dataset.j; const st = isStation(i, j); r.setAttribute('fill', n === 0 ? (st ? etoC(eto(i, j)) : '#EDF1F1') : '#EDF1F1'); });
+    if (n === 2) {
+      const bar = panel.querySelector('.ml-bar i'), err = panel.querySelector('.ml-err'), rows = [...panel.querySelectorAll('.ml-table tbody tr')];
+      rows.forEach((tr, k) => { tr.style.animationDelay = (reduce ? 0 : k * 0.12) + 's'; });
+      requestAnimationFrame(() => { bar.style.transition = reduce ? 'none' : 'width 2.6s ease 1.2s'; bar.style.width = '100%'; });
+      timers.push(setTimeout(() => { err.innerHTML = '<strong>Trained.</strong> It learned how day and night ground temperature relate to ETo.'; trained = true; }, reduce ? 0 : 3900));
+      rows.forEach((tr) => { tr.addEventListener('mouseenter', () => hiStation(tr.dataset.id, true)); tr.addEventListener('mouseleave', () => hiStation(tr.dataset.id, false)); });
+    }
+    if (n === 3) {
+      const order = L.eto.rects;
+      if (reduce) { order.forEach((r) => r.setAttribute('fill', etoC(eto(+r.dataset.i, +r.dataset.j)))); pipe(5, 5); return; }
+      let k = 0;
+      scan.setAttribute('opacity', 1);
+      scanTimer = setInterval(() => {
+        for (let m = 0; m < 3 && k < order.length; m++, k++) {
+          const r = order[k], i = +r.dataset.i, j = +r.dataset.j;
+          r.setAttribute('fill', etoC(eto(i, j)));
+          scan.setAttribute('x', X0 + i * CW); scan.setAttribute('y', Y0 + j * CW);
+          if (m === 0) pipe(i, j);
+        }
+        if (k >= order.length) { clearInterval(scanTimer); scanTimer = null; scan.setAttribute('opacity', 0); }
+      }, 40);
+    }
+  }
+  function hiStation(id, on) {
+    const s = stations.find((x) => x.id === id); if (!s) return;
+    s.box.setAttribute('stroke', on ? '#F2C14E' : '#1F4E58'); s.box.setAttribute('stroke-width', on ? 4 : 2.5);
+    panel.querySelectorAll(`tr[data-id="${id}"]`).forEach((tr) => tr.classList.toggle('hi', on));
+  }
+  function stopAuto() { if (auto) { clearInterval(auto); auto = null; } }
   tabs.forEach((t, k) => t.addEventListener('click', () => { stopAuto(); show(k); }));
+  nextBtn.addEventListener('click', () => { stopAuto(); show((step + 1) % 4); });
+  root.addEventListener('keydown', (e) => { if (e.target.closest('.ml-steps') && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) { e.preventDefault(); stopAuto(); const n = (step + (e.key === 'ArrowRight' ? 1 : 3)) % 4; show(n); tabs[n].focus(); } });
+  // hover: pixel values, and station readings
   svg.addEventListener('mousemove', (e) => {
+    const pin = e.target.closest && e.target.closest('.ml-pin');
     const r = e.target.closest && e.target.closest('rect[data-i]');
-    if (!r || step !== 2) { tip.hidden = true; return; }
-    const i = +r.dataset.i, j = +r.dataset.j, box = svg.getBoundingClientRect(), sc = box.width / 860;
-    tip.textContent = 'Ground ' + toC(lst(i, j)) + ' °C → ETo ' + toMM(eto(i, j)) + ' mm/day';
-    tip.style.left = ((X0 + i * CW + CW / 2) * sc) + 'px'; tip.style.top = ((Y0 + j * CW) * sc) + 'px'; tip.hidden = false;
+    let html = '', ax = 0, ay = 0;
+    if (pin) { const s = stations.find((x) => x.id === pin.dataset.id); html = `<strong>Weather station ${s.id}</strong><br>Measured ETo: ${s.meas} mm/day`; ax = cx(s.i); ay = cy(s.j) - 30; if (step === 2) hiStation(s.id, true); }
+    else if (r) {
+      const i = +r.dataset.i, j = +r.dataset.j, st = isStation(i, j);
+      if (step === 0) html = st ? `Station ${st.id} pixel: ETo ${st.meas} mm/day` : 'No ETo measurement here';
+      else if (step === 1 || step === 2) html = `Day ${dC(i, j)}°C · Night ${nC(i, j)}°C` + (st && step === 2 ? `<br>Station ${st.id} measured ${st.meas} mm/day` : '');
+      else if (step === 3 && !scanTimer) { html = `Day ${dC(i, j)}°C · Night ${nC(i, j)}°C → <strong>ETo ${mm(eto(i, j))} mm/day</strong>`; pipe(i, j); }
+      ax = cx(i); ay = Y0 + j * CW;
+    }
+    if (!html) { tip.hidden = true; return; }
+    const box = svg.getBoundingClientRect(), sc = box.width / 440;
+    tip.innerHTML = html; tip.style.left = (ax * sc) + 'px'; tip.style.top = (ay * sc) + 'px'; tip.hidden = false;
   });
-  svg.addEventListener('mouseleave', () => { tip.hidden = true; });
+  svg.addEventListener('mouseleave', () => { tip.hidden = true; stations.forEach((s) => hiStation(s.id, false)); });
+  svg.addEventListener('mouseout', (e) => { const pin = e.target.closest && e.target.closest('.ml-pin'); if (pin && step === 2) hiStation(pin.dataset.id, false); });
   show(0);
   const io = new IntersectionObserver((es) => {
     if (!es.some((e) => e.isIntersecting)) return;
     io.disconnect();
     if (reduce) return;
-    timers.push(setTimeout(() => show(1), 6000), setTimeout(() => show(2), 13000));
+    auto = setInterval(() => { if (step >= 3) { stopAuto(); return; } show(step + 1); }, 9000);
   }, { threshold: 0.6 });
   io.observe(svg);
 })();
