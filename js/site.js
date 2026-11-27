@@ -41,13 +41,12 @@ document.addEventListener('click', (e) => {
   const bar = document.querySelector('.filters');
   if (!bar) return;
   const buttons = bar.querySelectorAll('button');
-  const projects = document.querySelectorAll('[data-topics]');
   buttons.forEach((btn) => {
     btn.addEventListener('click', () => {
       const f = btn.dataset.filter;
       buttons.forEach((b) => b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'));
       let shown = 0;
-      projects.forEach((p) => {
+      document.querySelectorAll('[data-topics]').forEach((p) => {
         const match = f === 'all' || p.dataset.topics.split(' ').includes(f);
         p.hidden = !match;
         if (match && p.classList.contains('project')) shown++;
@@ -56,6 +55,64 @@ document.addEventListener('click', (e) => {
       if (status) status.textContent = shown + (shown === 1 ? ' project' : ' projects');
     });
   });
+})();
+
+// 2b. Portfolio catalog: each project becomes a tile; clicking opens its full
+//     write-up in a pop-up. The full articles stay in the HTML (easy to edit),
+//     tucked into a hidden store until opened.
+(function () {
+  const arts = [...document.querySelectorAll('article.project[data-short]')];
+  if (!arts.length) return;
+  const grid = document.createElement('div');
+  grid.className = 'tile-grid';
+  arts[0].before(grid);
+  const store = document.createElement('div');
+  store.className = 'project-store'; store.hidden = true;
+  grid.after(store);
+  const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>';
+  const tiles = arts.map((a) => {
+    const t = document.createElement('a');
+    t.className = 'tile'; t.href = '#' + a.id; t.dataset.topics = a.dataset.topics; t.dataset.for = a.id;
+    const src = a.dataset.tile || (a.querySelector('img') || {}).src || '';
+    t.innerHTML = '<img src="' + src + '" alt="" loading="lazy" style="object-position:' + (a.dataset.tilePos || 'center') + '"><span class="tile-cap"><span class="tile-title">' + a.dataset.short + '</span><span class="tile-arrow">' + arrow + '</span></span>';
+    t.setAttribute('aria-label', a.dataset.short + ': open project details');
+    grid.appendChild(t);
+    store.appendChild(a);
+    return t;
+  });
+  const dlg = document.createElement('dialog');
+  dlg.className = 'proj-modal';
+  dlg.setAttribute('aria-label', 'Project details');
+  dlg.innerHTML = '<div class="pm-bar"><button type="button" class="pm-nav pm-prev" aria-label="Previous project"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><button type="button" class="pm-nav pm-next" aria-label="Next project"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button><button type="button" class="pm-x" aria-label="Close">&times;</button></div><div class="pm-body"></div>';
+  document.body.appendChild(dlg);
+  const body = dlg.querySelector('.pm-body');
+  let cur = null;
+  const visible = () => tiles.filter((t) => !t.hidden).map((t) => t.dataset.for);
+  function open(id, push) {
+    const a = document.getElementById(id); if (!a || !arts.includes(a)) return;
+    if (cur) store.appendChild(cur);
+    cur = a; a.querySelectorAll('img[loading="lazy"]').forEach((im) => { im.loading = 'eager'; }); body.appendChild(a); body.scrollTop = 0;
+    dlg.setAttribute('aria-label', a.dataset.short);
+    if (!dlg.open) { dlg.showModal(); document.documentElement.classList.add('modal-open'); }
+    if (push !== false) history.replaceState(null, '', '#' + id);
+    dlg.querySelector('.pm-x').focus({ preventScroll: true });
+  }
+  function close() { if (dlg.open) dlg.close(); }
+  dlg.addEventListener('close', () => {
+    if (cur) { store.appendChild(cur); const t = tiles.find((x) => x.dataset.for === cur.id); cur = null; if (t) t.focus({ preventScroll: true }); }
+    document.documentElement.classList.remove('modal-open');
+    history.replaceState(null, '', location.pathname + location.search);
+  });
+  const step = (d) => { const v = visible(); if (!cur || !v.length) return; const i = v.indexOf(cur.id); open(v[(i + d + v.length) % v.length]); };
+  dlg.querySelector('.pm-x').addEventListener('click', close);
+  dlg.querySelector('.pm-prev').addEventListener('click', () => step(-1));
+  dlg.querySelector('.pm-next').addEventListener('click', () => step(1));
+  dlg.addEventListener('click', (e) => { if (e.target === dlg) close(); });
+  dlg.addEventListener('keydown', (e) => { if (e.target.closest('input, textarea')) return; if (e.key === 'ArrowRight') step(1); if (e.key === 'ArrowLeft') step(-1); });
+  tiles.forEach((t) => t.addEventListener('click', (e) => { e.preventDefault(); open(t.dataset.for); }));
+  // links like portfolio.html#irrigation-calculator open that project
+  const fromHash = () => { const id = decodeURIComponent(location.hash.slice(1)); if (id && document.getElementById(id) && arts.some((a) => a.id === id)) open(id, false); };
+  fromHash(); window.addEventListener('hashchange', fromHash);
 })();
 
 // 3. Before / after toggle (Bartleson Ranch).
