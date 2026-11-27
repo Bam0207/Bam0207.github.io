@@ -75,8 +75,13 @@ document.addEventListener('click', (e) => {
     t.className = 'tile'; t.href = '#' + a.id; t.dataset.topics = a.dataset.topics; t.dataset.for = a.id;
     const src = a.dataset.tile || (a.querySelector('img') || {}).src || '';
     t.innerHTML = '<img src="' + src + '" alt="" loading="lazy" style="object-position:' + (a.dataset.tilePos || 'center') + '"><span class="tile-cap"><span class="tile-title">' + a.dataset.short + '</span><span class="tile-arrow">' + arrow + '</span></span>';
-    if (a.dataset.tileCredit) t.insertAdjacentHTML('beforeend', '<span class="tile-credit">' + a.dataset.tileCredit + '</span>');
-    if (a.dataset.tileFallback) { const im = t.querySelector('img'); im.addEventListener('error', () => { if (!im.dataset.fell) { im.dataset.fell = '1'; im.src = a.dataset.tileFallback; const c = t.querySelector('.tile-credit'); if (c) c.remove(); } }); }
+    { // the photo credit shows only once the credited photo has actually loaded; a missing file falls back quietly
+      const im = t.querySelector('img');
+      const addCredit = () => { if (a.dataset.tileCredit && !im.dataset.fell && !t.querySelector('.tile-credit')) t.insertAdjacentHTML('beforeend', '<span class="tile-credit">' + a.dataset.tileCredit + '</span>'); };
+      im.addEventListener('load', addCredit);
+      im.addEventListener('error', () => { if (a.dataset.tileFallback && !im.dataset.fell) { im.dataset.fell = '1'; im.src = a.dataset.tileFallback; } });
+      if (im.complete && im.naturalWidth) addCredit();
+    }
     t.setAttribute('aria-label', a.dataset.short + ': open project details');
     grid.appendChild(t);
     store.appendChild(a);
