@@ -75,6 +75,8 @@ document.addEventListener('click', (e) => {
     t.className = 'tile'; t.href = '#' + a.id; t.dataset.topics = a.dataset.topics; t.dataset.for = a.id;
     const src = a.dataset.tile || (a.querySelector('img') || {}).src || '';
     t.innerHTML = '<img src="' + src + '" alt="" loading="lazy" style="object-position:' + (a.dataset.tilePos || 'center') + '"><span class="tile-cap"><span class="tile-title">' + a.dataset.short + '</span><span class="tile-arrow">' + arrow + '</span></span>';
+    if (a.dataset.tileCredit) t.insertAdjacentHTML('beforeend', '<span class="tile-credit">' + a.dataset.tileCredit + '</span>');
+    if (a.dataset.tileFallback) { const im = t.querySelector('img'); im.addEventListener('error', () => { if (!im.dataset.fell) { im.dataset.fell = '1'; im.src = a.dataset.tileFallback; const c = t.querySelector('.tile-credit'); if (c) c.remove(); } }); }
     t.setAttribute('aria-label', a.dataset.short + ': open project details');
     grid.appendChild(t);
     store.appendChild(a);

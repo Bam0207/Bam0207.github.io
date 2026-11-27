@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600&display=swap">
-  <link rel="stylesheet" href="css/style.css?v=39">
+  <link rel="stylesheet" href="css/style.css?v=40">
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -56,7 +56,10 @@
       <div class="project-text">
         <h2>Groundwater elevation contours</h2>
         <p class="project-meta">Valley Water · 2026</p>
-        <p>A repeatable workflow I prototyped and pitched to my team: 25 years of well records interpolated in R into 5-year contour surfaces, shown in a time-enabled web map.</p>
+        <p class="project-lede">How have groundwater levels across Santa Clara County shifted over 25 years of drought and recovery?</p>
+        <p>During my Valley Water internship I built a repeatable workflow to answer that. I cleaned 25 years of monitoring-well records, interpolated groundwater elevations in R with thin plate splines, and generated a contour surface for every five years. I published the surfaces as a time-enabled web map in ArcGIS Online and wrapped them in a StoryMap so staff can step through the years.</p>
+        <p class="project-result"><strong>Result:</strong> I pitched it to my team as a template that can be rerun as new well readings come in.</p>
+
         <ul class="tags"><li>R</li><li>Thin plate spline</li><li>ArcGIS Online</li><li>StoryMaps</li></ul>
         <div class="links"><a class="btn" href="https://storymaps.arcgis.com/stories/bd639b0eff294aa6a6737c07f4b4def7" target="_blank" rel="noopener">View StoryMap</a></div>
       </div>
@@ -66,7 +69,10 @@
       <div class="project-text">
         <h2>California Irrigation Calculator</h2>
         <p class="project-meta">With <a href="https://nicolasljulia.github.io/" target="_blank" rel="noopener">Nico Julia</a> · Cal Poly · 2026</p>
-        <p>A web tool for estimating crop water demand: draw a field, pick a crop and month, and compare climate scenarios and blue versus green water.</p>
+        <p class="project-lede">How much water does a field actually need, and how much of it has to come from irrigation?</p>
+        <p>With Nico Julia, I built a web calculator as part of the Salinas Valley Water Footprint study. You draw your field, choose a crop and month, and the tool estimates crop water demand from CIMIS reference evapotranspiration and FAO-56 crop coefficients. It then splits that demand into blue water (irrigation) and green water (rainfall) and compares climate scenarios.</p>
+        <p class="project-result"><strong>Result:</strong> The same ETo × crop coefficient math behind my thesis, turned into a tool anyone can use in a minute.</p>
+
         <ul class="tags"><li>Web mapping</li><li>CIMIS</li><li>FAO-56</li><li>StoryMaps</li></ul>
         <div class="links"><a class="btn" href="https://californiairrigation.netlify.app/" target="_blank" rel="noopener">Open the calculator</a><a class="btn" href="https://storymaps.arcgis.com/stories/2d382a62be0e4b5da71715e44c8a89bd" target="_blank" rel="noopener">View StoryMap</a></div>
       </div>
@@ -76,7 +82,10 @@
       <div class="project-text">
         <h2>Intro GIS course site</h2>
         <p class="project-meta">Cal Poly · 2026 – present</p>
-        <p>Revising and expanding an open-source curriculum site for introductory GIS, with every lesson taught in both QGIS and ArcGIS Pro.</p>
+        <p class="project-lede">Learning GIS shouldn’t depend on which software license a student has.</p>
+        <p>As a GIS Developer at Cal Poly, I’m revising and expanding the open-source curriculum site for the introductory GIS course. Every lesson is written for both QGIS and ArcGIS Pro, and the site is built with MkDocs and published on GitHub Pages, so it is free, version-controlled and easy for other instructors to reuse.</p>
+        <p class="project-result"><strong>Result:</strong> A complete intro GIS course that students can follow at their own pace in either program.</p>
+
         <ul class="tags"><li>MkDocs</li><li>GitHub Pages</li><li>QGIS</li><li>ArcGIS Pro</li></ul>
         <div class="links"><a class="btn" href="https://kashingtondc.github.io/CPGIS/" target="_blank" rel="noopener">Visit the course site</a></div>
       </div>
@@ -93,7 +102,10 @@
       <div class="project-text">
         <h2>Bartleson Ranch reservoirs and water utilities</h2>
         <p class="project-meta">Cal Poly Applied GIS, client project · 2025</p>
-        <p>Surveyed reservoir depth and utility valves with an RTK GNSS receiver, georeferenced a 30-year-old paper utility map, and calculated reservoir storage capacity. I did all the georeferencing and made the results maps.</p>
+        <p class="project-lede">The ranch’s only utility map was a 30-year-old paper drawing, and no one knew how much water its two reservoirs held.</p>
+        <p>For this Applied GIS client project, our team surveyed reservoir depths and utility valves with an RTK GNSS receiver. I georeferenced the old paper map to modern imagery so it could be checked against the survey points, built depth-zone surfaces for each reservoir to calculate storage capacity, and made all of the final maps.</p>
+        <p class="project-result"><strong>Result:</strong> The ranch now has a GPS-accurate utility map and storage estimates it can use for water planning.</p>
+
         <ul class="tags"><li>ArcGIS Pro</li><li>Field Maps</li><li>RTK GNSS</li><li>Georeferencing</li><li>Raster analysis</li></ul>
       </div>
       <div class="strip" style="grid-column: 1 / -1">
@@ -107,18 +119,25 @@
       <div class="project-text">
         <h2>Habitat suitability at Swanton Pacific Ranch</h2>
         <p class="project-meta">In-class project · Cal Poly</p>
-        <p>Where on Cal Poly’s Swanton Pacific Ranch could a sensitive species live? I turned four habitat rules into map layers: northeast-facing slopes, elevations up to 1,600 feet and forest land cover, minus a 50-foot buffer around every stream. Overlaying them left about 3 acres of habitat, which I then broke down parcel by parcel for the landowner.</p>
+        <p class="project-lede">Where on Cal Poly’s Swanton Pacific Ranch could a sensitive species find suitable habitat?</p>
+        <p>I translated four habitat rules into map layers: northeast-facing slopes, elevations up to 1,600 feet and forest land cover, minus a 50-foot protective buffer around every stream. Overlaying them in ArcGIS Pro isolated the land that met every rule at once.</p>
+        <p class="project-result"><strong>Result:</strong> About 3 acres qualified, which I reported parcel by parcel so the landowner knows exactly where to focus protection.</p>
+
         <ul class="tags"><li>Aspect</li><li>Extract by Attributes</li><li>Raster to polygon</li><li>Intersect, Erase and Clip</li><li>Arcade</li></ul>
       </div>
     </article>
-    <article class="project" id="milkweed" data-short="Milkweed conservation" data-tile="images/milkweed-site1.jpg" data-tile-pos="center" data-topics="field analysis">
+    <article class="project" id="milkweed" data-short="Milkweed conservation" data-tile="images/milkweed-cover.jpg" data-tile-fallback="images/milkweed-site1.jpg" data-tile-pos="center" data-tile-credit="Photo: Marshal Hedin, CC BY-SA 2.5" data-topics="field analysis">
       <div class="photo contain"><img data-zoom src="images/milkweed-sites.jpg" alt="Map of the seven California milkweed sites assessed in Santa Clara County parks"></div>
       <div class="project-text">
         <h2>California milkweed conservation analysis</h2>
         <p class="project-meta">Santa Clara County Parks · 2022</p>
-        <p>California milkweed feeds and shelters the Western monarch, whose population has dropped by about 95% since the 1980s. I surveyed seven milkweed populations across Joseph D. Grant County Park, the Coyote Canyon area and Unger Ranch, recording plant counts, flowers, seed pods, grazing damage and threats at each site.</p>
-        <p>The largest population, about 165 plants at Coyote Canyon, was also the most heavily grazed. For it, I designed a 520-foot exclusion plot to test two fence types side by side, compared the cost of standard barbed-wire cattle fencing and 7-foot deer fencing, and wrote a seed-bagging protocol, a monitoring calendar and a field data sheet for future surveys. I delivered it all as a technical memo to the parks’ natural resources program.</p>
+        <p class="project-lede">California milkweed feeds and shelters the Western monarch, whose population has fallen about 95% since the 1980s. Which of Santa Clara County Parks’ milkweed stands were most at risk, and what could protect them?</p>
+        <p>I mapped and surveyed seven populations across Joseph D. Grant County Park, Coyote Canyon and Unger Ranch, recording plant counts, flowers, seed pods, grazing damage and threats at each site.</p>
+        <p>The largest population, about 165 plants at Coyote Canyon, was also the most heavily grazed. For it, I designed a 520-foot exclusion plot to test two fence types side by side, compared the cost of barbed-wire cattle fencing and 7-foot deer fencing, and wrote a seed-bagging protocol, a monitoring calendar and a field data sheet.</p>
+        <p class="project-result"><strong>Result:</strong> A technical memo that gave the parks’ natural resources program a site-by-site assessment and a ready-to-use monitoring plan.</p>
+
         <ul class="tags"><li>Field Maps</li><li>ArcGIS Online</li><li>iNaturalist</li><li>Site assessment</li><li>Cost analysis</li><li>Technical writing</li></ul>
+        <p class="photo-credit">Cover photo of California milkweed by Marshal Hedin, <a href="https://creativecommons.org/licenses/by-sa/2.5/" target="_blank" rel="noopener">CC BY-SA 2.5</a>, via Calscape.</p>
       </div>
       <div class="strip" style="grid-column: 1 / -1">
         <figure><div class="photo contain"><img data-zoom src="images/milkweed-site1.jpg" alt="Aerial view of the Coyote Canyon hillside with the milkweed exclusion plot outlined in yellow" loading="lazy"></div><figcaption>Site 1 exclusion plot, Coyote Canyon</figcaption></figure>
@@ -131,7 +150,10 @@
       <div class="project-text">
         <h2>Poly Canyon sunlight aspect by watershed zone</h2>
         <p class="project-meta">In-class project · Cal Poly</p>
-        <p>Which way do the hillsides of Poly Canyon face? From a digital terrain model, I calculated slope aspect, sorted every cell into north, east, south or west, and tabulated the acres of each direction in four watershed zones. Aspect controls how much sun a slope gets, which shapes soil moisture and what grows there.</p>
+        <p class="project-lede">Which way do the hillsides of Poly Canyon face, and how much of each watershed zone gets afternoon sun?</p>
+        <p>From a digital terrain model, I calculated slope aspect, reclassified every cell into north, east, south or west, and tabulated the acres of each direction in four watershed zones. Aspect controls how much sunlight a slope receives, which shapes soil moisture, evaporation and what can grow there.</p>
+        <p class="project-result"><strong>Result:</strong> A quantified sun-exposure profile for each zone, ready to feed into soil moisture or vegetation analysis.</p>
+
         <ul class="tags"><li>Aspect</li><li>Reclassify</li><li>Tabulate Area</li><li>DTM</li><li>Page layout</li></ul>
       </div>
     </article>
@@ -140,7 +162,10 @@
       <div class="project-text">
         <h2>500-foot parcel notification maps</h2>
         <p class="project-meta">In-class project · Cal Poly</p>
-        <p>A planning committee needed to know which neighbors to notify around each member’s property. For each of seven members, I buffered each parcel by 500 feet, selected every parcel it touched, removed the member’s own lot and delivered a map and parcel list for each, from 63 to 121 neighbors.</p>
+        <p class="project-lede">Which neighbors must be notified when a planning committee member has a stake in a nearby decision?</p>
+        <p>For each of seven committee members, I buffered their parcel by 500 feet, selected every parcel the buffer touched, removed the member’s own lot and joined the results to an owner table in Excel. I then built one map series that produced a consistent map and notification list for every member.</p>
+        <p class="project-result"><strong>Result:</strong> One repeatable workflow, seven maps and lists, from 63 to 121 neighbors each.</p>
+
         <ul class="tags"><li>Buffer</li><li>Select by Location</li><li>Select by Attributes</li><li>Excel joins</li><li>Map series</li></ul>
       </div>
       <div class="strip" style="grid-column: 1 / -1">
@@ -154,7 +179,10 @@
       <div class="project-text">
         <h2>Field sampling site map series</h2>
         <p class="project-meta">In-class project · Cal Poly</p>
-        <p>A field crew needed a printable map for each of eight sampling sites. I plotted the sites from a coordinate table, then built a consistent map series at 1:1,200 with street labels from Esri’s Living Atlas, so anyone could find each site on foot.</p>
+        <p class="project-lede">How do you make sure a field crew can find eight sampling sites on foot, first try?</p>
+        <p>I plotted the sites from a coordinate table, then built a map series at 1:1,200 on high-resolution imagery with street labels from Esri’s Living Atlas, using one layout so every page reads the same way.</p>
+        <p class="project-result"><strong>Result:</strong> A printable, consistent map for every site that anyone on the crew can follow.</p>
+
         <ul class="tags"><li>XY table to points</li><li>Living Atlas</li><li>Map series</li><li>Cartography</li></ul>
       </div>
       <div class="strip" style="grid-column: 1 / -1">
@@ -169,7 +197,7 @@
   <div class="pond-space" aria-hidden="true"></div>
   <footer class="site-footer">
     <div class="wrap">
-      <span>© 2026 Brooke Murphy · Designed and coded by me</span>
+      <span>© 2026 Brooke Murphy</span>
       <nav aria-label="Contact">
         <a href="mailto:brooke.murphy0207@gmail.com">Email</a>
         <a href="https://www.linkedin.com/in/brooke-murphy0207/" target="_blank" rel="noopener">LinkedIn</a>
@@ -177,6 +205,6 @@
       </nav>
     </div>
   </footer>
-  <script src="js/site.js?v=39" defer></script>
+  <script src="js/site.js?v=40" defer></script>
 </body>
 </html>
